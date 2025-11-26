@@ -1,0 +1,139 @@
+# Getting Started
+
+Welcome to AICodeRally! This guide will help you get up and running with the platform.
+
+## Prerequisites
+
+Before you begin, ensure you have:
+
+- **Node.js** 20.0 or later
+- **pnpm** 9.0 or later
+- **PostgreSQL** database (or Prisma Postgres)
+- **API Keys** for AI services (Anthropic, OpenAI)
+
+## Installation
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/aicoderally/aicoderally-stack.git
+cd aicoderally-stack
+```
+
+### 2. Install Dependencies
+
+```bash
+pnpm install
+```
+
+### 3. Set Up Environment Variables
+
+Copy the example environment file:
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env` and add your credentials:
+
+```bash
+# Database (Development)
+DATABASE_URL="your_development_database_url"
+DIRECT_URL="your_development_database_url"
+PRISMA_DATABASE_URL="your_prisma_accelerate_url"
+
+# AI Services
+ANTHROPIC_API_KEY="your_anthropic_api_key"
+OPENAI_API_KEY="your_openai_api_key"
+
+# Admin Password
+NEXT_PUBLIC_ADMIN_PASSWORD="your_admin_password"
+```
+
+See the [Database Setup Guide](/guides/database-setup) for detailed instructions.
+
+### 4. Generate Prisma Client
+
+```bash
+pnpm db:generate
+```
+
+### 5. Run Database Migrations
+
+```bash
+pnpm db:migrate
+```
+
+### 6. Start Development Server
+
+Choose which app to run:
+
+```bash
+# Studio (port 3000)
+pnpm --filter studio dev
+
+# Edge (port 3002)
+pnpm --filter edge dev
+
+# Summit (port 3003)
+pnpm --filter summit dev
+
+# Website (port 3001)
+pnpm --filter website dev
+```
+
+## Verify Installation
+
+1. Open your browser to the appropriate port
+2. You should see the application landing page
+3. Navigate to the modules section
+4. Verify modules are loading correctly
+
+## Next Steps
+
+- [Explore the Platform](/platform)
+- [Learn about Modules](/modules)
+- [Read the API Documentation](/api)
+- [Deploy to Production](/deployment)
+
+## Troubleshooting
+
+### Database Connection Issues
+
+If you encounter database connection errors:
+
+1. Verify your `DATABASE_URL` is correct
+2. Check that your database is running
+3. Ensure your IP is whitelisted (if using Prisma Postgres)
+
+See the [Troubleshooting Guide](/guides/troubleshooting) for more help.
+
+### Build Errors
+
+If you encounter TypeScript errors during build:
+
+```bash
+# Regenerate Prisma client
+pnpm db:generate
+
+# Clear Next.js cache
+rm -rf apps/*/. next
+
+# Rebuild
+pnpm build
+```
+
+### Port Conflicts
+
+If a port is already in use, you can specify a different port:
+
+```bash
+pnpm --filter studio dev -- --port 3010
+```
+
+## Getting Help
+
+- Check the [Guides](/guides) section
+- Review [API Documentation](/api)
+- Report issues on [GitHub](https://github.com/aicoderally/aicoderally-stack/issues)
+- Contact support: support@aicoderally.com

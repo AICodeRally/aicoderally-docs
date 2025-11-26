@@ -1,0 +1,226 @@
+# Platform Overview
+
+AICodeRally is a comprehensive AI-native platform with a sophisticated module-first architecture.
+
+## Architecture
+
+### Monorepo Structure
+
+The platform uses **Turborepo + pnpm workspaces** for efficient monorepo management:
+
+```
+aicoderally-stack/
+├── apps/              # Customer-facing applications
+│   ├── studio/       # Entry-level workshop platform
+│   ├── edge/         # SMB AI transformation
+│   ├── summit/       # Enterprise platform
+│   ├── website/      # Public marketing site
+│   └── docs/         # This documentation site
+├── packages/         # Shared code
+│   ├── core/         # Type definitions and contracts
+│   ├── modules/      # 86 reusable modules
+│   ├── connectors/   # Integration adapters
+│   └── ui/           # Shared UI components
+├── prisma/           # Database schema
+└── tools/            # Automation & helpers
+```
+
+### Tech Stack
+
+**Frontend:**
+- Next.js 15 with App Router
+- React 19
+- TypeScript 5
+- Tailwind CSS 3.4
+- Lucide React (icons)
+
+**Backend:**
+- Prisma ORM with PostgreSQL
+- NextAuth v5 (authentication)
+- Vercel Blob (file storage)
+- Pusher (realtime updates)
+
+**Infrastructure:**
+- Vercel (serverless hosting)
+- Prisma Postgres (database)
+- Turborepo (build orchestration)
+- pnpm (package management)
+
+## Three-Tier Strategy
+
+### Studio - Learning Platform
+
+**Purpose:** Entry-level, workshop-based learning
+**Target:** Individuals learning AI development
+**Features:**
+- 16 Studio-tier modules
+- Workshop session tracking
+- Certification system
+- Module builder workflow
+
+**Modules include:**
+- Birthday App
+- PTA Fundraiser
+- School Science Fair Project Tracker
+- Coffee Shop Loyalty Rewards
+
+### Edge - SMB Platform
+
+**Purpose:** 30-day AI transformation for small businesses
+**Target:** Small to medium businesses (1-100 employees)
+**Features:**
+- Complete business modules
+- Multi-tenant support
+- Domain-specific bundles (NPEdge, BHGEdge, DevEdge)
+- Analytics dashboard
+
+**Modules include:**
+- SOW Builder
+- Pipeline Management
+- Donor Management
+- Grant Tracking
+- Volunteer Management
+- Commission Calculator
+
+### Summit - Enterprise Platform
+
+**Purpose:** Enterprise AI strategy and governance
+**Target:** Large enterprises (1000+ employees)
+**Features:**
+- Strategic revenue operations
+- Role-based access control
+- Custom domain workflows
+- Governance & compliance
+- AI strategy consulting
+
+**Applications:**
+- Strategic Revenue Operations
+- Enterprise Planning
+- Governance Framework
+- Custom AI Solutions
+
+## Module System
+
+### Module Architecture
+
+Every module exports standardized metadata:
+
+```typescript
+export const module: RallyModule = {
+  meta: {
+    id: string,              // kebab-case
+    name: string,
+    description: string,
+    version: string,         // semver
+    category: string,
+    route: string,
+    tier: string[],          // studio, edge, summit
+    domain?: string[],       // nonprofit, spm, dev, etc.
+    connectors?: {
+      database?: boolean,
+      auth?: boolean,
+      storage?: boolean,
+      ai?: boolean,
+      email?: boolean,
+    }
+  }
+}
+```
+
+### Module Categories
+
+**86 modules across 10 categories:**
+
+1. **Accounting & Finance** (5 modules)
+2. **Analytics & Intelligence** (4 modules)
+3. **Content & Marketing** (8 modules)
+4. **CRM & Sales** (8 modules)
+5. **Events & Community** (3 modules)
+6. **Nonprofit/Social Impact** (15 modules)
+7. **Operations & Logistics** (8 modules)
+8. **People & HR** (8 modules)
+9. **Planning & Governance** (7 modules)
+10. **Tools & Utilities** (11 modules)
+
+See the [Module Reference](/modules) for complete details.
+
+## Database Architecture
+
+### Prisma Schema
+
+**Total:** 2,675 lines, 100+ tables
+
+**Key Areas:**
+- Authentication system (users, sessions, OAuth)
+- Module-specific tables (donors, grants, SOWs, etc.)
+- Pit Wall collaboration (threads, comments, reactions)
+- Knowledge management (documents, sessions)
+- Nomenclature system (categories, domains, wrappers)
+
+### Connection Strategy
+
+- **Direct Connection** - For migrations, Prisma Studio, scripts
+- **Prisma Accelerate** - For production (connection pooling, caching)
+
+## Deployment Strategy
+
+### Development
+- Local development with hot reload
+- Development database (aicoderally-dev-db)
+- Direct Prisma connections
+
+### Preview
+- Vercel preview deployments
+- Development database
+- Full feature testing
+
+### Production
+- Vercel production deployment
+- Production database (aicoderally-prod-db)
+- Prisma Accelerate connection pooling
+- Auto-scaling
+
+See the [Deployment Guide](/deployment) for details.
+
+## Security
+
+### Authentication
+- NextAuth v5 with multiple providers
+- Google OAuth
+- Apple OAuth
+- Email/Password
+
+### Authorization
+- Role-based access control (RBAC)
+- Tenant isolation
+- API route protection
+
+### Best Practices
+- Environment variable secrets
+- CSRF protection
+- XSS prevention
+- Rate limiting
+- Input validation
+
+## Performance
+
+### Optimization Strategies
+- Code splitting
+- Image optimization (next/image)
+- Bundle analysis
+- Database query optimization
+- Connection pooling (Prisma Accelerate)
+- API response caching
+
+### Monitoring
+- Vercel Analytics
+- Error tracking (planned: Sentry)
+- Performance metrics
+- Database query profiling
+
+## Next Steps
+
+- [Explore Modules](/modules)
+- [API Reference](/api)
+- [Deployment Guide](/deployment)
+- [Contributing Guide](/guides/contributing)

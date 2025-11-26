@@ -1,0 +1,369 @@
+# Deployment Guide
+
+This guide covers deploying AICodeRally applications to production on Vercel.
+
+## Prerequisites
+
+Before deploying, ensure you have:
+
+- ✅ Vercel account
+- ✅ Production database (aicoderally-prod-db)
+- ✅ All environment variables ready
+- ✅ Code pushed to GitHub
+- ✅ All tests passing
+- ✅ Security audit completed
+
+## Vercel Setup
+
+### 1. Install Vercel CLI
+
+```bash
+npm install -g vercel
+```
+
+### 2. Login to Vercel
+
+```bash
+vercel login
+```
+
+### 3. Link Project
+
+```bash
+cd aicoderally-stack
+vercel link
+```
+
+Select your team and project when prompted.
+
+## Environment Variables
+
+### Development Environment
+
+Set these for **Development** and **Preview** environments:
+
+```bash
+# Database (Development)
+DATABASE_URL="postgres://[dev-tenant]:sk__[dev-key]@db.prisma.io:5432/postgres?sslmode=require"
+DIRECT_URL="postgres://[dev-tenant]:sk__[dev-key]@db.prisma.io:5432/postgres?sslmode=require"
+PRISMA_DATABASE_URL="prisma+postgres://accelerate.prisma-data.net/?api_key=[dev-api-key]"
+
+# AI Services
+ANTHROPIC_API_KEY="sk-ant-api03-..."
+OPENAI_API_KEY="sk-proj-..."
+
+# Admin
+NEXT_PUBLIC_ADMIN_PASSWORD="your_password"
+```
+
+### Production Environment
+
+Set these for **Production** environment only:
+
+```bash
+# Database (Production)
+DATABASE_URL="postgres://[prod-tenant]:sk_[prod-key]@db.prisma.io:5432/postgres?sslmode=require"
+DIRECT_URL="postgres://[prod-tenant]:sk_[prod-key]@db.prisma.io:5432/postgres?sslmode=require"
+PRISMA_DATABASE_URL="prisma+postgres://accelerate.prisma-data.net/?api_key=[prod-api-key]"
+
+# AI Services (same as dev)
+ANTHROPIC_API_KEY="sk-ant-api03-..."
+OPENAI_API_KEY="sk-proj-..."
+
+# Admin
+NEXT_PUBLIC_ADMIN_PASSWORD="secure_production_password"
+```
+
+### Add Environment Variables
+
+Using Vercel CLI:
+
+```bash
+# Development
+vercel env add DATABASE_URL development
+
+# Preview
+vercel env add DATABASE_URL preview
+
+# Production
+vercel env add DATABASE_URL production
+```
+
+Or use the Vercel Dashboard:
+1. Go to your project settings
+2. Navigate to "Environment Variables"
+3. Add each variable with appropriate environment scope
+
+## Database Migrations
+
+### Important: Two-Database Setup
+
+You have **two separate databases:**
+
+1. **aicoderally-dev-db** - For development and preview
+2. **aicoderally-prod-db** - For production only
+
+**Never run migrations against production manually!**
+
+### Migration Workflow
+
+**1. Create Migration (Development)**
+
+```bash
+# Modify prisma/schema.prisma
+# Then create migration
+pnpm db:migrate
+```
+
+**2. Test Migration (Development)**
+
+```bash
+# Verify migration works
+pnpm dev
+# Test the feature
+```
+
+**3. Commit Migration**
+
+```bash
+git add prisma/migrations/
+git commit -m "feat: add new table for feature"
+git push
+```
+
+**4. Deploy to Production**
+
+Vercel automatically runs migrations during deployment:
+
+```bash
+# Vercel build process:
+1. prisma generate
+2. prisma migrate deploy  # ← Applies pending migrations
+3. next build
+4. Deploy
+```
+
+## Deployment Process
+
+### Deploy to Production
+
+**Option 1: Automatic (Recommended)**
+
+Push to main branch:
+
+```bash
+git checkout main
+git pull
+git merge your-feature-branch
+git push
+```
+
+Vercel automatically deploys.
+
+**Option 2: Manual via CLI**
+
+```bash
+vercel --prod
+```
+
+### Deploy Preview
+
+Any push to a branch triggers a preview deployment:
+
+```bash
+git checkout -b feature/new-module
+git push origin feature/new-module
+```
+
+Vercel creates a preview URL.
+
+## Subdomain Configuration
+
+### Set Up Custom Domains
+
+**1. Add Domain in Vercel Dashboard**
+
+1. Go to Project Settings → Domains
+2. Add your domains:
+   - `studio.aicoderally.com` → studio app
+   - `edge.aicoderally.com` → edge app
+   - `summit.aicoderally.com` → summit app
+   - `docs.aicoderally.com` → docs app
+   - `www.aicoderally.com` → website app
+
+**2. Configure DNS**
+
+Add CNAME records in your DNS provider:
+
+```
+studio  CNAME  cname.vercel-dns.com
+edge    CNAME  cname.vercel-dns.com
+summit  CNAME  cname.vercel-dns.com
+docs    CNAME  cname.vercel-dns.com
+www     CNAME  cname.vercel-dns.com
+```
+
+**3. Verify Domain**
+
+Vercel will automatically verify and issue SSL certificates.
+
+## Deployment Checklist
+
+### Pre-Deployment
+
+- [ ] All tests passing
+- [ ] Security audit completed (0 critical vulnerabilities)
+- [ ] Database migrations tested on staging
+- [ ] Environment variables configured
+- [ ] Code reviewed and approved
+- [ ] Changelog updated
+
+### Deployment
+
+- [ ] Merge to main branch
+- [ ] Monitor Vercel deployment logs
+- [ ] Verify build succeeds
+- [ ] Verify migrations apply successfully
+- [ ] Check deployment URL
+
+### Post-Deployment
+
+- [ ] Smoke test critical features
+- [ ] Verify database connections
+- [ ] Check error rates in Vercel logs
+- [ ] Monitor performance metrics
+- [ ] Notify team of deployment
+
+### Rollback Plan
+
+If issues occur:
+
+```bash
+# Option 1: Rollback via Vercel Dashboard
+# Go to Deployments → Select previous → Promote to Production
+
+# Option 2: Rollback via CLI
+vercel rollback
+```
+
+## Monitoring
+
+### Vercel Analytics
+
+Enable in Vercel Dashboard:
+1. Go to Project → Analytics
+2. Enable Web Analytics
+3. View real-time metrics
+
+### Error Tracking
+
+Check Vercel deployment logs:
+
+```bash
+vercel logs
+```
+
+Or view in dashboard: Project → Deployments → [deployment] → Logs
+
+### Performance Monitoring
+
+Monitor:
+- Page load times
+- API response times
+- Error rates
+- Database query performance
+
+## Troubleshooting
+
+### Build Failures
+
+**TypeScript Errors:**
+```bash
+# Fix locally first
+pnpm typecheck
+# Fix all errors
+# Commit and push
+```
+
+**Missing Environment Variables:**
+```bash
+# Check which vars are missing
+vercel env ls
+
+# Add missing vars
+vercel env add MISSING_VAR production
+```
+
+### Database Issues
+
+**Migration Failures:**
+1. Check Vercel deployment logs
+2. Verify migration SQL is valid
+3. Test migration on development first
+4. If failed, may need to manually resolve:
+
+```bash
+# Mark migration as resolved (use with caution)
+prisma migrate resolve --applied [migration-name]
+```
+
+**Connection Errors:**
+1. Verify `DATABASE_URL` is correct for environment
+2. Check database is running
+3. Verify Prisma Accelerate API key is valid
+
+### Performance Issues
+
+**Slow Build Times:**
+- Use Turborepo caching
+- Optimize dependencies
+- Review build logs for bottlenecks
+
+**Slow Response Times:**
+- Enable Prisma Accelerate caching
+- Optimize database queries
+- Use Redis for API caching
+
+## Best Practices
+
+### Environment Separation
+
+✅ **DO:**
+- Use development database for dev/preview
+- Use production database for production only
+- Test migrations on development first
+- Keep environment variables in sync
+
+❌ **DON'T:**
+- Run migrations manually on production
+- Use production database for development
+- Commit environment variables to git
+- Skip testing before production deployment
+
+### Security
+
+✅ **DO:**
+- Rotate API keys regularly
+- Use strong admin passwords
+- Enable rate limiting
+- Keep dependencies updated
+
+❌ **DON'T:**
+- Expose API keys in logs
+- Use weak passwords
+- Skip security audits
+- Ignore security warnings
+
+### Deployment Frequency
+
+**Recommended:**
+- Development: Multiple times per day
+- Preview: With every feature branch
+- Production: 2-3 times per week
+
+## Next Steps
+
+- [Platform Overview](/platform)
+- [Module Reference](/modules)
+- [API Documentation](/api)
+- [Database Setup Guide](/guides/database-setup)
