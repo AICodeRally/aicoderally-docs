@@ -1,0 +1,210 @@
+# Modules
+
+AICodeRally modules are pre-built, production-ready features you can deploy instantly.
+
+## Overview
+
+**19+ Edge Tier Modules** ready for SMB AI transformation:
+- Business management (CRM, pipeline, forecasting)
+- Nonprofit tools (donors, grants, volunteers, programs)
+- Analytics and reporting
+- Project management
+- Sales enablement
+
+---
+
+## Module Documentation
+
+### [Master Module Tracker](/modules/tracker)
+Complete overview of all 19 Edge modules with status, tier, and descriptions.
+
+**Includes:**
+- Module metadata and routing
+- Current status (Active, Prototype, Planned)
+- Tier assignments (Edge, Summit)
+- Dependencies and relationships
+
+### [Edge Modules Audit](/modules/audit)
+Comprehensive quality audit of all Edge modules.
+
+**Covers:**
+- UI/UX consistency scores
+- Data model quality
+- Code quality assessment
+- Enhancement recommendations
+- Priority fixes
+
+### [Module Enhancement Pattern](/modules/enhancement-pattern)
+Standard pattern for improving modules to production quality.
+
+**Includes:**
+- UI/UX enhancements
+- Data model improvements
+- Code quality upgrades
+- Testing requirements
+- Documentation standards
+
+---
+
+## Module Categories
+
+### 🏢 Business Management
+- **Customer Success** - Track customer health, activities, and renewals
+- **Pipeline Management** - Manage sales opportunities and activities
+- **Forecasting** - AI-powered revenue forecasting with scenarios
+- **Commissions** - Automated commission calculation and tracking
+
+### 💝 Nonprofit
+- **Donor Management** - Track donors, donations, and campaigns
+- **Grant Management** - Manage grants, reports, and compliance
+- **Volunteer Management** - Coordinate volunteers and track hours
+- **Program Management** - Track programs, participants, and outcomes
+- **Beneficiary Management** - Manage beneficiaries and services
+
+### 📊 Analytics
+- **Impact Analytics** - Measure program impact with AI insights
+- **Reports** - Generate custom reports and dashboards
+- **Dashboards** - Real-time business intelligence
+
+### 🛠️ Sales & Delivery
+- **CPQ** - Configure Price Quote with AI assistance
+- **SOW Builder** - Statement of Work generation
+- **Scoping** - Project scoping questionnaires
+- **Territories** - Territory management and conflict resolution
+- **Deliveries** - Project delivery tracking and go-live checklists
+
+### 🎯 Marketing & Outreach
+- **Leads** - Lead capture and qualification
+- **Social Media** - Social media content management (25+ demo posts)
+
+### 📋 Operations
+- **Projects** - Project management with tasks and milestones
+
+---
+
+## Module Architecture
+
+Each module includes:
+
+### 1. Module Definition
+```typescript
+// packages/modules/your-module/index.ts
+export const module: RallyModule = {
+  meta: {
+    id: "your-module",
+    name: "Your Module",
+    description: "What it does",
+    tier: "edge",
+    category: "business",
+  },
+};
+```
+
+### 2. UI Page
+```
+apps/edge/app/modules/your-module/page.tsx
+```
+
+### 3. Data Models
+```prisma
+// prisma/schema.prisma
+model YourModuleData {
+  id        String   @id @default(uuid())
+  // ... fields
+}
+```
+
+### 4. API Routes (Optional)
+```
+apps/edge/app/api/your-module/route.ts
+```
+
+---
+
+## Quick Start
+
+### Browse Existing Modules
+```bash
+# View all modules
+ls packages/modules/
+
+# Check Edge modules
+ls apps/edge/app/modules/
+```
+
+### Use a Module
+1. Visit https://edge.aicoderally.com
+2. Click the module card
+3. Start using immediately (no setup required!)
+
+### Customize a Module
+1. Clone the repository
+2. Navigate to `apps/edge/app/modules/your-module/`
+3. Edit `page.tsx`
+4. Deploy to your own Vercel project
+
+---
+
+## Module Status Levels
+
+### ✅ Active
+Production-ready, fully tested, documented
+- Used by customers
+- Complete feature set
+- Regular updates
+
+### 🚧 Prototype
+Functional but needs enhancement
+- Core features work
+- May need UI/UX improvements
+- Good for demos and testing
+
+### 📋 Planned
+Concept approved, not yet built
+- Design spec exists
+- Waiting for development
+- May be in backlog
+
+---
+
+## Module Development
+
+### [Migration Pattern](/modules/migration-pattern)
+How to upgrade modules to new standards
+
+### [Prototype Strategy](/modules/prototype-strategy)
+Strategy for prototyping new modules
+
+### [Status Tracker](/modules/status-tracker)
+Track module development progress
+
+### [Fix Plan](/modules/fix-plan)
+Prioritized list of module fixes
+
+---
+
+## Platform Tiers
+
+### Edge (SMB)
+- 19+ modules available now
+- 30-day deployment
+- Business transformation focus
+
+### Summit (Enterprise)
+- Enterprise-grade security
+- Advanced governance
+- Workforce enablement
+- Custom module development
+
+---
+
+## Need Help?
+
+- **Browse**: [Master Module Tracker](/modules/tracker)
+- **Quality**: [Modules Audit](/modules/audit)
+- **Improve**: [Enhancement Pattern](/modules/enhancement-pattern)
+- **Deploy**: [Deployment Guide](/deployment)
+
+---
+
+**Built for business. Powered by AI. Ready to deploy.**

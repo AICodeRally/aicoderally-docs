@@ -1,0 +1,118 @@
+# Security Validation Checklist
+
+## Pre-Deployment Security Review
+
+### Authentication & Authorization
+
+- [ ] **Claude Audit**: All API routes have auth middleware
+  - [ ] Scan `apps/*/app/api/**/*.ts` for missing auth checks
+  - [ ] Verify session validation on protected routes
+  - [ ] Check JWT token validation (if applicable)
+
+- [ ] **Gemini Validation**: RBAC implementation complete
+  - [ ] User roles defined and enforced
+  - [ ] Permission checks on sensitive operations
+  - [ ] Admin-only routes properly protected
+
+- [ ] **Codex Testing**: Auth bypass scenarios tested
+  - [ ] Try accessing protected routes without auth
+  - [ ] Test role escalation attempts
+  - [ ] Verify token expiration handling
+
+### XSS Protection
+
+- [ ] **Claude Scan**: No `dangerouslySetInnerHTML` usage
+  - [ ] Search codebase for unsafe HTML injection
+  - [ ] Check user input rendering patterns
+  - [ ] Verify content sanitization
+
+- [ ] **Gemini Review**: Content sanitization strategy approved
+  - [ ] Sanitization library chosen (DOMPurify, etc.)
+  - [ ] Consistent sanitization across all user inputs
+  - [ ] CSP headers configured
+
+- [ ] **Codex Tests**: XSS attack scenarios tested
+  - [ ] Test `<script>alert('xss')</script>` in all inputs
+  - [ ] Test event handler injection (`onerror=`, etc.)
+  - [ ] Verify HTML entity encoding
+
+### Secrets Management
+
+- [ ] **Claude Audit**: Git history clean of secrets
+  - [ ] Scan commit history for API keys
+  - [ ] Check for hardcoded credentials
+  - [ ] Verify `.env` not committed
+
+- [ ] **Gemini Validation**: Secrets manager integrated
+  - [ ] All secrets in environment variables
+  - [ ] Secrets rotation procedure documented
+  - [ ] No secrets in client-side code
+
+- [ ] **Codex Verification**: Env variable loading tested
+  - [ ] All required env vars documented
+  - [ ] Startup fails gracefully if env vars missing
+  - [ ] No env var leakage in error messages
+
+### Rate Limiting
+
+- [ ] **Claude Review**: Rate limiting implemented
+  - [ ] All write endpoints have rate limits
+  - [ ] Per-user and per-IP limits configured
+  - [ ] Rate limit storage chosen (Redis, etc.)
+
+- [ ] **Gemini Assessment**: Enterprise tiers defined
+  - [ ] Different rate limits per tier
+  - [ ] Burst handling strategy
+  - [ ] Rate limit bypass for trusted IPs
+
+- [ ] **Codex Load Test**: Rate limiting works under load
+  - [ ] Test exceeding rate limits
+  - [ ] Verify 429 responses
+  - [ ] Check rate limit headers
+
+### SQL Injection
+
+- [ ] **Claude Scan**: No raw SQL queries
+  - [ ] All queries use Prisma (parameterized)
+  - [ ] No string concatenation in queries
+  - [ ] Input validation on all query params
+
+- [ ] **Codex Tests**: SQL injection attempts blocked
+  - [ ] Test `' OR '1'='1` in all inputs
+  - [ ] Test `; DROP TABLE users;` scenarios
+  - [ ] Verify Prisma query sanitization
+
+### CSRF Protection
+
+- [ ] **Claude Review**: CSRF tokens on state-changing routes
+  - [ ] All POST/PUT/DELETE routes protected
+  - [ ] Token validation middleware in place
+  - [ ] SameSite cookie attribute set
+
+- [ ] **Codex Tests**: CSRF attacks blocked
+  - [ ] Test requests without CSRF token
+  - [ ] Test cross-origin requests
+  - [ ] Verify double-submit cookie pattern
+
+## Go/No-Go Criteria
+
+**All three AIs must sign off:**
+- ✅ Claude: Technical security audit PASS
+- ✅ Gemini: Business risk assessment ACCEPTABLE
+- ✅ Codex: Attack scenarios all BLOCKED
+
+**Critical Requirements:**
+- Zero critical vulnerabilities
+- Zero high vulnerabilities (or accepted with mitigation plan)
+- All secrets properly managed
+- All API routes authenticated
+- CSRF protection on all state-changing endpoints
+
+## Emergency Rollback
+
+If security issue found post-deployment:
+1. Immediately rollback to previous version
+2. Run emergency security audit with all three AIs
+3. Implement fix
+4. Re-validate with all three AIs
+5. Deploy fix with expedited review

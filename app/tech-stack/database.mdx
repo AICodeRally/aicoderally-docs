@@ -1,0 +1,314 @@
+# Database - Prisma Postgres Setup & Patterns
+
+**Last Updated:** November 25, 2025
+
+---
+
+## Database Platform: Prisma Postgres (via Vercel)
+
+**Why Prisma Postgres:**
+- Managed PostgreSQL (zero ops)
+- Native Prisma integration (type-safe queries)
+- Vercel integration (auto env vars)
+- Connection pooling via Prisma Accelerate
+- Global edge caching
+- Instant serverless
+
+---
+
+## Current Setup
+
+### Primary Database
+- **Provider:** Prisma Postgres (via Vercel)
+- **ORM:** Prisma Client
+- **Connection:** Direct + Accelerate pooler
+- **Schema:** `prisma/schema.prisma`
+
+### Auth, Storage, Realtime (COMPLETE)
+- **Auth:** NextAuth v5 (Google, Apple, Email/Password)
+- **Storage:** Vercel Blob
+- **Realtime:** Pusher
+- **See:** `ZACH_README.md` for implementation details
+
+---
+
+## Environment Variables
+
+```bash
+# Prisma Postgres (Primary Database)
+DATABASE_URL="postgres://...@db.prisma.io:5432/postgres?sslmode=require"
+PRISMA_DATABASE_URL="prisma+postgres://accelerate.prisma-data.net/?api_key=..."
+DIRECT_URL="postgres://...@db.prisma.io:5432/postgres?sslmode=require"
+```
+
+---
+
+## Schema Overview
+
+### Nomenclature Tables
+
+**company_types** - What KIND of business
+```typescript
+{
+  id: string          // UUID
+  code: string        // 'nonprofit', 'consulting', etc.
+  name: string        // Display name
+  description: string
+  examples: string[]  // Example companies
+  sortOrder: number
+  isActive: boolean
+}
+```
+
+**domains** - What INDUSTRY they serve
+```typescript
+{
+  id: string
+  code: string        // 'spm', 'healthcare', etc.
+  name: string
+  description: string
+  examples: string[]
+  sortOrder: number
+  isActive: boolean
+}
+```
+
+**categories** - What the module DOES
+```typescript
+{
+  id: string
+  code: string        // 'crm', 'analytics', etc.
+  name: string
+  description: string
+  sortOrder: number
+  isActive: boolean
+}
+```
+
+**wrappers** - Pre-configured module bundles
+```typescript
+{
+  id: string
+  code: string           // 'nonprofit-edge'
+  name: string           // 'NonprofitEdge'
+  tier: string           // 'studio' | 'edge' | 'summit'
+  companyTypeCode: string
+  domainCode: string
+  moduleIds: string[]    // Array of module IDs
+  primaryColor: string
+  status: string         // 'draft' | 'active' | 'archived'
+}
+```
+
+### Pit Wall Tables
+
+**dev_threads** - Discussion threads per module
+**dev_comments** - Comments with threading
+**dev_stakeholders** - Access control per module
+**dev_reactions** - Emoji reactions
+**dev_attachments** - File uploads
+**dev_notification_preferences** - Email settings
+**dev_notification_log** - Notification history
+
+### Knowledge System Tables
+
+**knowledge_documents** - Synced knowledge files
+**knowledge_changes** - Audit trail
+**knowledge_users** - Team members (Todd, Zach)
+**ai_sessions** - AI agent memory snapshots
+
+### Admin Tables
+
+**admin_settings** - Global configuration
+
+### Module Data Tables (ALL 20 MODULES WORKING ✅)
+
+**Nonprofit Modules:**
+- `beneficiaries` - Beneficiary records, programs, interactions
+- `donors` - Donor records, donations, campaigns
+- `grants` - Grant records, reports, expenses
+- `volunteers` - Volunteer records, shifts, milestones
+- `programs` - Program records, goals
+
+**SPM Modules:**
+- `commissions` - Commission records, rules
+- `territories` - Territory records, assignments, conflicts
+- `forecasting` - Forecast scenarios, assumptions, data, accuracy
+- `scoping` - Scoping questionnaires, contacts
+- `cpq_documents` - CPQ document records
+- `sow_documents` - SOW document records
+- `pipeline` - Opportunities, activities
+
+**Analytics Modules:**
+- `impact` - Program impacts, AI insights
+- `reports` - Report templates, generated reports
+- `dashboards` - Dashboards, widgets, templates
+
+**Other Modules:**
+- `customers` - Customer records, activities (customer success)
+- `projects` - Projects, milestones, tasks, time entries
+- `deliveries` - Delivery records, phases, go-live checklists
+- `leads` - Lead records, activities
+- `nomenclature` - Company types, domains, categories, wrappers
+
+---
+
+## Using Prisma
+
+### Import the Client
+
+```typescript
+// From connectors (recommended)
+import { prisma } from '@rally/connectors/prisma';
+
+// Or direct import
+import { PrismaClient } from '@prisma/client';
+const prisma = new PrismaClient();
+```
+
+### Query Examples
+
+```typescript
+// Get all active company types
+const companyTypes = await prisma.companyType.findMany({
+  where: { isActive: true },
+  orderBy: { sortOrder: 'asc' },
+});
+
+// Get wrapper with relations
+const wrapper = await prisma.wrapper.findUnique({
+  where: { code: 'nonprofit-edge' },
+  include: {
+    companyType: true,
+    domain: true,
+  },
+});
+
+// Create a new thread
+const thread = await prisma.devThread.create({
+  data: {
+    moduleId: 'donor-management',
+    title: 'Feature Discussion',
+    body: '# Overview\n\nLet\'s discuss...',
+    createdBy: 'todd@aicoderally.com',
+  },
+});
+
+// Update wrapper modules
+await prisma.wrapper.update({
+  where: { code: 'nonprofit-edge' },
+  data: {
+    moduleIds: [...existingIds, 'new-module'],
+  },
+});
+```
+
+---
+
+## CLI Commands
+
+```bash
+# Generate Prisma client after schema changes
+npx prisma generate
+
+# Push schema changes to database
+npx prisma db push
+
+# Open Prisma Studio (GUI)
+npx prisma studio
+
+# Run seed script
+npx tsx prisma/seed.ts
+```
+
+---
+
+## Migration Workflow
+
+1. **Edit schema:** `prisma/schema.prisma`
+2. **Push changes:** `npx prisma db push`
+3. **Generate client:** `npx prisma generate`
+4. **Update seed if needed:** `prisma/seed.ts`
+
+---
+
+## Connection Patterns
+
+### Server Components
+```typescript
+import { prisma } from '@rally/connectors/prisma';
+
+export default async function Page() {
+  const wrappers = await prisma.wrapper.findMany();
+  return <WrapperList wrappers={wrappers} />;
+}
+```
+
+### API Routes
+```typescript
+import { prisma } from '@rally/connectors/prisma';
+import { NextResponse } from 'next/server';
+
+export async function GET() {
+  const data = await prisma.companyType.findMany();
+  return NextResponse.json(data);
+}
+```
+
+### Server Actions
+```typescript
+'use server';
+import { prisma } from '@rally/connectors/prisma';
+
+export async function createWrapper(data: WrapperInput) {
+  return prisma.wrapper.create({ data });
+}
+```
+
+---
+
+## Seeded Data
+
+### Company Types (14)
+nonprofit, consulting, devshop, accounting, legal, marketing, staffing, startup, smb, enterprise, individual, education, government, generic
+
+### Domains (15)
+spm, erp, crm, healthcare, finance, government, sports, retail, manufacturing, technology, food-service, real-estate, education, media, generic
+
+### Categories (15)
+crm, finance, operations, project, analytics, marketing, collaboration, ai, sales, events, food-service, education, nonprofit, spm, generic
+
+### Default Wrappers (3)
+- **NonprofitEdge** - Nonprofit organizations
+- **ConsultingEdge SPM** - SPM consulting firms
+- **DevshopEdge** - Development agencies
+
+---
+
+## Troubleshooting
+
+**"Cannot find module '@prisma/client'"**
+```bash
+npx prisma generate
+```
+
+**"Database connection failed"**
+- Check DATABASE_URL in .env
+- Verify Vercel integration is connected
+
+**"Schema out of sync"**
+```bash
+npx prisma db push --force-reset  # Warning: drops data!
+```
+
+---
+
+## Resources
+
+- **Prisma Docs:** https://www.prisma.io/docs
+- **Prisma Postgres:** https://www.prisma.io/postgres
+- **Schema Reference:** https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference
+
+---
+
+**This file is part of AI memory - AI agents always read this for database operations.**

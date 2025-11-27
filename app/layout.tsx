@@ -30,7 +30,8 @@ export default function RootLayout({
               <nav className="hidden md:flex gap-2">
                 <a href="/" className="nav-link">Home</a>
                 <a href="/getting-started" className="nav-link">Getting Started</a>
-                <a href="/platform" className="nav-link">Platform</a>
+                <a href="/tech-stack" className="nav-link">Tech Stack</a>
+                <a href="/modules" className="nav-link">Modules</a>
                 <a href="/deployment" className="nav-link">Deployment</a>
               </nav>
 
@@ -66,19 +67,19 @@ export default function RootLayout({
                 <div className="flex flex-col gap-2 text-sm">
                   <a href="/" className="text-gray-600 hover:text-violet-600 transition-colors">Documentation</a>
                   <a href="https://aicoderally.com" className="text-gray-600 hover:text-violet-600 transition-colors">Main Website</a>
-                  <a href="https://github.com/toddleb/aicoderally-docs" className="text-gray-600 hover:text-violet-600 transition-colors">GitHub</a>
+                  <a href="https://github.com/AICodeRally/aicoderally-stack" className="text-gray-600 hover:text-violet-600 transition-colors">GitHub</a>
                 </div>
               </div>
               <div>
                 <h4 className="font-semibold text-sm text-gray-900 mb-3">Support</h4>
                 <div className="flex flex-col gap-2 text-sm">
                   <a href="mailto:support@aicoderally.com" className="text-gray-600 hover:text-violet-600 transition-colors">Contact Support</a>
-                  <a href="https://github.com/toddleb/aicoderally-docs/issues" className="text-gray-600 hover:text-violet-600 transition-colors">Report Issue</a>
+                  <a href="https://github.com/AICodeRally/aicoderally-stack/issues" className="text-gray-600 hover:text-violet-600 transition-colors">Report Issue</a>
                 </div>
               </div>
             </div>
             <div className="mt-8 pt-8 border-t border-gray-200 text-center text-sm text-gray-500">
-              © 2024 AICodeRally. Built with Next.js and MDX.
+              © 2025 AICodeRally. Built with Next.js and MDX.
             </div>
           </div>
         </footer>

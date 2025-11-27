@@ -6,6 +6,83 @@
   body {
     @apply bg-gradient-to-br from-gray-50 via-white to-gray-50 text-gray-900 antialiased;
   }
+
+  /* Better documentation typography */
+  .prose {
+    @apply text-gray-700;
+  }
+
+  .prose h1 {
+    @apply text-4xl font-black mb-6 mt-8 bg-gradient-to-r from-cyan-600 via-violet-600 to-orange-600 bg-clip-text text-transparent;
+  }
+
+  .prose h2 {
+    @apply text-3xl font-bold mb-4 mt-8 text-gray-900 border-b-2 border-gray-200 pb-2;
+  }
+
+  .prose h3 {
+    @apply text-2xl font-bold mb-3 mt-6 text-gray-800;
+  }
+
+  .prose h4 {
+    @apply text-xl font-semibold mb-2 mt-4 text-gray-800;
+  }
+
+  .prose p {
+    @apply mb-4 leading-relaxed text-gray-700;
+  }
+
+  .prose a {
+    @apply text-violet-600 hover:text-violet-700 underline decoration-violet-300 hover:decoration-violet-500 transition-colors;
+  }
+
+  .prose code {
+    @apply bg-gray-100 text-violet-600 px-2 py-1 rounded text-sm font-mono;
+  }
+
+  .prose pre {
+    @apply bg-gray-900 text-gray-100 p-6 rounded-xl overflow-x-auto my-6 shadow-lg;
+  }
+
+  .prose pre code {
+    @apply bg-transparent text-gray-100 p-0;
+  }
+
+  .prose ul, .prose ol {
+    @apply mb-4 ml-6;
+  }
+
+  .prose li {
+    @apply mb-2 leading-relaxed;
+  }
+
+  .prose table {
+    @apply w-full my-6 border-collapse;
+  }
+
+  .prose th {
+    @apply bg-gradient-to-r from-cyan-50 via-violet-50 to-orange-50 border border-gray-300 px-4 py-3 text-left font-bold text-gray-900;
+  }
+
+  .prose td {
+    @apply border border-gray-300 px-4 py-3 text-gray-700;
+  }
+
+  .prose blockquote {
+    @apply border-l-4 border-violet-500 pl-6 py-2 my-6 bg-violet-50/50 rounded-r-lg italic text-gray-700;
+  }
+
+  .prose hr {
+    @apply my-8 border-t-2 border-gray-200;
+  }
+
+  .prose strong {
+    @apply font-bold text-gray-900;
+  }
+
+  .prose em {
+    @apply italic text-gray-800;
+  }
 }
 
 @layer components {
@@ -27,5 +104,26 @@
 
   .btn-gradient {
     @apply bg-gradient-to-r from-cyan-500 via-violet-500 to-orange-500 text-white font-bold py-3 px-6 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200;
+  }
+
+  /* Callout boxes for notes/warnings */
+  .callout {
+    @apply my-6 p-5 rounded-xl border-l-4 shadow-sm;
+  }
+
+  .callout-info {
+    @apply callout bg-cyan-50/50 border-cyan-500 text-cyan-900;
+  }
+
+  .callout-warning {
+    @apply callout bg-orange-50/50 border-orange-500 text-orange-900;
+  }
+
+  .callout-success {
+    @apply callout bg-green-50/50 border-green-500 text-green-900;
+  }
+
+  .callout-danger {
+    @apply callout bg-red-50/50 border-red-500 text-red-900;
   }
 }

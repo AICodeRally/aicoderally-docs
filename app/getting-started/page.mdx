@@ -1,139 +1,329 @@
-# Getting Started
+# Getting Started with AICodeRally
 
-Welcome to AICodeRally! This guide will help you get up and running with the platform.
+Your complete guide to setting up and building with the AICodeRally platform.
+
+## What is AICodeRally?
+
+AICodeRally is an AI-native platform for building business applications across three tiers:
+
+- **Studio**: Community, youth, and creator apps
+- **Edge**: SMB AI transformation (30-day deployment)
+- **Summit**: Enterprise AI transformation and governance
 
 ## Prerequisites
 
 Before you begin, ensure you have:
 
-- **Node.js** 20.0 or later
-- **pnpm** 9.0 or later
-- **PostgreSQL** database (or Prisma Postgres)
-- **API Keys** for AI services (Anthropic, OpenAI)
+- **Node.js** 18+ installed
+- **pnpm** package manager (`npm install -g pnpm`)
+- **Git** for version control
+- **Code editor** (VS Code recommended)
+- **GitHub account** with access to AICodeRally organization
 
-## Installation
+## Initial Setup
 
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/aicoderally/aicoderally-stack.git
+# Clone the monorepo
+git clone https://github.com/AICodeRally/aicoderally-stack.git
 cd aicoderally-stack
 ```
 
 ### 2. Install Dependencies
 
 ```bash
+# Install all packages (uses pnpm workspaces)
 pnpm install
 ```
 
+This installs dependencies for:
+- All apps (studio, edge, summit, website, docs)
+- All packages (modules, core, UI, connectors)
+- All tools (rally-ai, validation scripts)
+
 ### 3. Set Up Environment Variables
 
-Copy the example environment file:
+Create `.env.local` files for each app:
 
+**Studio App** (`apps/studio/.env.local`):
 ```bash
-cp .env.example .env
+# Database (Prisma Postgres via Vercel)
+DATABASE_URL="prisma+postgres://accelerate.prisma-data.net/?api_key=YOUR_KEY"
+DIRECT_URL="postgres://...@db.prisma.io:5432/postgres?sslmode=require"
+
+# NextAuth
+NEXTAUTH_SECRET="your-secret-here-min-32-chars"
+NEXTAUTH_URL="http://localhost:3000"
+
+# AI (Optional)
+ANTHROPIC_API_KEY="sk-ant-..."
+OPENAI_API_KEY="sk-..."
 ```
 
-Edit `.env` and add your credentials:
+See [Environment Variables Guide](/deployment/environment-variables) for complete list.
+
+### 4. Set Up Database
 
 ```bash
-# Database (Development)
-DATABASE_URL="your_development_database_url"
-DIRECT_URL="your_development_database_url"
-PRISMA_DATABASE_URL="your_prisma_accelerate_url"
+cd apps/studio
 
-# AI Services
-ANTHROPIC_API_KEY="your_anthropic_api_key"
-OPENAI_API_KEY="your_openai_api_key"
+# Generate Prisma client
+npx prisma generate
 
-# Admin Password
-NEXT_PUBLIC_ADMIN_PASSWORD="your_admin_password"
+# Push schema to database
+npx prisma db push
+
+# Seed initial data
+npx prisma db seed
 ```
 
-See the [Database Setup Guide](/guides/database-setup) for detailed instructions.
+See [Database Setup Guide](/tech-stack/database) for details.
 
-### 4. Generate Prisma Client
-
-```bash
-pnpm db:generate
-```
-
-### 5. Run Database Migrations
+### 5. Start Development Server
 
 ```bash
-pnpm db:migrate
-```
-
-### 6. Start Development Server
-
-Choose which app to run:
-
-```bash
-# Studio (port 3000)
+# From monorepo root - Start Studio
 pnpm --filter studio dev
 
-# Edge (port 3002)
-pnpm --filter edge dev
-
-# Summit (port 3003)
-pnpm --filter summit dev
-
-# Website (port 3001)
-pnpm --filter website dev
+# Or from studio directory
+cd apps/studio
+pnpm dev
 ```
 
-## Verify Installation
+Visit **http://localhost:3000** to see your app running!
 
-1. Open your browser to the appropriate port
-2. You should see the application landing page
-3. Navigate to the modules section
-4. Verify modules are loading correctly
+## Development Workflow
+
+### Running Different Apps
+
+```bash
+# Studio (main platform)
+pnpm --filter studio dev
+
+# Edge (SMB tier)
+pnpm --filter edge dev
+
+# Summit (Enterprise tier)
+pnpm --filter summit dev
+
+# Website (marketing)
+pnpm --filter website dev
+
+# Docs (documentation site)
+pnpm --filter docs dev
+```
+
+### Building for Production
+
+```bash
+# Build specific app
+pnpm --filter studio build
+
+# Build all apps
+pnpm build
+
+# Type check
+pnpm typecheck
+```
+
+## Understanding the Nomenclature System
+
+AICodeRally uses a unique module naming system:
+
+- **Company Type**: What KIND of organization (nonprofit, consulting, etc.)
+- **Domain**: What INDUSTRY they serve (healthcare, education, etc.)
+- **Category**: What the module DOES (CRM, analytics, etc.)
+
+Example: `nonprofit-beneficiary-crm`
+- Company Type: nonprofit
+- Domain: beneficiary
+- Category: crm
+
+See [Nomenclature System Guide](/getting-started/nomenclature) for complete details.
+
+## Creating Your First Module
+
+### 1. Define Module Metadata
+
+Create `packages/modules/my-module/index.ts`:
+
+```typescript
+import { RallyModule } from "@rally/core";
+
+export const module: RallyModule = {
+  meta: {
+    id: "my-module",
+    name: "My Module Name",
+    description: "What this module does",
+    version: "1.0.0",
+    category: "generic",
+    route: "/modules/my-module",
+    tier: "studio", // or "edge", "summit"
+  },
+};
+```
+
+### 2. Create UI Page
+
+Create `apps/studio/app/modules/my-module/page.tsx`:
+
+```typescript
+export default function MyModulePage() {
+  return (
+    <div className="mx-auto max-w-4xl p-8">
+      <h1 className="text-3xl font-bold mb-4">My Module</h1>
+      <p className="text-gray-600">
+        Module UI goes here
+      </p>
+    </div>
+  );
+}
+```
+
+### 3. Register Module
+
+Add to `packages/modules/index.ts`:
+
+```typescript
+export * from "./my-module";
+```
+
+### 4. View Your Module
+
+Visit: **http://localhost:3000/modules/my-module**
+
+## Key Concepts
+
+### Monorepo Structure
+
+```
+aicoderally-stack/
+├── apps/
+│   ├── studio/          # Studio tier (community, youth, creators)
+│   ├── edge/            # Edge tier (SMB transformation)
+│   ├── summit/          # Summit tier (enterprise)
+│   ├── website/         # Marketing site
+│   └── docs/            # Documentation site
+├── packages/
+│   ├── modules/         # All feature modules
+│   ├── core/            # TypeScript types and contracts
+│   ├── ui/              # Shared UI components
+│   └── connectors/      # Database, email, AI connectors
+└── tools/
+    ├── rally-ai/        # Multi-AI orchestration CLI
+    └── scripts/         # Validation and setup scripts
+```
+
+### Platform Tiers
+
+**Studio** - `studio.aicoderally.com`
+- Community apps for everyone
+- Youth coding education
+- Creator tools
+
+**Edge** - `edge.aicoderally.com`
+- SMB AI transformation
+- 19+ business modules
+- 30-day deployment
+
+**Summit** - `summit.aicoderally.com`
+- Enterprise transformation
+- AI strategy and governance
+- Workforce enablement
+
+### Tech Stack
+
+- **Framework**: Next.js 15 with App Router
+- **Language**: TypeScript 5
+- **Database**: Prisma Postgres (via Vercel)
+- **Styling**: Tailwind CSS 3.4
+- **Deployment**: Vercel
+- **AI**: Anthropic Claude (Sonnet 4.5)
+
+See [Tech Stack Overview](/tech-stack) for complete details.
 
 ## Next Steps
 
-- [Explore the Platform](/platform)
-- [Learn about Modules](/modules)
-- [Read the API Documentation](/api)
-- [Deploy to Production](/deployment)
+1. **Explore Existing Modules** - Browse `packages/modules/` to see patterns
+2. **Read Module Tracker** - See all 19 Edge modules in [Master Module Tracker](/modules/tracker)
+3. **Set Up Database** - Complete [Database Setup](/tech-stack/database)
+4. **Learn Deployment** - Read [Deployment Guide](/deployment)
+5. **Join Development** - See [Contributing Guide](/development/contributing)
+
+## Common Commands
+
+```bash
+# Development
+pnpm dev                           # Start all apps
+pnpm --filter studio dev           # Start Studio only
+pnpm --filter edge dev             # Start Edge only
+
+# Building
+pnpm build                         # Build all apps
+pnpm --filter studio build         # Build Studio only
+
+# Type Checking
+pnpm typecheck                     # Check all TypeScript
+
+# Database
+npx prisma generate                # Generate Prisma client
+npx prisma db push                 # Push schema changes
+npx prisma studio                  # Open database GUI
+
+# Multi-AI Tools
+pnpm rally-ai design <feature>     # AI-powered feature design
+pnpm rally-ai sprint-plan          # Generate sprint plan
+pnpm rally-ai validate             # Validate before deployment
+```
 
 ## Troubleshooting
 
-### Database Connection Issues
-
-If you encounter database connection errors:
-
-1. Verify your `DATABASE_URL` is correct
-2. Check that your database is running
-3. Ensure your IP is whitelisted (if using Prisma Postgres)
-
-See the [Troubleshooting Guide](/guides/troubleshooting) for more help.
-
-### Build Errors
-
-If you encounter TypeScript errors during build:
-
+### "Module not found" errors
 ```bash
 # Regenerate Prisma client
-pnpm db:generate
+npx prisma generate
 
+# Reinstall dependencies
+rm -rf node_modules
+pnpm install
+```
+
+### Database connection issues
+```bash
+# Verify environment variables
+cat apps/studio/.env.local | grep DATABASE_URL
+
+# Test database connection
+npx prisma db execute --stdin <<< "SELECT 1"
+```
+
+### Build failures
+```bash
 # Clear Next.js cache
-rm -rf apps/*/. next
+rm -rf apps/studio/.next
+
+# Clear Turbo cache
+rm -rf node_modules/.cache
 
 # Rebuild
 pnpm build
 ```
 
-### Port Conflicts
+## Resources
 
-If a port is already in use, you can specify a different port:
-
-```bash
-pnpm --filter studio dev -- --port 3010
-```
+- **Documentation**: [docs.aicoderally.com](https://docs.aicoderally.com)
+- **Studio**: [studio.aicoderally.com](https://studio.aicoderally.com)
+- **Edge**: [edge.aicoderally.com](https://edge.aicoderally.com)
+- **GitHub**: [github.com/AICodeRally](https://github.com/AICodeRally)
 
 ## Getting Help
 
-- Check the [Guides](/guides) section
-- Review [API Documentation](/api)
-- Report issues on [GitHub](https://github.com/aicoderally/aicoderally-stack/issues)
-- Contact support: support@aicoderally.com
+- Check the [Documentation](/docs)
+- Review [Module Examples](/modules)
+- Read [Coding Standards](/development/coding-standards)
+- See [Contributing Guide](/development/contributing)
+
+---
+
+**Ready to build? Start creating your first module!**

@@ -1,0 +1,1122 @@
+# Module Enhancement Pattern - How to Build Fully Functional Modules
+
+**Purpose:** This document defines the standard pattern for transforming Edge modules from "empty shells" to "fully functional applications."
+
+**Reference Implementation:** SOW Builder (`packages/modules/sow-builder`)
+**Documentation:** See `docs/SOW_BUILDER_COMPLETE.md` for detailed example
+
+---
+
+## Overview
+
+**Goal:** Transform each Edge module from having just metadata/types/components into a complete, demo-ready application with full CRUD workflows and database persistence.
+
+**Time per Module:** 2-4 hours
+**Quality Target:** 9-10/10 demo-worthy score
+**Functional Target:** 85-95% complete (with export/advanced features as future work)
+
+---
+
+## The 6-Step Pattern
+
+### Step 1: Create Demo Data (30 minutes)
+
+**Location:** `packages/modules/[module-name]/demo/`
+
+**Files to Create:**
+```
+demo/
+├── index.ts          # Centralized exports + helper functions
+├── templates.ts      # Pre-built templates (if applicable)
+└── items.ts          # 3-5 sample items showing different states/scenarios
+```
+
+**Templates (if applicable):**
+- 5-10 pre-built templates
+- Cover different categories/types
+- Realistic pricing and durations
+- Include popularity scores (0-100)
+- Add section/feature lists
+
+**Sample Items:**
+- 3-5 realistic examples
+- Show different statuses (draft, active, completed, etc.)
+- Vary in size/complexity
+- Include all relationships (child entities)
+- Total value: $500K - $2M for financial modules
+
+**Helper Functions:**
+```typescript
+export function getItemById(id: string): Item | undefined
+export function getItemsByStatus(status: string): Item[]
+export function getItemsByCategory(category: string): Item[]
+export function getPopularTemplates(limit: number): Template[]
+
+export const itemStats = {
+  totalItems: number,
+  totalValue: number,
+  averageValue: number,
+  byStatus: { draft: X, active: Y, ... },
+  largestDeal: Item,
+}
+```
+
+**Example:** See `packages/modules/sow-builder/demo/`
+
+---
+
+### Step 2: Create Seed Script (20 minutes)
+
+**Location:** `packages/modules/[module-name]/seed.ts`
+
+**Structure:**
+```typescript
+/**
+ * [Module Name] Database Seed Script
+ * Seeds demo templates and sample items into the database
+ */
+
+import { prisma } from "@rally/connectors/prisma";
+import { templates } from "./demo/templates";
+import { items } from "./demo/items";
+
+export async function seed[ModuleName]() {
+  console.log("🌱 Seeding [Module Name]...");
+
+  try {
+    // Seed templates (if applicable)
+    console.log(`  📝 Seeding ${templates.length} templates...`);
+    for (const template of templates) {
+      await prisma.[templateModel].upsert({
+        where: { id: template.id },
+        update: { ...template },
+        create: { ...template },
+      });
+    }
+
+    // Seed sample items
+    console.log(`  📄 Seeding ${items.length} sample items...`);
+    for (const item of items) {
+      await prisma.[itemModel].upsert({
+        where: { id: item.id },
+        update: { ...item },
+        create: { ...item },
+      });
+    }
+
+    console.log("✅ [Module Name] seeded successfully!");
+    console.log(`   - ${templates.length} templates`);
+    console.log(`   - ${items.length} sample items`);
+    console.log(`   - Total value: $${items.reduce((sum, i) => sum + i.value, 0).toLocaleString()}`);
+  } catch (error) {
+    console.error("❌ Error seeding [Module Name]:", error);
+    throw error;
+  }
+}
+
+// Run if executed directly
+if (require.main === module) {
+  seed[ModuleName]()
+    .then(() => {
+      console.log("Done!");
+      process.exit(0);
+    })
+    .catch((error) => {
+      console.error(error);
+      process.exit(1);
+    });
+}
+```
+
+**Integration:** Add to `prisma/seed.ts`:
+```typescript
+console.log('  → Seeding [Module Name] module...');
+const { seed[ModuleName] } = await import('../packages/modules/[module-name]/seed');
+await seed[ModuleName]();
+```
+
+---
+
+### Step 3: Build List Page with Stats (45 minutes)
+
+**Location:** `apps/edge/app/modules/[module-name]/`
+
+**Files:**
+- `page.tsx` (Server Component - fetches data)
+- `page-client.tsx` (Client Component - UI + interactions)
+
+**Server Component (`page.tsx`):**
+```typescript
+import { getItems, getStats } from "@rally/connectors/actions";
+import { ItemsPageClient } from "./page-client";
+
+export default async function ItemsPage() {
+  const [itemsResult, statsResult] = await Promise.all([
+    getItems(),
+    getStats(),
+  ]);
+
+  const items = itemsResult.success ? itemsResult.data : [];
+  const stats = statsResult.success ? statsResult.data : defaultStats;
+
+  // Transform DB records to component format
+  const itemData = items.map((i) => ({
+    id: i.id,
+    name: i.name,
+    // ... transform all fields
+  }));
+
+  return <ItemsPageClient initialItems={itemData} initialStats={stats} />;
+}
+```
+
+**Client Component (`page-client.tsx`):**
+```typescript
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { ItemStats, ItemList } from "@rally/modules/[module-name]/components";
+import { useRealtimeList } from "@rally/connectors/realtime";
+
+export function ItemsPageClient({ initialItems, initialStats }) {
+  const router = useRouter();
+  const [statusFilter, setStatusFilter] = useState("all");
+
+  // Subscribe to realtime updates
+  const { data: items } = useRealtimeList("[table_name]", initialItems);
+
+  const filteredItems = items.filter((i) => {
+    if (statusFilter !== "all" && i.status !== statusFilter) return false;
+    return true;
+  });
+
+  const handleView = (item) => {
+    router.push(`/modules/[module-name]/${item.id}`);
+  };
+
+  const handleEdit = (item) => {
+    router.push(`/modules/[module-name]/${item.id}/edit`);
+  };
+
+  const handleAddNew = () => {
+    router.push(`/modules/[module-name]/new`);
+  };
+
+  return (
+    <div className="p-8">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">[Module Name]</h1>
+          <p className="text-gray-600 mt-1">Description of module</p>
+        </div>
+        <div className="flex items-center gap-4">
+          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+            <option value="all">All Status</option>
+            <option value="draft">Draft</option>
+            <option value="active">Active</option>
+            <option value="completed">Completed</option>
+          </select>
+          <button onClick={handleAddNew} className="btn-primary">
+            New [Item]
+          </button>
+        </div>
+      </div>
+
+      {/* Stats Dashboard */}
+      <ItemStats stats={initialStats} />
+
+      {/* Item List */}
+      <ItemList
+        items={filteredItems}
+        onView={handleView}
+        onEdit={handleEdit}
+      />
+    </div>
+  );
+}
+```
+
+**Stats Dashboard:** Show 4-6 key metrics:
+- Total items
+- Active items
+- Total value
+- Average value
+- Success rate / completion rate
+- Items by status breakdown
+
+---
+
+### Step 4: Build Detail/View Page (60 minutes)
+
+**Location:** `apps/edge/app/modules/[module-name]/[id]/`
+
+**Files:**
+- `page.tsx` (Server Component - fetches item + related data)
+- `page-client.tsx` (Client Component - displays everything)
+
+**Server Component (`page.tsx`):**
+```typescript
+import { notFound } from "next/navigation";
+import { getItem, getChildEntities } from "@rally/connectors/actions";
+import { ItemDetailClient } from "./page-client";
+
+export default async function ItemDetailPage({ params }: { params: { id: string } }) {
+  const [itemResult, childrenResult] = await Promise.all([
+    getItem(params.id),
+    getChildEntities(params.id),
+  ]);
+
+  if (!itemResult.success || !itemResult.data) {
+    notFound();
+  }
+
+  const item = itemResult.data;
+  const children = childrenResult.success ? childrenResult.data : [];
+
+  // Transform data to component types
+  const itemData = { /* transform */ };
+  const childrenData = children.map((c) => ({ /* transform */ }));
+
+  return (
+    <ItemDetailClient
+      item={itemData}
+      children={childrenData}
+    />
+  );
+}
+```
+
+**Client Component Layout:**
+```typescript
+"use client";
+
+export function ItemDetailClient({ item, children }) {
+  const router = useRouter();
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header - name, status badge, action buttons */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          <div className="flex items-start justify-between">
+            <div>
+              <h1 className="text-3xl font-bold">{item.name}</h1>
+              <StatusBadge status={item.status} />
+            </div>
+            <div className="flex gap-2">
+              <button onClick={() => router.push(`/modules/[module-name]/${item.id}/edit`)}>
+                Edit
+              </button>
+              <button onClick={() => handleExport()}>Export</button>
+              <button onClick={() => setShowDeleteConfirm(true)}>Delete</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content - 2 column layout */}
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Column - Main Content (2/3 width) */}
+          <div className="lg:col-span-2 space-y-6">
+            <OverviewSection item={item} />
+            <ChildEntitiesSection children={children} />
+            <DetailSections item={item} />
+          </div>
+
+          {/* Right Column - Sidebar (1/3 width) */}
+          <div className="space-y-6">
+            <MetadataCard item={item} />
+            <TimelineCard item={item} />
+            <FinancialsCard item={item} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+```
+
+**Sections to Include:**
+- Overview/Description
+- Child entities (table/cards)
+- Related data
+- Metadata sidebar (created by, dates, version)
+- Timeline/milestones
+- Financial info (if applicable)
+- Status/progress indicators
+
+---
+
+### Step 5: Build Editor with Full CRUD (90 minutes)
+
+**Location:** `apps/edge/app/modules/[module-name]/[id]/edit/`
+
+**Files:**
+- `page.tsx` (Server Component - fetches data)
+- `page-client.tsx` (Client Component - tabbed editor)
+
+**Server Component (same pattern as detail page)**
+
+**Client Component Structure:**
+```typescript
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import {
+  updateItem,
+  createChildEntity,
+  updateChildEntity,
+  deleteChildEntity,
+} from "@rally/connectors/actions";
+
+type TabType = "overview" | "details" | "children" | "settings";
+
+export function ItemEditorClient({
+  item: initialItem,
+  children: initialChildren,
+}) {
+  const router = useRouter();
+  const [activeTab, setActiveTab] = useState<TabType>("overview");
+  const [item, setItem] = useState(initialItem);
+  const [children, setChildren] = useState(initialChildren);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      // 1. Update main item
+      const itemResult = await updateItem(item.id, {
+        name: item.name,
+        // ... all fields
+      });
+      if (!itemResult.success) throw new Error(itemResult.error);
+
+      // 2. Handle child entities (create/update/delete)
+      const initialChildIds = initialChildren.map((c) => c.id);
+      const currentChildIds = children.map((c) => c.id);
+
+      // Delete removed children
+      for (const initialChild of initialChildren) {
+        if (!currentChildIds.includes(initialChild.id)) {
+          await deleteChildEntity(initialChild.id);
+        }
+      }
+
+      // Create/update children
+      for (const child of children) {
+        if (child.id.startsWith("temp-")) {
+          // Create new
+          await createChildEntity({
+            item_id: item.id,
+            // ... fields
+          });
+        } else {
+          // Update existing
+          await updateChildEntity(child.id, {
+            // ... fields
+          });
+        }
+      }
+
+      // Navigate back to detail page
+      router.push(`/modules/[module-name]/${item.id}`);
+    } catch (error) {
+      console.error("Failed to save:", error);
+      alert(`Failed to save: ${error}`);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Sticky Header with Save/Cancel */}
+      <div className="bg-white border-b sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <h1 className="text-2xl font-bold">Edit {item.name}</h1>
+            <div className="flex gap-3">
+              <button onClick={() => router.push(`/modules/[module-name]/${item.id}`)}>
+                Cancel
+              </button>
+              <button onClick={handleSave} disabled={isSaving}>
+                {isSaving ? "Saving..." : "Save Changes"}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex gap-1 border-t">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={activeTab === tab.id ? "tab-active" : "tab-inactive"}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Tab Content */}
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {activeTab === "overview" && <OverviewTab item={item} setItem={setItem} />}
+        {activeTab === "children" && <ChildrenTab children={children} setChildren={setChildren} />}
+        {/* ... other tabs */}
+      </div>
+    </div>
+  );
+}
+```
+
+**Tab Pattern - Overview:**
+```typescript
+function OverviewTab({ item, setItem }) {
+  return (
+    <div className="bg-white rounded-lg border p-6">
+      <h2 className="text-xl font-semibold mb-6">Overview</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label>Field Name *</label>
+          <input
+            type="text"
+            value={item.fieldName}
+            onChange={(e) => setItem({ ...item, fieldName: e.target.value })}
+            className="w-full px-3 py-2 border rounded-lg"
+          />
+        </div>
+        {/* ... more fields */}
+      </div>
+    </div>
+  );
+}
+```
+
+**Tab Pattern - Child Entities:**
+```typescript
+function ChildrenTab({ children, setChildren }) {
+  return (
+    <div className="bg-white rounded-lg border p-6">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-xl font-semibold">Child Entities</h2>
+        <button
+          onClick={() => {
+            const newChild = {
+              id: `temp-${Date.now()}`,
+              // ... default values
+            };
+            setChildren([...children, newChild]);
+          }}
+        >
+          Add Child
+        </button>
+      </div>
+
+      <div className="space-y-4">
+        {children.map((child, index) => (
+          <div key={child.id} className="border rounded-lg p-4">
+            <div className="flex gap-4">
+              <div className="flex-1 grid grid-cols-2 gap-4">
+                <input
+                  value={child.field1}
+                  onChange={(e) => {
+                    const updated = [...children];
+                    updated[index].field1 = e.target.value;
+                    setChildren(updated);
+                  }}
+                />
+                {/* ... more fields */}
+              </div>
+              <button
+                onClick={() => {
+                  setChildren(children.filter((_, i) => i !== index));
+                }}
+                className="text-red-600"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+```
+
+**Editor Tabs (3-5 tabs):**
+1. **Overview** - Main entity fields
+2. **Details** - Secondary fields, description, metadata
+3. **Child Entities** - Related items (add/edit/delete)
+4. **Settings** - Status, visibility, advanced options
+5. **Additional** - Module-specific sections
+
+---
+
+### Step 6: Build Creation Wizard (45 minutes)
+
+**Location:** `apps/edge/app/modules/[module-name]/new/`
+
+**Files:**
+- `page.tsx` (Server Component - fetches templates)
+- `page-client.tsx` (Client Component - 2-step wizard)
+
+**Server Component:**
+```typescript
+import { getTemplates } from "@rally/connectors/actions";
+import { WizardClient } from "./page-client";
+
+export default async function NewItemPage() {
+  const templatesResult = await getTemplates({ isActive: true });
+  const templates = templatesResult.success ? templatesResult.data : [];
+
+  return <WizardClient templates={templates} />;
+}
+```
+
+**Client Component - Step 1 (Template Selection):**
+```typescript
+export function WizardClient({ templates }) {
+  const router = useRouter();
+  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
+  const [step, setStep] = useState<"select" | "customize">("select");
+
+  const sortedTemplates = [...templates].sort((a, b) => b.popularity - a.popularity);
+
+  if (step === "select") {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <h1 className="text-3xl font-bold mb-8">Create New [Item]</h1>
+
+          {/* Start from Scratch */}
+          <button
+            onClick={() => {
+              setSelectedTemplate(null);
+              setStep("customize");
+            }}
+            className="w-full border-2 border-dashed rounded-lg p-6 mb-8"
+          >
+            Start from Scratch
+          </button>
+
+          {/* Template Grid */}
+          <h2 className="text-xl font-semibold mb-4">
+            Choose a Template ({templates.length} available)
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {sortedTemplates.map((template) => (
+              <button
+                key={template.id}
+                onClick={() => {
+                  setSelectedTemplate(template);
+                  setStep("customize");
+                }}
+                className="bg-white rounded-lg border p-6 hover:border-purple-500 hover:shadow-lg"
+              >
+                <span className="badge">{template.category}</span>
+                {template.popularity >= 80 && <span className="badge-popular">Popular</span>}
+                <h3 className="text-lg font-semibold">{template.name}</h3>
+                <p className="text-sm text-gray-600">{template.description}</p>
+                <div className="flex justify-between mt-4">
+                  <span>{template.duration}</span>
+                  <span className="font-semibold">${template.basePrice}</span>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Step 2: Customize
+  return <CustomizeStep template={selectedTemplate} />;
+}
+```
+
+**Client Component - Step 2 (Customize):**
+```typescript
+function CustomizeStep({ template }) {
+  const router = useRouter();
+  const [isCreating, setIsCreating] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    field1: template?.defaultField1 || "",
+    field2: "",
+    // ... other fields
+  });
+
+  const handleCreate = async () => {
+    setIsCreating(true);
+    try {
+      const result = await createItem({
+        template_id: template?.id || null,
+        name: formData.name,
+        // ... all fields
+      });
+
+      if (result.success && result.data) {
+        // Navigate to edit page to complete
+        router.push(`/modules/[module-name]/${result.data.id}/edit`);
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (error) {
+      alert(`Failed to create: ${error}`);
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  return (
+    <div className="max-w-3xl mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-2">Customize Your [Item]</h1>
+      <p className="text-gray-600 mb-8">
+        {template ? `Using template: ${template.name}` : "Creating from scratch"}
+      </p>
+
+      <div className="bg-white rounded-lg border p-6 space-y-6">
+        <div>
+          <label>Name *</label>
+          <input
+            type="text"
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            className="w-full px-3 py-2 border rounded-lg"
+          />
+        </div>
+        {/* ... more fields */}
+      </div>
+
+      <div className="flex justify-between mt-6">
+        <button onClick={() => router.push("/modules/[module-name]")}>
+          Cancel
+        </button>
+        <button
+          onClick={handleCreate}
+          disabled={isCreating || !formData.name.trim()}
+        >
+          {isCreating ? "Creating..." : "Create [Item]"}
+        </button>
+      </div>
+    </div>
+  );
+}
+```
+
+---
+
+## Database Actions Checklist
+
+**Location:** `packages/connectors/actions/[module-name].ts`
+
+**Required Actions:**
+
+### Main Entity
+- ✅ `getItems(filters?)` - List with optional filters
+- ✅ `getItem(id)` - Get single item
+- ✅ `createItem(payload)` - Create new
+- ✅ `updateItem(id, payload)` - Update existing
+- ✅ `deleteItem(id)` - Delete (soft or hard)
+- ✅ `getStats()` - Dashboard statistics
+
+### Templates (if applicable)
+- ✅ `getTemplates(filters?)` - List templates
+- ✅ `getTemplate(id)` - Get single template
+- ✅ `createTemplate(payload)` - Create template
+
+### Child Entities
+- ✅ `getChildEntities(parentId)` - Get all children
+- ✅ `createChildEntity(payload)` - Add child
+- ✅ `updateChildEntity(id, payload)` - Update child
+- ✅ `deleteChildEntity(id)` - Delete child
+
+### Export (stub for future)
+- ✅ `exportItemAsPDF(id)` - Placeholder
+- ✅ `exportItemAsDOCX(id)` - Placeholder
+
+**Action Template:**
+```typescript
+"use server";
+
+import { prisma } from "../prisma";
+import type { ActionResult } from "./common";
+
+export async function getItems(filters?: {
+  status?: string;
+}): Promise<ActionResult<DbItem[]>> {
+  try {
+    const data = await prisma.item.findMany({
+      where: {
+        status: filters?.status,
+      },
+      orderBy: { updatedAt: "desc" },
+    });
+    return { success: true, data };
+  } catch (error) {
+    return { success: false, error: String(error) };
+  }
+}
+
+export async function getItem(id: string): Promise<ActionResult<DbItem>> {
+  try {
+    const data = await prisma.item.findUnique({ where: { id } });
+    if (!data) throw new Error(`Item not found: ${id}`);
+    return { success: true, data };
+  } catch (error) {
+    return { success: false, error: String(error) };
+  }
+}
+
+export async function createItem(
+  payload: Omit<DbItem, "id" | "created_at" | "updated_at" | "tenant_id">
+): Promise<ActionResult<DbItem>> {
+  try {
+    const data = await prisma.item.create({
+      data: {
+        name: payload.name,
+        // ... all fields with defaults
+      },
+    });
+    return { success: true, data };
+  } catch (error) {
+    return { success: false, error: String(error) };
+  }
+}
+
+export async function updateItem(
+  id: string,
+  payload: Partial<Omit<DbItem, "id" | "created_at" | "updated_at" | "tenant_id">>
+): Promise<ActionResult<DbItem>> {
+  try {
+    const data = await prisma.item.update({
+      where: { id },
+      data: {
+        name: payload.name,
+        // ... only update provided fields
+      },
+    });
+    return { success: true, data };
+  } catch (error) {
+    return { success: false, error: String(error) };
+  }
+}
+
+export async function deleteItem(id: string): Promise<ActionResult<void>> {
+  try {
+    await prisma.item.delete({ where: { id } });
+    return { success: true, data: undefined };
+  } catch (error) {
+    return { success: false, error: String(error) };
+  }
+}
+
+export async function getStats(): Promise<ActionResult<{
+  totalItems: number;
+  activeItems: number;
+  totalValue: number;
+  averageValue: number;
+}>> {
+  try {
+    const [total, active, items] = await Promise.all([
+      prisma.item.count(),
+      prisma.item.count({ where: { status: "active" } }),
+      prisma.item.findMany({ select: { value: true } }),
+    ]);
+
+    const totalValue = items.reduce((sum, i) => sum + Number(i.value), 0);
+    const averageValue = total > 0 ? Math.round(totalValue / total) : 0;
+
+    return {
+      success: true,
+      data: {
+        totalItems: total,
+        activeItems: active,
+        totalValue,
+        averageValue,
+      },
+    };
+  } catch (error) {
+    return { success: false, error: String(error) };
+  }
+}
+```
+
+---
+
+## Quality Checklist
+
+Before considering a module "complete," verify:
+
+### Functionality (90% target)
+- ✅ Can list all items with filters
+- ✅ Can view complete item details
+- ✅ Can create new items (template or scratch)
+- ✅ Can edit all item fields
+- ✅ Can add/edit/delete child entities
+- ✅ Can delete items (with confirmation)
+- ✅ All changes persist to database
+- ✅ Navigation works (list → detail → edit → back)
+
+### Demo Data (100% target)
+- ✅ 5-10 templates (if applicable)
+- ✅ 3-5 sample items
+- ✅ Multiple statuses represented
+- ✅ Realistic data (names, amounts, dates)
+- ✅ Child entities populated
+- ✅ Relationships working
+- ✅ Seed script runs without errors
+
+### UI/UX (95% target)
+- ✅ Dashboard stats display correctly
+- ✅ List view shows key info
+- ✅ Detail page shows all sections
+- ✅ Editor has logical tab structure
+- ✅ Forms validate required fields
+- ✅ Loading states (buttons disable)
+- ✅ Error handling (alerts/messages)
+- ✅ Responsive design (mobile friendly)
+- ✅ Consistent styling (Tailwind)
+
+### Navigation (100% target)
+- ✅ "New" button → wizard
+- ✅ "View" button → detail page
+- ✅ "Edit" button → editor
+- ✅ "Save" → back to detail
+- ✅ "Cancel" → back to previous
+- ✅ Breadcrumbs/back buttons work
+
+### Database (100% target)
+- ✅ All CRUD actions implemented
+- ✅ Server actions use "use server"
+- ✅ Error handling in all actions
+- ✅ Type safety (TypeScript)
+- ✅ Transactions where needed
+- ✅ Cascade deletes configured
+
+---
+
+## Common Patterns
+
+### Status Badge Component
+```typescript
+function StatusBadge({ status }: { status: string }) {
+  const styles = {
+    draft: "bg-gray-100 text-gray-800",
+    "under-review": "bg-yellow-100 text-yellow-800",
+    active: "bg-blue-100 text-blue-800",
+    approved: "bg-green-100 text-green-800",
+    completed: "bg-purple-100 text-purple-800",
+    cancelled: "bg-red-100 text-red-800",
+  };
+  return (
+    <span className={`inline-flex px-3 py-1 rounded-full text-sm font-medium ${styles[status]}`}>
+      {status.replace("-", " ").toUpperCase()}
+    </span>
+  );
+}
+```
+
+### Delete Confirmation Modal
+```typescript
+{showDeleteConfirm && (
+  <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4 z-50">
+    <div className="bg-white rounded-lg max-w-md w-full p-6">
+      <h3 className="text-lg font-semibold mb-2">Delete [Item]?</h3>
+      <p className="text-sm text-gray-600 mb-6">
+        Are you sure you want to delete "{item.name}"? This action cannot be undone.
+      </p>
+      <div className="flex justify-end gap-3">
+        <button onClick={() => setShowDeleteConfirm(false)}>Cancel</button>
+        <button onClick={handleDelete} className="btn-danger">Delete</button>
+      </div>
+    </div>
+  </div>
+)}
+```
+
+### Currency Formatting
+```typescript
+const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount);
+};
+```
+
+### Date Formatting
+```typescript
+const formatDate = (date?: Date) => {
+  if (!date) return "Not set";
+  return new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  }).format(date);
+};
+
+// For inputs
+const formatDateForInput = (date?: Date) => {
+  if (!date) return "";
+  return date.toISOString().split("T")[0];
+};
+```
+
+---
+
+## Testing Workflow
+
+After building each module:
+
+1. **Run Seed Script:**
+   ```bash
+   cd prisma && npx tsx seed.ts
+   ```
+
+2. **Test List Page:**
+   - Navigate to `/modules/[module-name]`
+   - Verify stats dashboard shows correct numbers
+   - Test filters (status, category, etc.)
+   - Click "View" on each sample item
+
+3. **Test Detail Page:**
+   - Verify all sections display
+   - Check that child entities show
+   - Test "Edit" button navigation
+   - Test "Delete" button (cancel, don't actually delete)
+
+4. **Test Editor:**
+   - Edit main fields
+   - Add new child entity
+   - Edit existing child entity
+   - Delete child entity
+   - Click "Save" and verify redirect
+   - Navigate back to detail to confirm changes persisted
+
+5. **Test Wizard:**
+   - Click "New [Item]"
+   - Select template
+   - Fill out customization form
+   - Create item
+   - Verify redirect to editor
+   - Complete item and save
+   - Check that new item appears in list
+
+6. **Test Edge Cases:**
+   - Try to save with empty required fields (should prevent)
+   - Try to save with invalid data (should show error)
+   - Delete all child entities (should allow)
+   - Cancel during editing (should not save)
+
+---
+
+## Documentation Checklist
+
+After completing each module, create:
+
+### Module Completion Doc
+**Location:** `docs/[MODULE_NAME]_COMPLETE.md`
+
+**Sections:**
+1. Summary (status, completion date, paths)
+2. What Was Built (all 6 steps)
+3. User Workflows (3-5 workflows)
+4. Technical Architecture (schema, components)
+5. Quality Metrics (before/after scores)
+6. Demo Script (5-minute walkthrough)
+7. Files Created/Modified
+8. Git Commits
+
+**Template:** Use `docs/SOW_BUILDER_COMPLETE.md` as reference
+
+---
+
+## Time Breakdown
+
+**Estimated 2-4 hours per module:**
+- Step 1: Demo Data (30 min)
+- Step 2: Seed Script (20 min)
+- Step 3: List Page (45 min)
+- Step 4: Detail Page (60 min)
+- Step 5: Editor (90 min)
+- Step 6: Wizard (45 min)
+- Testing (30 min)
+- Documentation (30 min)
+
+**Total:** 5.5 hours (can be faster with practice)
+
+**Optimization Tips:**
+- Copy/paste from SOW Builder as starting point
+- Use search/replace to rename entities
+- Reuse components where possible
+- Test incrementally (don't wait until end)
+
+---
+
+## Module Priority Order
+
+### Tier 1 - High Value (Do First)
+1. **Impact Analytics** (9/10 quality) - Add demo dashboards
+2. **Dashboard Builder** (8/10 quality) - Add template dashboards
+3. **CPQ Tool** (8/10 quality) - Add sample proposals
+4. **Pipeline Management** (8/10 quality) - Add sample opportunities
+
+### Tier 2 - Medium Value (Do Second)
+5. Commissions Tracker (8/10) - Add sample commission plans
+6. Territories Manager (8/10) - Add sample territories
+7. Forecasting Tools (8/10) - Add sample forecasts
+8. Scoping Assistant (7/10) - Add sample scopes
+
+### Tier 3 - Lower Value (Do Last)
+9-19. Remaining modules (donors, grants, beneficiaries, etc.)
+
+---
+
+## Success Criteria
+
+A module is **COMPLETE** when:
+
+✅ **Functionality:** 85-95% complete (full CRUD, export stubbed)
+✅ **Demo Data:** 100% complete (templates + samples seeded)
+✅ **UI/UX:** 95% complete (responsive, polished, accessible)
+✅ **Navigation:** 100% complete (all links work)
+✅ **Database:** 100% complete (all actions working)
+✅ **Testing:** 100% complete (all workflows tested)
+✅ **Documentation:** 100% complete (completion doc written)
+✅ **Demo-Worthy Score:** 9-10/10
+
+**Result:** Module is ready for sales demos, user testing, and deployment.
+
+---
+
+## Reference Implementation
+
+**SOW Builder Module:**
+- Location: `packages/modules/sow-builder` + `apps/edge/app/modules/sows`
+- Completion Doc: `docs/SOW_BUILDER_COMPLETE.md`
+- Git Commits:
+  - `feat: Add fully functional SOW detail/view page`
+  - `feat: Add comprehensive SOW editor with full CRUD functionality`
+  - `feat: Implement full save functionality for SOW editor`
+  - `feat: Add template wizard for SOW creation + export stubs`
+
+**Use as Template:** Copy SOW Builder structure and adapt for new modules.
+
+---
+
+**Last Updated:** November 25, 2025
+**Pattern Owner:** Claude (AI Assistant)
+**Reference Module:** SOW Builder (100% complete)

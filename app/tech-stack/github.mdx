@@ -1,0 +1,579 @@
+# GitHub - Repository Structure & Workflow
+
+**Last Updated:** November 24, 2025
+
+---
+
+## Organization
+
+**GitHub Organization:** AICodeRally
+**URL:** https://github.com/AICodeRally
+**Former Name:** Prizym-ai (renamed November 22, 2025)
+
+---
+
+## Repositories
+
+### Main Repository: aicoderally-stack
+**URL:** https://github.com/AICodeRally/aicoderally-stack
+**Purpose:** Monorepo for all core AICodeRally applications
+**Visibility:** Private (will be open source eventually)
+
+**Contains:**
+- `apps/studio` - Main application (modules, Pit Wall)
+- `apps/website` - Marketing homepage
+- `packages/modules` - Feature modules
+- `packages/core` - Shared TypeScript types
+- `packages/ui` - Shared UI components
+- `tools/python` - Automation tools, Control Panel
+- `.ai/` - AI agent memory (persists across sessions)
+
+**Branch Strategy:**
+- `master` - Main branch (auto-deploys to Vercel)
+- Feature branches: `feature/name` (merge via PR)
+- Hotfix branches: `hotfix/name` (fast-track to master)
+
+---
+
+## Commit Conventions
+
+### Format
+```
+<type>: <short description>
+
+<detailed description>
+
+<footer>
+```
+
+### Types
+- `feat:` - New feature
+- `fix:` - Bug fix
+- `docs:` - Documentation only
+- `style:` - Code formatting (no logic change)
+- `refactor:` - Code restructure (no behavior change)
+- `perf:` - Performance improvement
+- `test:` - Add or update tests
+- `chore:` - Maintenance (dependencies, config)
+
+### Examples
+```bash
+feat: Add AI Memory Manager module
+
+Created web-based tool to manage .ai/ directory files.
+Users can now edit AI memory visually without terminal.
+
+Features:
+- File browser with metadata
+- Live markdown editor
+- Auto git commits
+- History viewer
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+```
+
+```bash
+fix: Resolve console logging security issue
+
+Replaced all console.log calls with production-safe logger.
+Prevents sensitive data from leaking in production logs.
+
+Updated files:
+- 11 API route files
+- hooks/usePitWallRealtime.ts
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+```
+
+### AI Commits (Standard Footer)
+Always include when AI generates code:
+```
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+```
+
+---
+
+## GitHub CLI (`gh`) Usage
+
+**Installed:** ✅ v2.83.1 at `/opt/homebrew/bin/gh`
+
+### Common Commands
+
+**Pull Requests:**
+```bash
+# Create PR
+gh pr create --title "Feature name" --body "Description"
+
+# Create PR with labels
+gh pr create --title "Fix bug" --label "bug" --label "high-priority"
+
+# List PRs
+gh pr list
+gh pr list --state open
+gh pr list --author toddleb
+
+# View PR
+gh pr view 123
+gh pr view --web  # Open in browser
+
+# Check PR status
+gh pr status
+
+# Merge PR
+gh pr merge 123 --squash
+gh pr merge 123 --merge
+gh pr merge 123 --rebase
+
+# Review PR
+gh pr review 123 --approve
+gh pr review 123 --request-changes --body "Needs tests"
+
+# Checkout PR locally
+gh pr checkout 123
+```
+
+**Issues:**
+```bash
+# Create issue
+gh issue create --title "Bug report" --body "Description"
+
+# List issues
+gh issue list
+gh issue list --label "bug"
+gh issue list --assignee toddleb
+
+# View issue
+gh issue view 456
+
+# Close issue
+gh issue close 456
+
+# Reopen issue
+gh issue reopen 456
+```
+
+**Repository Info:**
+```bash
+# View repo
+gh repo view
+gh repo view --web
+
+# Clone repo
+gh repo clone AICodeRally/aicoderally-stack
+
+# Fork repo
+gh repo fork
+
+# View branches
+gh repo view --json defaultBranchRef
+```
+
+**Workflows (GitHub Actions):**
+```bash
+# List workflow runs
+gh run list
+
+# View specific run
+gh run view <run-id>
+
+# Watch run in real-time
+gh run watch
+
+# Rerun failed jobs
+gh run rerun <run-id>
+```
+
+---
+
+## Git Workflow (AI Agents)
+
+### Standard Workflow
+```bash
+# 1. Check status
+git status
+git diff
+
+# 2. Stage changes
+git add .
+# Or specific files:
+git add apps/studio/app/modules/new-module/
+
+# 3. Commit with message
+git commit -m "feat: Add new module
+
+Description of changes
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>"
+
+# 4. Push to GitHub (triggers Vercel deploy)
+git push origin master
+```
+
+### Feature Branch Workflow
+```bash
+# 1. Create branch
+git checkout -b feature/ai-memory-manager
+
+# 2. Make changes, commit
+git add .
+git commit -m "feat: Create AI Memory Manager"
+
+# 3. Push branch
+git push origin feature/ai-memory-manager
+
+# 4. Create PR
+gh pr create --title "Add AI Memory Manager" --body "Description"
+
+# 5. After approval, merge
+gh pr merge --squash
+```
+
+### Hotfix Workflow
+```bash
+# 1. Create hotfix branch
+git checkout -b hotfix/security-fix
+
+# 2. Make urgent fix
+git add .
+git commit -m "fix: Patch security vulnerability"
+
+# 3. Push and merge immediately
+git push origin hotfix/security-fix
+gh pr create --title "URGENT: Security fix" --label "urgent"
+gh pr merge --squash
+
+# 4. Deploy verifies automatically
+```
+
+---
+
+## .gitignore Strategy
+
+**Always Ignore:**
+```gitignore
+# Dependencies
+node_modules/
+.pnpm-store/
+.venv/
+__pycache__/
+
+# Environment variables (secrets)
+.env
+.env.local
+.env.*.local
+
+# Build outputs
+.next/
+out/
+dist/
+build/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Backups (store in S3 instead)
+backups/*.sql
+backups/*.sql.gz
+```
+
+**Never Ignore:**
+```gitignore
+# DO commit these:
+.ai/              # AI memory (critical!)
+.env.example      # Template for env vars
+README.md         # Documentation
+migrations/       # Database schema
+```
+
+---
+
+## Branch Protection Rules
+
+**Master Branch:**
+- ⚠️ Currently: Direct push allowed (for rapid development)
+- 🎯 Future: Require PR approval before merge
+- 🎯 Future: Require passing CI/CD checks
+- 🎯 Future: Require code review from 1+ person
+
+**Feature Branches:**
+- No restrictions
+- Delete after merge
+
+---
+
+## GitHub Actions (Future)
+
+**Planned CI/CD Workflows:**
+
+```yaml
+# .github/workflows/ci.yml
+name: CI
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+      - run: pnpm install
+      - run: pnpm typecheck
+      - run: pnpm test (when we have tests)
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: pnpm install
+      - run: pnpm lint
+```
+
+**Status:** Not implemented yet (manual testing for now)
+
+---
+
+## Collaboration Guidelines
+
+### Code Review Checklist
+- [ ] Does it follow Rally module patterns?
+- [ ] Are types properly defined?
+- [ ] Is it documented (if complex)?
+- [ ] Does it work locally?
+- [ ] Are there any console.log calls? (use logger instead)
+- [ ] Are secrets properly handled?
+- [ ] Is it tested? (once we have tests)
+
+### PR Description Template
+```markdown
+## What This Does
+Brief description of changes
+
+## Why We Need This
+Problem this solves or feature it adds
+
+## How to Test
+1. Step 1
+2. Step 2
+3. Expected result
+
+## Screenshots (if UI change)
+[Add screenshots]
+
+## Checklist
+- [ ] Tested locally
+- [ ] Follows code standards
+- [ ] Documentation updated
+- [ ] No console.log calls
+```
+
+---
+
+## Repository Metrics
+
+**Track These:**
+- Commit frequency (velocity)
+- PR merge time (efficiency)
+- Issue close rate (responsiveness)
+- Code coverage (once we have tests)
+- Bundle size (performance)
+
+**View Metrics:**
+```bash
+# Commit activity
+gh repo view --json commits
+
+# Contributors
+gh api repos/AICodeRally/aicoderally-stack/contributors
+
+# Traffic (requires admin)
+gh api repos/AICodeRally/aicoderally-stack/traffic/views
+```
+
+---
+
+## GitHub Integrations
+
+**Connected Services:**
+- ✅ Vercel (auto-deploy on push to master)
+- ✅ Prisma Postgres (via Vercel Storage)
+- ❌ Sentry (error tracking - not set up)
+- ❌ Dependabot (security updates - not enabled)
+
+**Future Integrations:**
+- Linear (issue tracking)
+- Slack (notifications)
+- CodeCov (test coverage)
+
+---
+
+## Security
+
+### Secrets Management
+- ✅ Never commit `.env` files
+- ✅ Use GitHub Secrets for CI/CD
+- ✅ Use Vercel env vars for production
+- ✅ Rotate API keys regularly
+
+### Access Control
+- **Owner:** Todd LeBaron
+- **Collaborators:** (add as needed)
+- **Outside Contributors:** Not allowed (private repo)
+
+### Vulnerability Scanning
+```bash
+# Check for known vulnerabilities
+pnpm audit
+
+# Fix automatically (if possible)
+pnpm audit --fix
+
+# Check GitHub Security tab
+gh browse security
+```
+
+---
+
+## Git Best Practices
+
+### DO:
+- ✅ Commit often (small, focused commits)
+- ✅ Write clear commit messages
+- ✅ Push frequently (backup + collaboration)
+- ✅ Use branches for features
+- ✅ Review diffs before committing
+- ✅ Keep `.ai/` directory updated
+
+### DON'T:
+- ❌ Commit secrets or API keys
+- ❌ Commit node_modules or build artifacts
+- ❌ Force push to master (`git push --force`)
+- ❌ Commit without testing
+- ❌ Use vague messages ("fix stuff", "wip")
+
+---
+
+## Useful Git Commands
+
+```bash
+# Undo last commit (keep changes)
+git reset --soft HEAD~1
+
+# Undo last commit (discard changes)
+git reset --hard HEAD~1
+
+# See commit history
+git log --oneline -10
+git log --graph --all
+
+# Show what changed in commit
+git show <commit-hash>
+
+# Find when a line was changed
+git blame <file>
+
+# Search commit messages
+git log --grep="memory"
+
+# See who worked on project
+git shortlog -sn
+
+# Clean untracked files
+git clean -fd
+
+# Stash changes temporarily
+git stash
+git stash pop
+
+# View remote info
+git remote -v
+git remote show origin
+```
+
+---
+
+## GitHub API Access
+
+```bash
+# Authenticate
+gh auth login
+
+# API request
+gh api repos/AICodeRally/aicoderally-stack
+
+# Get repo stars
+gh api repos/AICodeRally/aicoderally-stack --jq '.stargazers_count'
+
+# List releases
+gh api repos/AICodeRally/aicoderally-stack/releases
+
+# Create release
+gh release create v1.0.0 --title "Version 1.0" --notes "First release"
+```
+
+---
+
+## Troubleshooting
+
+**"Permission denied"**
+```bash
+# Check SSH keys
+ssh -T git@github.com
+
+# Or use HTTPS instead
+git remote set-url origin https://github.com/AICodeRally/aicoderally-stack.git
+```
+
+**"Conflict when merging"**
+```bash
+# Abort merge
+git merge --abort
+
+# Or resolve manually
+git status  # See conflicted files
+# Edit files, remove conflict markers
+git add .
+git commit
+```
+
+**"Accidentally committed secret"**
+```bash
+# If not pushed yet
+git reset HEAD~1
+# Remove from .env, add to .gitignore
+git add .gitignore
+git commit -m "Add .env to gitignore"
+
+# If already pushed - ROTATE THE SECRET IMMEDIATELY
+# Then use BFG Repo-Cleaner to remove from history
+```
+
+---
+
+## Resources
+
+- **GitHub Docs:** https://docs.github.com
+- **GitHub CLI Docs:** https://cli.github.com/manual
+- **Git Docs:** https://git-scm.com/doc
+- **Pro Git Book:** https://git-scm.com/book
+
+---
+
+**This file is part of AI memory - AI agents always read this for Git/GitHub operations.**

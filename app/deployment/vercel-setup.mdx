@@ -1,0 +1,172 @@
+# Vercel Environment Variables Setup
+
+## Quick Setup Guide
+
+Follow these steps to add API tokens to your Vercel deployment:
+
+### Step 1: Get Your API Tokens
+
+#### GitHub Token (Already Configured)
+Your GitHub CLI is already authenticated. To get a token for Vercel:
+
+1. Go to: https://github.com/settings/tokens/new
+2. Name: `Vercel Health Dashboard`
+3. Scopes needed:
+   - ✅ `repo` (all)
+   - ✅ `read:org`
+4. Click **Generate token**
+5. Copy the token (starts with `ghp_`)
+
+#### Vercel Token
+1. Go to: https://vercel.com/account/tokens
+2. Click **Create Token**
+3. Name: `Health Dashboard API`
+4. Scope: **Full Account**
+5. Click **Create**
+6. Copy the token
+
+#### Supabase Token
+1. Go to: https://supabase.com/dashboard/account/tokens
+2. Click **Generate new token**
+3. Name: `Health Dashboard API`
+4. Click **Generate Token**
+5. Copy the token
+
+---
+
+### Step 2: Add Environment Variables to Vercel
+
+1. **Go to Vercel Dashboard:**
+   - Visit: https://vercel.com/aicoderally
+
+2. **Select Project:**
+   - Click on **aicoderally-website**
+
+3. **Go to Settings:**
+   - Click **Settings** tab
+   - Click **Environment Variables** in sidebar
+
+4. **Add These Variables:**
+
+   | Variable Name | Value | Environment |
+   |--------------|-------|-------------|
+   | `GITHUB_TOKEN` | `ghp_xxxxx` (your token) | Production, Preview, Development |
+   | `VERCEL_TOKEN` | `xxxxx` (your token) | Production, Preview, Development |
+   | `SUPABASE_ACCESS_TOKEN` | `xxxxx` (your token) | Production, Preview, Development |
+   | `NEXT_PUBLIC_ADMIN_PASSWORD` | `YourSecurePassword123!` | Production, Preview, Development |
+
+5. **Save Each Variable:**
+   - Enter name
+   - Enter value
+   - Select all environments (Production, Preview, Development)
+   - Click **Save**
+
+---
+
+### Step 3: Redeploy
+
+1. Go to **Deployments** tab
+2. Find the latest deployment
+3. Click the **•••** menu
+4. Click **Redeploy**
+5. Wait 1-2 minutes for deployment to complete
+
+---
+
+### Step 4: Test Your Dashboard
+
+1. Visit: https://aicoderally.com/admin/health
+2. Enter your password
+3. Click on **GitHub** card
+4. You should see real GitHub repos from AICodeRally org!
+
+---
+
+## Quick Copy-Paste Template
+
+After getting your tokens, here's what to add:
+
+```bash
+# 1. GitHub Token (from https://github.com/settings/tokens/new)
+GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+# 2. Vercel Token (from https://vercel.com/account/tokens)
+VERCEL_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+# 3. Supabase Token (from https://supabase.com/dashboard/account/tokens)
+SUPABASE_ACCESS_TOKEN=sbp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+# 4. Admin Password (choose your own secure password)
+NEXT_PUBLIC_ADMIN_PASSWORD=YourSecurePassword123!
+```
+
+---
+
+## What Each Token Does
+
+### GITHUB_TOKEN
+- Fetches real-time data from AICodeRally GitHub organization
+- Shows repo health status, open issues, last updates
+- Without it: Shows empty repos list
+
+### VERCEL_TOKEN
+- Fetches deployment status from Vercel projects
+- Shows build times, deployment URLs, framework info
+- Without it: Shows fallback projects (studio, website)
+
+### SUPABASE_ACCESS_TOKEN
+- Fetches database metrics from Supabase
+- Shows table counts, API requests, regions
+- Without it: Shows fallback databases (studio-prod, shared-prod)
+
+### NEXT_PUBLIC_ADMIN_PASSWORD
+- Required for accessing admin dashboard
+- Default: `aicoderally2025`
+- Change to your own secure password
+
+---
+
+## Security Notes
+
+- ✅ All tokens are stored securely in Vercel
+- ✅ Tokens are never exposed to the browser
+- ✅ All API calls run server-side as serverless functions
+- ✅ Admin password is client-side but session-based
+- ⚠️ Never commit tokens to Git
+- ⚠️ Change default password for production
+
+---
+
+## Troubleshooting
+
+**"Not authorized" errors in API logs:**
+- Check that tokens are added to Vercel
+- Verify all environments are selected (Production, Preview, Development)
+- Redeploy after adding tokens
+
+**Still seeing fallback data:**
+- Check Vercel deployment logs for errors
+- Verify tokens have correct scopes/permissions
+- Wait a few minutes for cache to expire (5-minute cache)
+
+**Password doesn't work:**
+- Clear browser session storage
+- Check `NEXT_PUBLIC_ADMIN_PASSWORD` is set in Vercel
+- Redeploy after changing password
+
+---
+
+## Quick Links
+
+- 🔗 Vercel Dashboard: https://vercel.com/aicoderally/aicoderally-website
+- 🔗 GitHub Tokens: https://github.com/settings/tokens
+- 🔗 Vercel Tokens: https://vercel.com/account/tokens
+- 🔗 Supabase Tokens: https://supabase.com/dashboard/account/tokens
+- 🔗 Admin Dashboard: https://aicoderally.com/admin/health
+
+---
+
+**Estimated Setup Time:** 5-10 minutes
+**Cost:** $0/month (all free tiers)
+
+🚀 Your dashboard will show real-time data once tokens are added!

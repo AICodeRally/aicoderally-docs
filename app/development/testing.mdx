@@ -1,0 +1,392 @@
+# AICodeRally Testing Infrastructure
+
+Comprehensive testing suite for validating system health, security, and configuration.
+
+## 📋 Table of Contents
+
+1. [Overview](#overview)
+2. [Test Suites](#test-suites)
+3. [Running Tests](#running-tests)
+4. [Testing Module (Admin UI)](#testing-module-admin-ui)
+5. [Environment Variable Validation](#environment-variable-validation)
+6. [Test Results](#test-results)
+7. [Continuous Integration](#continuous-integration)
+
+## 🎯 Overview
+
+This testing infrastructure provides comprehensive validation of:
+
+- ✅ **Authentication Security** - API route authentication, preventing impersonation attacks
+- ✅ **Environment Variables** - All required vars are set locally and on Vercel
+- ✅ **Database Connectivity** - Connection health, schema validation, query performance
+- ✅ **AI Provider Integration** - Anthropic, OpenAI, and Hugging Face API connectivity
+- ✅ **Security Configuration** - Secret management, SSL, authentication settings
+
+## 🧪 Test Suites
+
+### 1. Authentication Tests (`__tests__/api/pit-wall/*.test.ts`)
+
+**Purpose**: Validate that all Pit Wall API routes properly authenticate users and prevent impersonation attacks.
+
+**Test Files**:
+- `threads.test.ts` - Thread creation authentication (✅ 5/5 passing)
+- `comments.test.ts` - Comment creation authentication
+- `reactions.test.ts` - Reaction add/remove authentication
+- `attachments.test.ts` - File upload authentication
+
+**What's Tested**:
+- Unauthenticated requests are rejected (401)
+- Authenticated requests succeed
+- Client-provided user identities are ignored (prevents impersonation)
+- Server-verified authenticated user is used
+- Missing data is validated (400)
+- Non-existent resources return 404
+- Database errors return 500
+
+**Run**: `pnpm --filter studio test -- threads.test.ts`
+
+### 2. Environment Variable Tests (`__tests__/integration/env-validation.test.ts`)
+
+**Purpose**: Validate all required environment variables are properly configured.
+
+**Variables Tested**:
+- Database URLs (DATABASE_URL, PRISMA_DATABASE_URL, DIRECT_URL)
+- Authentication (NEXTAUTH_SECRET, NEXTAUTH_URL)
+- AI Providers (ANTHROPIC_API_KEY, OPENAI_API_KEY, HUGGING_FACE_API_KEY)
+- Storage (BLOB_READ_WRITE_TOKEN)
+- Real-time (Pusher variables)
+
+**Validations**:
+- Variables exist and are not empty
+- API keys have correct format (sk-ant-, sk-, etc.)
+- Secrets are sufficiently long (NEXTAUTH_SECRET >= 32 chars)
+- Database URLs are valid PostgreSQL connections
+- No secrets exposed in NEXT_PUBLIC_ variables
+
+**Run**: `pnpm --filter studio test -- env-validation.test.ts`
+
+### 3. Database Tests (`__tests__/integration/database.test.ts`)
+
+**Purpose**: Validate database connectivity and schema integrity.
+
+**What's Tested**:
+- Basic connection works
+- All required tables exist (DevThread, DevComment, DevReaction, DevAttachment)
+- Query performance (<5s for simple queries)
+- Transactions work correctly
+- Migrations have been applied
+- Schema matches expected structure
+
+**Run**: `pnpm --filter studio test -- database.test.ts`
+
+### 4. AI Provider Tests (`__tests__/integration/ai-providers.test.ts`)
+
+**Purpose**: Validate AI provider integrations are working.
+
+**Providers Tested**:
+- Anthropic (Claude) - API connection, model availability
+- OpenAI (GPT) - API connection, model availability
+- Hugging Face - API connection
+- @ai-sdk integration - Provider configuration
+
+**What's Tested**:
+- API credentials are valid
+- Can connect to each provider's API
+- Models respond to test queries
+- Rate limits are handled gracefully
+- Error handling works correctly
+- Consensus mechanism (multi-AI calls) works
+
+**Run**: `pnpm --filter studio test -- ai-providers.test.ts`
+
+**Note**: These tests make real API calls and consume tokens. Use sparingly.
+
+## 🚀 Running Tests
+
+### Run All Tests
+
+```bash
+# From monorepo root
+pnpm --filter studio test
+
+# From studio directory
+cd apps/studio && pnpm test
+```
+
+### Run Specific Test Suites
+
+```bash
+# Authentication tests only
+pnpm --filter studio test -- threads.test.ts
+
+# Environment validation only
+pnpm --filter studio test -- env-validation.test.ts
+
+# Database tests only
+pnpm --filter studio test -- database.test.ts
+
+# AI provider tests only (WARNING: makes real API calls)
+pnpm --filter studio test -- ai-providers.test.ts
+```
+
+### Run Tests in Watch Mode
+
+```bash
+pnpm --filter studio test:watch
+```
+
+### Generate Coverage Report
+
+```bash
+pnpm --filter studio test:coverage
+```
+
+## 🖥️ Testing Module (Admin UI)
+
+A dedicated admin module provides a visual interface for running system tests.
+
+### Access
+
+Navigate to: **Admin → System Testing & Validation**
+
+or directly: `/modules/system-testing`
+
+### Features
+
+- ✨ **Interactive Test Selection** - Choose which test suites to run
+- 📊 **Real-time Results** - See test results as they complete
+- 🎨 **Visual Status Indicators** - Green (passed), Red (failed), Blue (running)
+- 📈 **Performance Metrics** - Test duration and performance stats
+- 🔍 **Detailed Error Messages** - See exactly what failed and why
+
+### Available Test Suites in UI
+
+1. **All Tests** - Run everything
+2. **Environment Variables** - Validate all env vars
+3. **Database Connection** - Test database health
+4. **AI Providers** - Test Anthropic, OpenAI, Hugging Face
+5. **Security** - Validate security configuration
+
+### API Endpoint
+
+The testing module uses a server-side API route:
+
+```typescript
+POST /api/system-testing/run
+Body: { suites: ['env', 'database', 'ai', 'security'] }
+```
+
+## 🔐 Environment Variable Validation
+
+### Validation Script
+
+A CLI script validates that local and Vercel environments are in sync:
+
+```bash
+cd scripts
+ts-node validate-env-sync.ts
+```
+
+**What it checks**:
+- All required variables exist locally
+- All required variables exist on Vercel
+- Variables that are missing in either location
+- Format validation for key variables
+
+**Output**:
+```
+🔍 Environment Variable Sync Validator
+
+📁 Local environment: /apps/studio/.env.local
+   Found 15 variables
+
+☁️  Vercel environment:
+   Found 15 variables
+
+✅ Checking required variables:
+
+✅ DATABASE_URL                    Both
+✅ ANTHROPIC_API_KEY               Both
+⚠️  PUSHER_APP_ID                  Local only
+❌ BLOB_READ_WRITE_TOKEN           Missing
+
+📊 Summary:
+   ✅ Present: 13/15
+   ❌ Missing: 2/15
+```
+
+### Adding Missing Variables
+
+#### Locally (`.env.local`)
+
+```bash
+cd apps/studio
+echo "VARIABLE_NAME=value" >> .env.local
+```
+
+#### Vercel (Production)
+
+```bash
+# Interactive
+vercel env add VARIABLE_NAME
+
+# Or via Vercel Dashboard
+# https://vercel.com/your-project/settings/environment-variables
+```
+
+## 📊 Test Results
+
+### Current Status
+
+| Test Suite | Status | Tests | Passing | Failing |
+|------------|--------|-------|---------|---------|
+| Thread Authentication | ✅ PASSING | 5 | 5 | 0 |
+| Comment Authentication | ⏳ CREATED | TBD | TBD | TBD |
+| Reaction Authentication | ⏳ CREATED | TBD | TBD | TBD |
+| Attachment Authentication | ⏳ CREATED | TBD | TBD | TBD |
+| Environment Variables | ⚠️  PARTIAL | 34 | 9 | 25 |
+| Database Connection | ⏳ CREATED | TBD | TBD | TBD |
+| AI Providers | ⏳ CREATED | TBD | TBD | TBD |
+
+**Note**: Partial failures in Environment Variables are expected if you haven't configured all optional services (Pusher, Vercel Blob, etc.)
+
+### Required Actions
+
+If env var tests are failing, you need to:
+
+1. **Check which variables are missing**:
+   ```bash
+   pnpm --filter studio test -- env-validation.test.ts 2>&1 | grep "●"
+   ```
+
+2. **Add missing variables to `.env.local`**
+
+3. **Add same variables to Vercel**:
+   ```bash
+   vercel env add VARIABLE_NAME
+   ```
+
+4. **Redeploy**:
+   ```bash
+   vercel --prod
+   ```
+
+## 🔄 Continuous Integration
+
+### GitHub Actions (Coming Soon)
+
+```yaml
+name: Test Suite
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+      - uses: actions/setup-node@v3
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Run tests
+        run: pnpm --filter studio test
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          # ... other secrets
+```
+
+### Pre-commit Hooks
+
+Tests are NOT automatically run on commit (too slow). Run manually before pushing:
+
+```bash
+pnpm --filter studio test
+```
+
+Or add to your workflow:
+
+```bash
+git commit && pnpm --filter studio test && git push
+```
+
+## 🛠️ Development
+
+### Adding New Tests
+
+1. **Create test file**: `__tests__/your-feature/your-test.test.ts`
+
+2. **Follow existing patterns**:
+   ```typescript
+   describe('Your Feature', () => {
+     it('should do something', async () => {
+       const result = await yourFunction()
+       expect(result).toBeDefined()
+     })
+   })
+   ```
+
+3. **Run new tests**:
+   ```bash
+   pnpm --filter studio test -- your-test.test.ts
+   ```
+
+4. **Add to Testing Module** (if needed):
+   Edit `apps/edge/app/api/system-testing/run/route.ts`
+
+### Best Practices
+
+- ✅ Keep tests fast (<5s per test when possible)
+- ✅ Mock external services when appropriate
+- ✅ Test both success and failure cases
+- ✅ Use descriptive test names
+- ✅ Clean up resources in `afterEach` or `afterAll`
+- ✅ Don't test implementation details, test behavior
+- ⚠️  Minimize real API calls (they cost money)
+
+## 📚 Resources
+
+- [Jest Documentation](https://jestjs.io/)
+- [Testing Library](https://testing-library.com/)
+- [Next.js Testing](https://nextjs.org/docs/testing)
+- [AICodeRally Security Audit](./roadmap/claude%20roadmap%20for%20ai%20code%20rally.md)
+
+## 🚨 Troubleshooting
+
+### Tests failing with "Environment variable not found"
+
+**Solution**: Create `.env.local` file:
+```bash
+cd apps/studio
+cp .env.local.example .env.local  # if example exists
+# OR
+echo "VARIABLE_NAME=value" >> .env.local
+```
+
+### Database tests failing
+
+**Solution**: Ensure database is running and accessible:
+```bash
+# Check connection
+psql $DATABASE_URL -c "SELECT 1"
+
+# Run migrations
+pnpm prisma migrate dev
+```
+
+### AI tests failing with rate limit errors
+
+**Solution**: This is expected - tests make real API calls. Wait a minute and retry.
+
+### Tests pass locally but fail in CI
+
+**Solution**: Ensure all secrets are configured in GitHub Actions or Vercel CI.
+
+---
+
+**Last Updated**: 2025-11-26
+**Maintained By**: AICodeRally Security Team
+**Questions**: Check [__tests__/README.md](./apps/studio/__tests__/README.md) for detailed test documentation

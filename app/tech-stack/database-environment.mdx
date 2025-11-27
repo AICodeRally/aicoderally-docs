@@ -1,0 +1,183 @@
+# Database Environment Setup
+
+**Last Updated:** November 26, 2025
+
+## Overview
+
+AICodeRally uses environment-based database selection to automatically route to the correct database:
+
+- **Production deployments** → `aicr_prod_*` database
+- **Preview/Development deployments** → `aicr_dev_*` database
+
+## How It Works
+
+The Prisma connector (`packages/connectors/prisma.ts`) automatically selects the correct database based on `VERCEL_ENV`:
+
+```typescript
+const isProduction = process.env.VERCEL_ENV === 'production';
+
+const databaseUrl = isProduction
+  ? process.env.aicr_prod_PRISMA_DATABASE_URL  // Production
+  : process.env.aicr_dev__PRISMA_DATABASE_URL;  // Preview/Dev
+```
+
+## Vercel Environment Variables
+
+Both prefixed and generic database URLs are configured in Vercel:
+
+### Prefixed (Automatic from Prisma Postgres Integration)
+- `aicr_prod_DATABASE_URL` - Production direct connection
+- `aicr_prod_PRISMA_DATABASE_URL` - Production via Accelerate
+- `aicr_prod_POSTGRES_URL` - Production PostgreSQL URL
+- `aicr_dev__DATABASE_URL` - Development direct connection
+- `aicr_dev__PRISMA_DATABASE_URL` - Development via Accelerate
+- `aicr_dev__POSTGRES_URL` - Development PostgreSQL URL
+
+### Generic (Fallback)
+- `DATABASE_URL` - Fallback direct connection
+- `PRISMA_DATABASE_URL` - Fallback Accelerate connection
+- `DIRECT_URL` - Fallback direct connection
+
+## Database Instances
+
+### Production: `aicr_prod`
+**Tenant ID:** `e9b47c5f56e1fb2aa41f31bbcd20849a34a9d2d59dcb90da01a4add86256f161`
+
+**Used by:**
+- studio.aicoderally.com (production)
+- edge.aicoderally.com (production)
+- summit.aicoderally.com (production)
+
+### Development: `aicr_dev_`
+**Tenant ID:** `8c7b682a20aaa4f1329df034288c70bc50a765d5636407fe8c59283430f7829f`
+
+**Used by:**
+- Preview deployments (PRs, branches)
+- Local development
+- Vercel development environment
+
+## Local Development
+
+Your local `.env.local` file should use the dev database:
+
+```bash
+# .env.local
+DATABASE_URL="postgres://8c7b682a...@db.prisma.io:5432/postgres?sslmode=require"
+PRISMA_DATABASE_URL="prisma+postgres://accelerate.prisma-data.net/?api_key=..."
+DIRECT_URL="postgres://8c7b682a...@db.prisma.io:5432/postgres?sslmode=require"
+```
+
+## Deployment Behavior
+
+### When You Push to Master
+1. Vercel triggers production build
+2. `VERCEL_ENV=production` is set
+3. Connector selects `aicr_prod_PRISMA_DATABASE_URL`
+4. App connects to **production database**
+
+### When You Create a PR
+1. Vercel creates preview deployment
+2. `VERCEL_ENV=preview` is set
+3. Connector selects `aicr_dev__PRISMA_DATABASE_URL`
+4. App connects to **dev database**
+
+### When You Run Locally
+1. `VERCEL_ENV` is not set
+2. Connector selects `aicr_dev__PRISMA_DATABASE_URL`
+3. App connects to **dev database**
+
+## Debugging
+
+### Check Which Database Is Connected
+
+In development mode, the connector logs which database it's using:
+
+```
+[Prisma] Using DEVELOPMENT database
+```
+
+or
+
+```
+[Prisma] Using PRODUCTION database
+```
+
+### Verify Environment Variables
+
+```bash
+# Local
+cat .env.local | grep DATABASE_URL
+
+# Vercel
+vercel env ls
+vercel env pull .env.vercel
+cat .env.vercel | grep aicr
+```
+
+### Test Database Connection
+
+```bash
+# Generate Prisma client
+npx prisma generate
+
+# Test connection (uses DIRECT_URL)
+npx prisma db execute --stdin <<< "SELECT 1"
+
+# Open Prisma Studio
+npx prisma studio
+```
+
+## Migration Workflow
+
+### For Development Database
+```bash
+# 1. Make schema changes in prisma/schema.prisma
+# 2. Push to dev database
+DATABASE_URL=$aicr_dev__DATABASE_URL npx prisma db push
+
+# 3. Verify in Prisma Studio
+npx prisma studio
+```
+
+### For Production Database
+```bash
+# 1. Test schema changes in dev first
+# 2. When ready, push to production
+DATABASE_URL=$aicr_prod_DATABASE_URL npx prisma db push
+
+# 3. Deploy to production
+git push origin master
+```
+
+## Security
+
+✅ **Secrets are encrypted** in Vercel
+✅ **Each environment** uses isolated database
+✅ **Production data** never exposed to preview/dev
+✅ **Database URLs** never committed to git
+
+## Troubleshooting
+
+### "Can't reach database server"
+- Verify environment variables are set in Vercel
+- Check that Prisma Postgres integration is connected
+- Ensure `VERCEL_ENV` is set correctly
+
+### "Database is empty"
+- Run migrations: `npx prisma db push`
+- Seed data: `npx prisma db seed`
+
+### "Wrong database being used"
+- Check the console log: `[Prisma] Using X database`
+- Verify `VERCEL_ENV` environment variable
+- Check that prefixed variables exist in Vercel
+
+## Resources
+
+- [Prisma Postgres Docs](https://www.prisma.io/postgres)
+- [Vercel Environment Variables](https://vercel.com/docs/projects/environment-variables)
+- [Database Guide](/tech-stack/database)
+
+---
+
+**This documentation explains how AICodeRally automatically selects the correct database based on deployment environment.**

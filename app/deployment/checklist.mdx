@@ -1,0 +1,299 @@
+# Deployment Checklist - SOW Builder & Pipeline Management
+
+## Issue: "Looks the same to me"
+
+### Problem Diagnosis
+
+**Most Likely Issues:**
+1. ❌ **Wrong URL** - Visiting `/modules/sow-builder` instead of `/modules/sows`
+2. ❌ **Database not seeded** - Demo data not in production database
+3. ❌ **Build not triggered** - Vercel hasn't rebuilt with new code
+4. ❌ **Caching** - Browser showing old cached version
+
+---
+
+## ✅ Step 1: Verify Correct URLs
+
+**SOW Builder Module:**
+- ✅ **CORRECT:** `https://your-edge-domain.vercel.app/modules/sows`
+- ❌ **WRONG:** `https://your-edge-domain.vercel.app/modules/sow-builder`
+
+**Pipeline Management Module:**
+- ✅ **CORRECT:** `https://your-edge-domain.vercel.app/modules/pipeline`
+- ❌ **WRONG:** `https://your-edge-domain.vercel.app/modules/pipeline-management`
+
+**Edge Landing Page:**
+- ✅ Visit: `https://your-edge-domain.vercel.app/`
+- Should show all 19 modules including "SOW Builder" and "Pipeline Management"
+
+---
+
+## ✅ Step 2: Check Vercel Deployment
+
+1. Go to Vercel Dashboard
+2. Find your Edge project
+3. Check "Deployments" tab
+4. Verify latest commit is deployed:
+   - Should see commit: `c196f4a` - "Add Pipeline Management progress tracker"
+   - Status should be: ✅ Ready (not Building or Failed)
+
+5. **If deployment failed:**
+   - Click on failed deployment
+   - View logs
+   - Look for build errors
+   - Most common: TypeScript errors, missing env vars
+
+6. **If deployment is stuck:**
+   - Trigger manual redeploy:
+   - Deployments → Latest → ⋯ (three dots) → Redeploy
+
+---
+
+## ✅ Step 3: Seed the Database
+
+**The database needs demo data to show SOWs and opportunities.**
+
+### Option A: Seed from Local (Recommended)
+
+```bash
+# From project root
+cd /Users/todd.lebaron/dev/aicoderally-stack
+
+# Make sure DATABASE_URL points to production database
+cat .env | grep DATABASE_URL
+
+# Run seed script
+npx prisma db seed
+
+# You should see:
+# ✅ SOW Builder seeded successfully!
+#    - 7 templates
+#    - 4 sample SOWs
+# ✅ Pipeline Management seeded successfully!
+#    - 15 opportunities
+```
+
+### Option B: Seed from Vercel (Advanced)
+
+1. Go to Vercel Dashboard → Your Project → Settings → Functions
+2. Add a serverless function to run seed:
+   ```typescript
+   // api/seed.ts
+   import { seedMain } from '../prisma/seed';
+   export default async function handler(req, res) {
+     await seedMain();
+     res.json({ success: true });
+   }
+   ```
+3. Visit: `https://your-domain.vercel.app/api/seed`
+
+### Option C: Manual SQL (Quick Test)
+
+If you just want to test one SOW:
+```sql
+INSERT INTO "SOWDocument" (id, tenant_id, client_name, project_name, total_budget, start_date, status, version, created_at, updated_at)
+VALUES ('sow-001', 'shared', 'TechFlow Solutions', 'FY2026 Compensation Redesign', 425000, '2025-12-01', 'approved', 1, NOW(), NOW());
+```
+
+---
+
+## ✅ Step 4: Clear Browser Cache
+
+**Hard refresh to see new changes:**
+- **Mac:** Cmd + Shift + R
+- **Windows:** Ctrl + Shift + R
+- **Chrome:** Cmd/Ctrl + Shift + Delete → Clear cached images/files
+
+---
+
+## ✅ Step 5: Verify What's Deployed
+
+### Check Files Exist on Vercel
+
+Visit these URLs to verify routes work:
+1. `https://your-domain.vercel.app/modules/sows` - Should show SOW list page
+2. `https://your-domain.vercel.app/modules/sows/new` - Should show template wizard
+3. `https://your-domain.vercel.app/modules/pipeline` - Should show pipeline list
+
+**If you get 404:**
+- Routes not built correctly
+- Check build logs in Vercel
+
+**If you get blank page:**
+- Check browser console for errors (F12 → Console)
+- Likely database connection or data fetching issue
+
+**If you see "No SOWs Yet":**
+- Database is not seeded
+- Go back to Step 3
+
+---
+
+## ✅ Step 6: Test SOW Builder
+
+**Once seeded, you should see:**
+
+1. **Landing Page** (`/modules/sows`)
+   - Stats dashboard: "4 Total SOWs", "$1,600,000 Total Value"
+   - 4 sample SOWs in list:
+     - TechFlow Solutions ($425K) - Approved
+     - Global Manufacturing ($315K) - Under Review
+     - FinServe Partners ($75K) - Draft
+     - CloudScale Ventures ($785K) - Draft
+
+2. **Click "View" on TechFlow Solutions**
+   - Should navigate to `/modules/sows/sow-001`
+   - Should show complete SOW with:
+     - Client: TechFlow Solutions
+     - Contact: Sarah Chen (VP Sales Operations)
+     - Project: FY2026 Sales Compensation Redesign
+     - Budget: $425,000
+     - 5 Deliverables listed
+     - 4 Team members with costs
+     - 4 Payment milestones
+
+3. **Click "Edit"**
+   - Should navigate to `/modules/sows/sow-001/edit`
+   - Should show tabbed editor:
+     - Overview, Deliverables, Resources, Milestones, Scope tabs
+     - Can edit all fields
+     - Click "Save Changes" should persist
+
+4. **Click "New SOW"**
+   - Should navigate to `/modules/sows/new`
+   - Should show 7 templates
+   - Top template: "SPM Assessment & Roadmap" (95% popularity, $75K)
+   - Click template → Customize form
+   - Fill out and create → Navigate to editor
+
+---
+
+## ✅ Step 7: Test Pipeline Management
+
+**Once seeded, you should see:**
+
+1. **Landing Page** (`/modules/pipeline`)
+   - Stats dashboard: "15 Total Opportunities", "$4.2M Pipeline"
+   - 15 opportunities in list
+   - Can filter by stage, health, owner
+
+2. **View Opportunity**
+   - Click on any opportunity
+   - Should show complete details
+
+---
+
+## 🐛 Common Issues
+
+### Issue: "Cannot connect to database"
+**Fix:** Check DATABASE_URL in Vercel environment variables
+- Vercel → Project → Settings → Environment Variables
+- Ensure DATABASE_URL is set for Production
+
+### Issue: "Prisma Client not generated"
+**Fix:** Ensure build command includes prisma generate
+- `package.json` should have: `"build": "prisma generate && next build"`
+
+### Issue: "Module not found: @rally/modules/sow-builder"
+**Fix:** Check turbo.json and workspace configuration
+- Ensure `packages/modules/*` is in workspace
+- Run `npm install` locally to verify
+
+### Issue: "Server Actions not working"
+**Fix:** Ensure "use server" directive is at top of action files
+- Check `packages/connectors/actions/sows.ts`
+- Should have `"use server";` on line 1
+
+---
+
+## 📊 Expected Results (When Working)
+
+### SOW Builder (100% Complete)
+- ✅ List page with 4 SOWs
+- ✅ Detail pages showing all sections
+- ✅ Editor with 5 tabs, full CRUD
+- ✅ Template wizard with 7 templates
+- ✅ All navigation working
+- ✅ Database persistence
+
+### Pipeline Management (40% Complete)
+- ✅ Demo data exists (15 opportunities)
+- ✅ Can be seeded to database
+- ⏳ List page needs enhancement
+- ⏳ Detail/Edit pages not built yet
+
+---
+
+## 🔍 Quick Diagnostics
+
+Run these commands to verify everything is set up:
+
+```bash
+# 1. Check if files exist
+ls apps/edge/app/modules/sows/
+# Should show: [id], new, page.tsx, page-client.tsx
+
+# 2. Check if demo data exists
+ls packages/modules/sow-builder/demo/
+# Should show: index.ts, templates.ts, sows.ts
+
+# 3. Check if seed script exists
+ls packages/modules/sow-builder/seed.ts
+# Should exist
+
+# 4. Check if actions exist
+grep -n "getSOWDocuments\|createSOWDocument" packages/connectors/actions/sows.ts
+# Should show function definitions
+
+# 5. Verify schema has models
+grep -n "model SOWDocument" prisma/schema.prisma
+# Should show model definition
+
+# 6. Check latest commit
+git log --oneline -1
+# Should show: c196f4a docs: Add Pipeline Management progress tracker
+```
+
+---
+
+## 🚀 If Everything Checks Out But Still Doesn't Work
+
+**Try this complete reset:**
+
+```bash
+# 1. Hard reset node modules
+rm -rf node_modules .next
+npm install
+
+# 2. Generate Prisma client
+npx prisma generate
+
+# 3. Seed database
+npx prisma db seed
+
+# 4. Build locally
+npm run build
+
+# 5. Test locally
+npm run dev
+# Visit http://localhost:3000/modules/sows
+
+# 6. If local works, push to trigger Vercel rebuild
+git commit --allow-empty -m "chore: Trigger rebuild"
+git push
+```
+
+---
+
+## 📞 What to Report Back
+
+If still not working, check:
+1. ✅ What URL are you visiting? (exact URL)
+2. ✅ What do you see? (screenshot or description)
+3. ✅ Any errors in browser console? (F12 → Console tab)
+4. ✅ Vercel deployment status? (success/failed/building)
+5. ✅ Did you run seed script? (yes/no, any errors?)
+
+---
+
+**Most Common Fix:** Visit `/modules/sows` (not `/modules/sow-builder`) AND run `npx prisma db seed` first!

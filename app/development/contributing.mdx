@@ -1,0 +1,433 @@
+# Contributing to AICodeRally
+
+Welcome! This guide explains how to contribute to the Rally Stack, whether you're a core team member or a franchise owner.
+
+---
+
+## Quick Start
+
+### Core Team (Todd & Zach)
+```bash
+# Create feature branch from master
+git checkout master
+git pull
+git checkout -b yourname/feature-name
+
+# Make changes, commit, push
+git add .
+git commit -m "feat: description"
+git push -u origin yourname/feature-name
+
+# Create Pull Request on GitHub
+# Get review, merge when approved
+```
+
+### Franchise Owners (Future)
+```bash
+# Fork the repository on GitHub
+# Clone your fork
+git clone https://github.com/your-username/aicoderally-stack.git
+
+# Create feature branch
+git checkout -b franchise-name/feature-name
+
+# Make changes, push to your fork
+git push origin franchise-name/feature-name
+
+# Create PR from your fork to corporate repo
+```
+
+---
+
+## Branch Strategy
+
+### Branch Naming Convention
+```
+todd/feature-name           # Todd's work
+zach/feature-name           # Zach's work
+franchise-name/feature      # Franchise contributions
+fix/bug-description         # Bug fixes
+docs/update-description     # Documentation
+refactor/component-name     # Code cleanup
+```
+
+### Protected Branches
+
+**`master`** - Production code
+- Requires PR with 1 approval
+- Must pass all CI checks
+- Direct commits blocked
+
+**`corporate/main`** (future) - Corporate releases
+- Requires 2 approvals
+- All tests must pass
+- Only release managers can merge
+
+---
+
+## Development Workflow
+
+### 1. Before You Start
+```bash
+# Always start from latest master
+git checkout master
+git pull origin master
+
+# Create feature branch
+git checkout -b yourname/feature-name
+```
+
+### 2. Making Changes
+
+**Follow these rules**:
+- One feature per branch
+- Keep changes focused and small
+- Write descriptive commit messages
+- Test your changes locally
+- Update documentation if needed
+
+**Commit Message Format**:
+```
+type: short description
+
+Longer explanation if needed
+
+- Bullet points for multiple changes
+- Reference issues: Fixes #123
+```
+
+**Types**:
+- `feat:` New feature
+- `fix:` Bug fix
+- `docs:` Documentation only
+- `refactor:` Code cleanup, no behavior change
+- `test:` Adding or updating tests
+- `chore:` Tooling, dependencies, etc.
+
+### 3. Testing Locally
+
+Before pushing, test your changes:
+
+```bash
+# Install dependencies
+pnpm install
+
+# Run dev server
+pnpm dev
+
+# Build to check for errors
+cd apps/studio
+pnpm build
+
+# Run type checks
+pnpm type-check
+
+# Run linter (if not disabled)
+pnpm lint
+```
+
+### 4. Pushing Changes
+
+```bash
+# Add your changes
+git add .
+
+# Commit with message
+git commit -m "feat: add new module for X"
+
+# Push to your branch
+git push origin yourname/feature-name
+```
+
+### 5. Creating Pull Request
+
+1. Go to GitHub repository
+2. Click "Pull Requests" → "New Pull Request"
+3. Select your branch
+4. Fill out PR template:
+   - **Title**: Clear, descriptive
+   - **Description**: What changed and why
+   - **Screenshots**: For UI changes
+   - **Test Plan**: How you tested it
+   - **Breaking Changes**: If any
+
+### 6. Code Review
+
+- Respond to review comments
+- Make requested changes
+- Push updates (no force push unless required)
+- Resolve conversations when addressed
+
+### 7. Merging
+
+- Reviewer merges when approved
+- Delete branch after merge
+- Pull latest master for next feature
+
+---
+
+## Code Standards
+
+### TypeScript/React
+```typescript
+// Use TypeScript, not JavaScript
+// Prefer functional components
+// Use proper types, avoid 'any' unless necessary
+
+export default function MyComponent() {
+  const [state, setState] = useState<string>("");
+
+  return <div>{state}</div>;
+}
+```
+
+### File Organization
+```
+apps/studio/app/
+├── modules/
+│   └── your-module/
+│       ├── page.tsx           # Main page
+│       ├── components/        # Module-specific components
+│       └── api/               # Module-specific API routes
+├── api/
+│   └── your-api/
+│       └── route.ts           # API endpoint
+└── components/                # Shared components
+```
+
+### Styling
+- Use Tailwind CSS classes
+- Keep styles inline with className
+- Follow existing patterns
+- Mobile-first responsive design
+
+### API Routes
+```typescript
+// apps/studio/app/api/example/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+
+export async function GET(request: NextRequest) {
+  try {
+    // Your logic here
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    return NextResponse.json(
+      { error: 'Something went wrong' },
+      { status: 500 }
+    );
+  }
+}
+```
+
+---
+
+## Module Development
+
+### Creating a New Module
+
+1. **Create module package**:
+```typescript
+// packages/modules/your-module/index.ts
+import { RallyModule } from "@rally/core";
+
+export const module: RallyModule = {
+  meta: {
+    id: "your-module",
+    name: "Your Module Name",
+    description: "What it does",
+    version: "1.0.0",
+    category: "generic", // or education, club, restaurant
+    route: "/modules/your-module",
+  },
+};
+```
+
+2. **Register module**:
+```typescript
+// packages/modules/index.ts
+export * from "./your-module";
+```
+
+3. **Create UI page**:
+```typescript
+// apps/studio/app/modules/your-module/page.tsx
+export default function YourModulePage() {
+  return (
+    <div className="mx-auto max-w-4xl p-8">
+      <h1 className="text-3xl font-bold mb-4">Your Module</h1>
+      {/* Your UI here */}
+    </div>
+  );
+}
+```
+
+4. **Add to navigation** (if needed):
+Update `apps/studio/app/page.tsx` to include your module.
+
+---
+
+## What NOT to Do
+
+### ❌ Don't
+- Commit directly to master
+- Force push to shared branches
+- Delete other people's code without discussion
+- Add large dependencies without approval
+- Commit secrets or API keys
+- Break existing functionality without migration plan
+- Create massive PRs (keep under 500 lines when possible)
+
+### ✅ Do
+- Create feature branches
+- Write descriptive commits
+- Test before pushing
+- Ask questions if unsure
+- Update documentation
+- Keep PRs focused and small
+- Coordinate with team on breaking changes
+
+---
+
+## Handling Merge Conflicts
+
+```bash
+# Update your branch with latest master
+git checkout yourname/feature-name
+git fetch origin
+git merge origin/master
+
+# Resolve conflicts in your editor
+# Look for <<<<<<< HEAD markers
+
+# After resolving
+git add .
+git commit -m "fix: resolve merge conflicts"
+git push origin yourname/feature-name
+```
+
+---
+
+## CI/CD and Deployments
+
+### Automatic Deployments (Vercel)
+- Every push to master triggers deployment
+- Preview deployments for PRs
+- Check deployment status in Vercel dashboard
+
+### Build Requirements
+- TypeScript must compile (or ignoreBuildErrors: true)
+- No ESLint errors (or ignoreDuringBuilds: true)
+- All dependencies must install
+- Environment variables must be set in Vercel
+
+---
+
+## Environment Variables
+
+### Local Development
+Create `.env.local` in `apps/studio/`:
+```bash
+SUPABASE_URL=your_supabase_url
+SUPABASE_ANON_KEY=your_anon_key
+SUPABASE_SERVICE_KEY=your_service_key
+ANTHROPIC_API_KEY=your_api_key  # Optional
+```
+
+### Never Commit
+- API keys
+- Database credentials
+- Service keys
+- User data
+
+Use `.env.local` (gitignored) or Vercel environment variables.
+
+---
+
+## Getting Help
+
+### Questions?
+- Ask in team chat/Slack
+- Create GitHub Discussion
+- Comment on related PR/issue
+
+### Found a Bug?
+1. Check if issue already exists
+2. Create new issue with:
+   - Clear description
+   - Steps to reproduce
+   - Expected vs actual behavior
+   - Screenshots if applicable
+
+### Proposing Features?
+1. Create GitHub Discussion first
+2. Get feedback from team
+3. Create issue with agreed-upon plan
+4. Implement and submit PR
+
+---
+
+## Review Checklist
+
+Before submitting PR, check:
+
+- [ ] Code compiles and builds
+- [ ] Tested locally in dev mode
+- [ ] Tested production build
+- [ ] No console errors
+- [ ] Works on mobile (if UI change)
+- [ ] Documentation updated
+- [ ] Commit messages are clear
+- [ ] No secrets committed
+- [ ] PR description is complete
+- [ ] Breaking changes documented
+
+---
+
+## Franchise Model (Future)
+
+When franchise model launches:
+
+### Franchise Owners Can:
+- Fork corporate repo
+- Build custom modules for clients
+- Submit modules back to corporate
+- Customize UI/branding
+- Deploy to own infrastructure
+
+### Franchise Owners Cannot:
+- Modify core Rally framework
+- Break corporate module structure
+- Bypass security requirements
+- Submit low-quality code
+
+### Contribution Requirements:
+- 2 code reviews required
+- Full test coverage
+- Documentation included
+- Security audit passed
+- Performance benchmarks met
+
+---
+
+## Resources
+
+- **Documentation**: `/docs` folder
+- **Examples**: Existing modules in `packages/modules/`
+- **Architecture**: `BACKEND_PLANNING_ROADMAP.md`
+- **Deployment**: `DEPLOYMENT_GUIDE.md`
+- **API Docs**: `docs/APP_URLS.md`
+
+---
+
+## Code of Conduct
+
+- Be respectful and professional
+- Help others learn and grow
+- Give constructive feedback
+- Accept constructive criticism
+- Focus on what's best for the project
+
+---
+
+*Last Updated: Nov 24, 2025*
+*Questions? Ask Todd or Zach*

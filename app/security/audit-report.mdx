@@ -1,0 +1,1066 @@
+# AICodeRally Stack - Comprehensive Security Audit Report
+
+**Audit Date:** November 23, 2025
+**Codebase:** aicoderally-stack (apps/studio, apps/website, packages/core, packages/modules)
+**Total TypeScript Files:** 47
+**Total Lines of Code:** ~6,439
+**Auditor:** Claude Code (Anthropic)
+
+---
+
+## Executive Summary
+
+This audit reviewed the entire aicoderally-stack codebase, focusing on security vulnerabilities, broken functionality, TypeScript errors, and code quality issues. The codebase is in **good overall condition** with a well-designed Pit Wall feature and clean architecture. However, there are **several critical security vulnerabilities** that must be addressed before production deployment.
+
+### Key Findings:
+- **3 CRITICAL** security issues requiring immediate attention
+- **8 HIGH** priority issues that should be fixed soon
+- **12 MEDIUM** priority improvements recommended
+- **6 LOW** priority suggestions for future enhancement
+
+### Overall Risk Assessment:
+**MEDIUM-HIGH RISK** - The application has solid architecture but critical authentication/authorization gaps and potential XSS vulnerabilities that must be fixed before production use.
+
+---
+
+## 1. CRITICAL ISSUES (Must Fix Before Production)
+
+### 1.1 Missing Authentication on All API Routes
+**Severity:** CRITICAL
+**Category:** Security / Authentication
+**Files Affected:** All routes in `/apps/studio/app/api/pit-wall/**/*.ts`
+
+**Description:**
+None of the API routes implement authentication middleware. All endpoints rely solely on user-provided email addresses in the request body without verification. An attacker can:
+- Create threads by claiming to be any user
+- Post comments as any user
+- Delete any comment or thread
+- Add/remove stakeholders
+- Modify settings
+
+**Impact:**
+Complete security bypass. Any unauthenticated user can perform any action on behalf of any user.
+
+**Affected Routes:**
+- `/api/pit-wall/threads/[moduleId]` - POST, PATCH, DELETE
+- `/api/pit-wall/threads/[moduleId]/comments` - POST
+- `/api/pit-wall/comments/[commentId]` - PATCH, DELETE
+- `/api/pit-wall/comments/[commentId]/reactions` - POST, DELETE
+- `/api/pit-wall/stakeholders/[moduleId]` - POST, DELETE
+- `/api/pit-wall/attachments/upload` - POST
+- `/api/pit-wall/notifications/comment` - POST
+- `/api/pit-wall/admin/settings` - PATCH
+
+**Evidence:**
+```typescript
+// apps/studio/app/api/pit-wall/threads/[moduleId]/comments/route.ts:90
+const { content, author, parentId } = body;
+// No verification that the requesting user is actually 'author'
+```
+
+**Suggested Fix:**
+1. Implement Next.js middleware to verify Supabase JWT tokens
+2. Extract authenticated user from verified JWT
+3. Use `auth.user.email` instead of accepting email from request body
+4. Implement rate limiting on all endpoints
+
+**Estimated Effort:** 1-2 days
+
+**Example Implementation:**
+```typescript
+// middleware.ts
+import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs'
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
+
+export async function middleware(req: NextRequest) {
+  const res = NextResponse.next()
+  const supabase = createMiddlewareClient({ req, res })
+
+  if (req.nextUrl.pathname.startsWith('/api/pit-wall')) {
+    const { data: { session } } = await supabase.auth.getSession()
+
+    if (!session) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    // Attach user email to headers for API routes to use
+    req.headers.set('x-user-email', session.user.email!)
+  }
+
+  return res
+}
+```
+
+---
+
+### 1.2 XSS Vulnerability in Search Highlighting
+**Severity:** CRITICAL
+**Category:** Security / XSS
+**File:** `/apps/studio/app/components/pit-wall/ThreadSearch.tsx:59-64, 186-188`
+
+**Description:**
+The `highlightText` function uses regex replacement with user input directly into HTML without sanitization. An attacker can inject malicious HTML/JavaScript through search queries.
+
+**Code:**
+```typescript
+const highlightText = (text: string, query: string): string => {
+  if (!query) return text;
+  const regex = new RegExp(`(${query})`, 'gi');
+  return text.replace(regex, '<mark class="bg-yellow-200 font-medium">$1</mark>');
+};
+
+// Later used with dangerouslySetInnerHTML:
+<div dangerouslySetInnerHTML={{ __html: highlightText(result.match_snippet, query) }} />
+```
+
+**Impact:**
+Cross-Site Scripting (XSS) attack allowing:
+- Session hijacking via cookie theft
+- Keylogging
+- Malicious redirects
+- Account takeover
+
+**Attack Example:**
+```javascript
+// Search query: <img src=x onerror=alert(document.cookie)>
+// Results in: <mark>...user input...</mark> executing JavaScript
+```
+
+**Suggested Fix:**
+Replace with safe text highlighting using React:
+```typescript
+function HighlightedText({ text, query }: { text: string; query: string }) {
+  if (!query) return <>{text}</>;
+
+  const parts = text.split(new RegExp(`(${escapeRegex(query)})`, 'gi'));
+
+  return (
+    <>
+      {parts.map((part, i) =>
+        part.toLowerCase() === query.toLowerCase() ? (
+          <mark key={i} className="bg-yellow-200 font-medium">{part}</mark>
+        ) : part
+      )}
+    </>
+  );
+}
+
+function escapeRegex(str: string) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+```
+
+**Estimated Effort:** 2-4 hours
+
+---
+
+### 1.3 XSS Vulnerability in Markdown Rendering
+**Severity:** CRITICAL
+**Category:** Security / XSS
+**File:** `/apps/studio/app/components/pit-wall/AISummary.tsx:156-181, 119`
+
+**Description:**
+The custom `markdownToHtml` function converts markdown to HTML without sanitizing user/AI-generated content, then renders it with `dangerouslySetInnerHTML`.
+
+**Code:**
+```typescript
+function markdownToHtml(markdown: string): string {
+  let html = markdown;
+  // ... regex replacements ...
+  return html; // No sanitization!
+}
+
+<div dangerouslySetInnerHTML={{ __html: markdownToHtml(summary) }} />
+```
+
+**Impact:**
+If Claude API is compromised or manipulated (prompt injection), malicious HTML/JavaScript could be executed in user browsers.
+
+**Suggested Fix:**
+Use a proper markdown library with built-in sanitization:
+```bash
+pnpm add marked dompurify
+pnpm add -D @types/marked @types/dompurify
+```
+
+```typescript
+import { marked } from 'marked';
+import DOMPurify from 'dompurify';
+
+function markdownToHtml(markdown: string): string {
+  const rawHtml = marked(markdown);
+  return DOMPurify.sanitize(rawHtml);
+}
+```
+
+**Estimated Effort:** 1-2 hours
+
+---
+
+## 2. HIGH PRIORITY ISSUES (Fix Soon)
+
+### 2.1 Server-Side Image Processing in API Route
+**Severity:** HIGH
+**Category:** Bug / Runtime Error
+**File:** `/apps/studio/app/api/pit-wall/attachments/upload/route.ts:130-147`
+
+**Description:**
+The code attempts to use browser's `Image()` constructor in a Node.js API route, which will fail at runtime.
+
+**Code:**
+```typescript
+async function getImageDimensions(file: File): Promise<{ width: number; height: number }> {
+  return new Promise((resolve, reject) => {
+    const img = new Image(); // ❌ Not available in Node.js
+    const url = URL.createObjectURL(file); // ❌ Not available in Node.js
+    // ...
+  });
+}
+```
+
+**Impact:**
+Image uploads will fail for all image files when trying to get dimensions. The upload will succeed but will return 500 error when saving metadata.
+
+**Suggested Fix:**
+Use a Node.js image processing library:
+```bash
+pnpm add sharp
+```
+
+```typescript
+import sharp from 'sharp';
+
+async function getImageDimensions(buffer: Buffer): Promise<{ width: number; height: number }> {
+  const metadata = await sharp(buffer).metadata();
+  return {
+    width: metadata.width || 0,
+    height: metadata.height || 0
+  };
+}
+
+// In POST handler:
+const buffer = Buffer.from(await file.arrayBuffer());
+const dimensions = await getImageDimensions(buffer);
+```
+
+**Estimated Effort:** 2-3 hours
+
+---
+
+### 2.2 Hardcoded Admin Emails
+**Severity:** HIGH
+**Category:** Security / Configuration
+**Files:**
+- `/apps/studio/app/api/pit-wall/admin/settings/route.ts:10`
+- `/supabase/migrations/20251123_pit_wall.sql:248, 255, 264, 321`
+
+**Description:**
+Admin emails are hardcoded in multiple places instead of using environment variables or database configuration.
+
+**Code:**
+```typescript
+const ADMIN_EMAILS = ['todd@aicoderally.com', 'zach@aicoderally.com'];
+```
+
+**Impact:**
+- Requires code changes to add/remove admins
+- Cannot be managed dynamically
+- Inconsistent across codebase
+
+**Suggested Fix:**
+1. Store admin roles in `dev_stakeholders` table with `is_admin` flag
+2. Or use environment variable: `ADMIN_EMAILS=todd@aicoderally.com,zach@aicoderally.com`
+3. Create admin management UI
+
+**Estimated Effort:** 4-6 hours
+
+---
+
+### 2.3 Missing Environment Variable Validation
+**Severity:** HIGH
+**Category:** Configuration / Runtime Error
+**Files:** All API routes using `process.env.*!`
+
+**Description:**
+No startup validation that required environment variables exist. The app will crash at runtime when accessing undefined env vars with the non-null assertion operator (`!`).
+
+**Evidence:**
+```typescript
+const supabase = createClient(
+  process.env.SUPABASE_URL!, // ❌ Will be undefined if not set
+  process.env.SUPABASE_SERVICE_KEY! // ❌ Will crash on first use
+);
+```
+
+**Impact:**
+Application crashes in production if environment variables are not configured correctly.
+
+**Suggested Fix:**
+Create `/apps/studio/lib/env.ts`:
+```typescript
+function getRequiredEnv(key: string): string {
+  const value = process.env[key];
+  if (!value) {
+    throw new Error(`Missing required environment variable: ${key}`);
+  }
+  return value;
+}
+
+export const ENV = {
+  SUPABASE_URL: getRequiredEnv('SUPABASE_URL'),
+  SUPABASE_SERVICE_KEY: getRequiredEnv('SUPABASE_SERVICE_KEY'),
+  SUPABASE_ANON_KEY: getRequiredEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY'),
+  ANTHROPIC_API_KEY: getRequiredEnv('ANTHROPIC_API_KEY'),
+  RESEND_API_KEY: getRequiredEnv('RESEND_API_KEY'),
+  APP_URL: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+} as const;
+```
+
+**Estimated Effort:** 2-3 hours
+
+---
+
+### 2.4 Missing Input Validation
+**Severity:** HIGH
+**Category:** Security / Input Validation
+**Files:** Multiple API routes
+
+**Description:**
+API routes accept user input without proper validation (length limits, format checks, sanitization).
+
+**Examples:**
+```typescript
+// No length limits on content
+const { content, author, parentId } = body;
+
+// No email format validation
+const { email, name, role, invitedBy } = body;
+
+// No file type verification beyond MIME type (can be spoofed)
+if (!ALLOWED_TYPES.includes(file.type)) { ... }
+```
+
+**Impact:**
+- Database bloat from extremely long inputs
+- Invalid email addresses in system
+- File upload bypass via MIME type spoofing
+- Potential SQL injection if raw queries are used (not currently detected)
+
+**Suggested Fix:**
+Use a validation library:
+```bash
+pnpm add zod
+```
+
+```typescript
+import { z } from 'zod';
+
+const CreateCommentSchema = z.object({
+  content: z.string().min(1).max(10000),
+  author: z.string().email(),
+  parentId: z.string().uuid().optional()
+});
+
+// In route handler:
+const validated = CreateCommentSchema.parse(body);
+```
+
+**Estimated Effort:** 1 day
+
+---
+
+### 2.5 Missing Error Boundaries
+**Severity:** HIGH
+**Category:** UX / Error Handling
+**Files:** React components
+
+**Description:**
+No React Error Boundaries to catch component errors gracefully. If any component crashes, the entire app goes blank.
+
+**Impact:**
+Poor user experience - entire page crashes instead of showing a helpful error message.
+
+**Suggested Fix:**
+```typescript
+// app/components/ErrorBoundary.tsx
+'use client';
+
+export class ErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean; error?: Error }
+> {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="p-4 bg-red-50 border border-red-200 rounded">
+          <h2>Something went wrong</h2>
+          <button onClick={() => window.location.reload()}>Reload page</button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+```
+
+**Estimated Effort:** 3-4 hours
+
+---
+
+### 2.6 Unvalidated File Uploads
+**Severity:** HIGH
+**Category:** Security
+**File:** `/apps/studio/app/api/pit-wall/attachments/upload/route.ts`
+
+**Description:**
+File uploads rely solely on client-provided MIME type, which can be easily spoofed. No magic number validation.
+
+**Code:**
+```typescript
+if (!ALLOWED_TYPES.includes(file.type)) { // file.type is client-controlled
+  return NextResponse.json({ error: 'File type not allowed' }, { status: 400 });
+}
+```
+
+**Impact:**
+- Malicious files (executables, scripts) can be uploaded by spoofing MIME type
+- Files stored with wrong extensions could be served with wrong Content-Type
+
+**Suggested Fix:**
+```bash
+pnpm add file-type
+```
+
+```typescript
+import { fileTypeFromBuffer } from 'file-type';
+
+const buffer = Buffer.from(await file.arrayBuffer());
+const detectedType = await fileTypeFromBuffer(buffer);
+
+if (!detectedType || !ALLOWED_MIME_TYPES.includes(detectedType.mime)) {
+  return NextResponse.json({ error: 'Invalid file type' }, { status: 400 });
+}
+```
+
+**Estimated Effort:** 2-3 hours
+
+---
+
+### 2.7 Race Condition in Realtime Hook
+**Severity:** HIGH
+**Category:** Bug
+**File:** `/apps/studio/app/hooks/usePitWallRealtime.ts:88`
+
+**Description:**
+The cleanup function is returned from `setupRealtime()` but may not be captured correctly by the useEffect cleanup, potentially causing memory leaks or subscriptions not being properly cleaned up.
+
+**Code:**
+```typescript
+useEffect(() => {
+  setupRealtime(); // ❌ Cleanup function not captured
+}, [moduleId, onUpdate]);
+```
+
+**Impact:**
+- Memory leaks from unclosed WebSocket connections
+- Multiple subscriptions to same channel
+- Performance degradation over time
+
+**Suggested Fix:**
+```typescript
+useEffect(() => {
+  let cleanup: (() => void) | undefined;
+
+  const setupRealtime = async () => {
+    const { data: thread } = await supabase
+      .from('dev_threads')
+      .select('id')
+      .eq('module_id', moduleId)
+      .single();
+
+    if (!thread) return;
+
+    const channels = [
+      supabase.channel(`comments-${thread.id}`).on(...).subscribe(),
+      supabase.channel(`reactions-${thread.id}`).on(...).subscribe(),
+      supabase.channel(`stakeholders-${moduleId}`).on(...).subscribe()
+    ];
+
+    cleanup = () => {
+      channels.forEach(ch => ch.unsubscribe());
+    };
+  };
+
+  setupRealtime();
+
+  return () => cleanup?.();
+}, [moduleId, onUpdate]);
+```
+
+**Estimated Effort:** 2-3 hours
+
+---
+
+### 2.8 Missing Rate Limiting
+**Severity:** HIGH
+**Category:** Security / DDoS
+**Files:** All API routes
+
+**Description:**
+No rate limiting on any API endpoints. An attacker can:
+- Spam comments/reactions
+- Overwhelm email notifications
+- Exhaust AI API quota
+- Fill up storage with file uploads
+
+**Impact:**
+- Denial of Service attacks
+- High costs from AI API abuse
+- Database bloat
+- Email quota exhaustion
+
+**Suggested Fix:**
+Use `@upstash/ratelimit` with Redis:
+```typescript
+import { Ratelimit } from '@upstash/ratelimit';
+import { Redis } from '@upstash/redis';
+
+const ratelimit = new Ratelimit({
+  redis: Redis.fromEnv(),
+  limiter: Ratelimit.slidingWindow(10, '10 s'),
+});
+
+// In API route:
+const identifier = request.headers.get('x-user-email') || 'anonymous';
+const { success } = await ratelimit.limit(identifier);
+if (!success) {
+  return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 });
+}
+```
+
+**Estimated Effort:** 1 day
+
+---
+
+## 3. MEDIUM PRIORITY ISSUES (Plan to Address)
+
+### 3.1 No TypeScript Strict Mode
+**Severity:** MEDIUM
+**Category:** TypeScript
+**File:** `/apps/studio/tsconfig.json`
+
+**Description:**
+TypeScript strict mode is not enabled, allowing potential type safety issues to slip through.
+
+**Suggested Fix:**
+```json
+{
+  "compilerOptions": {
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitReturns": true
+  }
+}
+```
+
+**Estimated Effort:** 4-6 hours (will require fixing type errors)
+
+---
+
+### 3.2 Excessive Console Logging in Production
+**Severity:** MEDIUM
+**Category:** Security / Logging
+**Files:** 22 files with console.log/error
+
+**Description:**
+Console logs are scattered throughout the code and will appear in production, potentially leaking sensitive information.
+
+**Impact:**
+- Sensitive data in browser console
+- Performance overhead
+- Unprofessional appearance
+
+**Suggested Fix:**
+Create logger utility:
+```typescript
+// lib/logger.ts
+export const logger = {
+  error: (message: string, error?: unknown) => {
+    if (process.env.NODE_ENV === 'production') {
+      // Send to error tracking service (Sentry, etc.)
+    } else {
+      console.error(message, error);
+    }
+  },
+  debug: (message: string, data?: unknown) => {
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(message, data);
+    }
+  }
+};
+```
+
+**Estimated Effort:** 4-6 hours
+
+---
+
+### 3.3 Inefficient Comment Tree Building
+**Severity:** MEDIUM
+**Category:** Performance
+**File:** `/apps/studio/app/api/pit-wall/threads/[moduleId]/comments/route.ts:48-71`
+
+**Description:**
+Comments are fetched from DB, then reorganized into a tree structure in JavaScript. This is inefficient for large comment threads.
+
+**Impact:**
+Slow response times for threads with many comments.
+
+**Suggested Fix:**
+Use recursive CTE in PostgreSQL:
+```sql
+WITH RECURSIVE comment_tree AS (
+  SELECT *, 0 as depth
+  FROM dev_comments
+  WHERE thread_id = $1 AND parent_id IS NULL
+
+  UNION ALL
+
+  SELECT c.*, ct.depth + 1
+  FROM dev_comments c
+  JOIN comment_tree ct ON c.parent_id = ct.id
+)
+SELECT * FROM comment_tree ORDER BY depth, created_at;
+```
+
+**Estimated Effort:** 3-4 hours
+
+---
+
+### 3.4 No Loading States for Async Operations
+**Severity:** MEDIUM
+**Category:** UX
+**Files:** Multiple components
+
+**Description:**
+Some async operations don't show loading states, causing UI to appear frozen.
+
+**Examples:**
+- `PitWall.tsx` handlers don't show loading state during API calls
+- No loading feedback when adding stakeholders
+
+**Suggested Fix:**
+Add loading states to all async handlers:
+```typescript
+const [isResolving, setIsResolving] = useState(false);
+
+const handleResolve = async () => {
+  setIsResolving(true);
+  try {
+    await fetch(...);
+  } finally {
+    setIsResolving(false);
+  }
+};
+```
+
+**Estimated Effort:** 4-6 hours
+
+---
+
+### 3.5 Missing Indexes for Common Queries
+**Severity:** MEDIUM
+**Category:** Performance
+**File:** Database schema
+
+**Description:**
+Some queries may benefit from additional composite indexes.
+
+**Suggested Additions:**
+```sql
+CREATE INDEX idx_dev_comments_thread_created
+  ON dev_comments(thread_id, created_at DESC);
+
+CREATE INDEX idx_dev_comments_author_created
+  ON dev_comments(author, created_at DESC);
+```
+
+**Estimated Effort:** 1-2 hours
+
+---
+
+### 3.6 No Optimistic Updates
+**Severity:** MEDIUM
+**Category:** UX
+**Files:** React components
+
+**Description:**
+UI waits for server response before updating, making interactions feel slow.
+
+**Suggested Fix:**
+Implement optimistic updates:
+```typescript
+const handleAddComment = async (content: string) => {
+  const optimisticComment = {
+    id: crypto.randomUUID(),
+    body: content,
+    author: currentUserEmail,
+    created_at: new Date().toISOString(),
+    _optimistic: true
+  };
+
+  setComments([...comments, optimisticComment]);
+
+  try {
+    const result = await fetch(...);
+    setComments(prev => prev.map(c =>
+      c.id === optimisticComment.id ? result : c
+    ));
+  } catch (err) {
+    setComments(prev => prev.filter(c => c.id !== optimisticComment.id));
+  }
+};
+```
+
+**Estimated Effort:** 1 day
+
+---
+
+### 3.7 Notification System Fires Async Without Error Handling
+**Severity:** MEDIUM
+**Category:** Bug
+**File:** `/apps/studio/app/api/pit-wall/threads/[moduleId]/comments/route.ts:128`
+
+**Description:**
+Notification API call uses fire-and-forget pattern with only console.error for failures.
+
+**Code:**
+```typescript
+fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/pit-wall/notifications/comment`, {
+  method: 'POST',
+  // ...
+}).catch(err => console.error('Failed to send notifications:', err));
+```
+
+**Impact:**
+Users don't get notified of new comments, but there's no logging or retry mechanism.
+
+**Suggested Fix:**
+Use a job queue (BullMQ, Inngest) or at minimum log to database:
+```typescript
+await supabase.from('notification_queue').insert({
+  type: 'new_comment',
+  comment_id: data.id,
+  status: 'pending'
+});
+```
+
+**Estimated Effort:** 1 day
+
+---
+
+### 3.8 No Pagination on Comments
+**Severity:** MEDIUM
+**Category:** Performance / UX
+**File:** `/apps/studio/app/api/pit-wall/threads/[moduleId]/comments/route.ts`
+
+**Description:**
+All comments are fetched at once. For threads with 100+ comments, this will be slow.
+
+**Suggested Fix:**
+Implement cursor-based pagination:
+```typescript
+GET /api/pit-wall/threads/:moduleId/comments?cursor=<id>&limit=20
+```
+
+**Estimated Effort:** 4-6 hours
+
+---
+
+### 3.9 Supabase Client Created Multiple Times
+**Severity:** MEDIUM
+**Category:** Performance
+**Files:** All API routes
+
+**Description:**
+Each API route creates a new Supabase client instance instead of using a singleton.
+
+**Suggested Fix:**
+```typescript
+// lib/supabase.ts
+let supabaseInstance: SupabaseClient | null = null;
+
+export function getSupabaseServer() {
+  if (!supabaseInstance) {
+    supabaseInstance = createClient(
+      process.env.SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_KEY!
+    );
+  }
+  return supabaseInstance;
+}
+```
+
+**Estimated Effort:** 2-3 hours
+
+---
+
+### 3.10 Missing Tests
+**Severity:** MEDIUM
+**Category:** Quality Assurance
+
+**Description:**
+No unit tests, integration tests, or E2E tests found in the codebase.
+
+**Impact:**
+High risk of regressions when making changes.
+
+**Suggested Fix:**
+Add testing infrastructure:
+```bash
+pnpm add -D vitest @testing-library/react @testing-library/jest-dom
+pnpm add -D @playwright/test  # for E2E
+```
+
+**Estimated Effort:** 2-3 days (initial setup + critical path tests)
+
+---
+
+### 3.11 No Database Backups Mentioned
+**Severity:** MEDIUM
+**Category:** Data Safety
+
+**Description:**
+No documentation of database backup strategy or disaster recovery plan.
+
+**Suggested Fix:**
+1. Enable Supabase automated backups (Point-in-Time Recovery)
+2. Document backup/restore procedures
+3. Test restore process quarterly
+
+**Estimated Effort:** 4-6 hours (setup + documentation)
+
+---
+
+### 3.12 Realtime Subscriptions Without Error Handling
+**Severity:** MEDIUM
+**Category:** Bug
+**File:** `/apps/studio/app/hooks/usePitWallRealtime.ts`
+
+**Description:**
+No error handling if realtime subscriptions fail to connect or disconnect unexpectedly.
+
+**Suggested Fix:**
+```typescript
+.subscribe((status, err) => {
+  if (status === 'SUBSCRIBED') {
+    setIsConnected(true);
+  } else if (status === 'CHANNEL_ERROR') {
+    console.error('Subscription error:', err);
+    setIsConnected(false);
+    // Retry logic
+  }
+});
+```
+
+**Estimated Effort:** 2-3 hours
+
+---
+
+## 4. LOW PRIORITY ISSUES (Nice to Have)
+
+### 4.1 Inconsistent Error Messages
+**Severity:** LOW
+**Category:** UX
+
+**Description:**
+Error messages vary in format and detail across API routes.
+
+**Suggested Fix:**
+Standardize error response format:
+```typescript
+type APIError = {
+  error: string;
+  code: string;
+  details?: unknown;
+};
+```
+
+**Estimated Effort:** 2-3 hours
+
+---
+
+### 4.2 No API Documentation
+**Severity:** LOW
+**Category:** Documentation
+
+**Description:**
+No OpenAPI/Swagger docs for the API routes.
+
+**Suggested Fix:**
+Generate API docs with `swagger-jsdoc` and `swagger-ui-express`.
+
+**Estimated Effort:** 1 day
+
+---
+
+### 4.3 Unused Dependencies
+**Severity:** LOW
+**Category:** Code Cleanup
+
+**Description:**
+Should audit package.json for unused dependencies.
+
+**Suggested Fix:**
+```bash
+npx depcheck
+```
+
+**Estimated Effort:** 1-2 hours
+
+---
+
+### 4.4 Magic Numbers in Code
+**Severity:** LOW
+**Category:** Code Quality
+
+**Examples:**
+```typescript
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // Should be env var
+debounce = setTimeout(..., 300); // Should be constant
+```
+
+**Suggested Fix:**
+Extract to constants file.
+
+**Estimated Effort:** 2-3 hours
+
+---
+
+### 4.5 No Code Formatting Setup
+**Severity:** LOW
+**Category:** Developer Experience
+
+**Description:**
+No Prettier or ESLint configuration detected.
+
+**Suggested Fix:**
+```bash
+pnpm add -D prettier eslint-config-prettier
+```
+
+**Estimated Effort:** 1-2 hours
+
+---
+
+### 4.6 Accessibility Issues
+**Severity:** LOW
+**Category:** UX / Accessibility
+
+**Description:**
+Forms and interactive elements may lack proper ARIA labels and keyboard navigation.
+
+**Suggested Fix:**
+- Add `aria-label` to icon buttons
+- Ensure all form inputs have associated labels
+- Test with screen reader
+
+**Estimated Effort:** 1 day
+
+---
+
+## 5. Positive Findings
+
+### What's Done Well:
+1. **Clean Architecture** - Good separation of concerns between API routes, components, and database
+2. **RLS Policies** - Database has comprehensive Row Level Security policies (though not enforced in API)
+3. **TypeScript Usage** - Strong type definitions throughout
+4. **Realtime Features** - Well-implemented Supabase realtime subscriptions
+5. **Database Design** - Normalized schema with proper foreign keys and indexes
+6. **Code Organization** - Logical file structure and component separation
+7. **Feature Completeness** - Pit Wall feature is fully implemented with rich functionality
+
+---
+
+## 6. Recommended Immediate Action Plan
+
+### Week 1: Critical Security Fixes
+1. Implement authentication middleware (Issue 1.1)
+2. Fix XSS vulnerabilities (Issues 1.2, 1.3)
+3. Add environment variable validation (Issue 2.3)
+
+### Week 2: High Priority Fixes
+4. Fix image upload bug (Issue 2.1)
+5. Implement input validation (Issue 2.4)
+6. Add rate limiting (Issue 2.8)
+7. Fix realtime cleanup (Issue 2.7)
+
+### Week 3: Stabilization
+8. Add error boundaries (Issue 2.5)
+9. Improve file upload security (Issue 2.6)
+10. Add basic logging infrastructure (Issue 3.2)
+11. Add critical path tests (Issue 3.10)
+
+### Week 4+: Enhancements
+12. Address medium priority issues based on business needs
+13. Plan for low priority improvements
+
+---
+
+## 7. Security Checklist for Production
+
+Before deploying to production, ensure:
+
+- [ ] All CRITICAL issues are fixed
+- [ ] All HIGH priority issues are addressed or have mitigations
+- [ ] Environment variables are set correctly
+- [ ] Database backups are configured and tested
+- [ ] SSL/TLS is enabled on all services
+- [ ] Secrets are stored in secret manager, not .env files
+- [ ] Rate limiting is enabled
+- [ ] Error tracking is configured (Sentry, etc.)
+- [ ] Logging is production-ready (no sensitive data)
+- [ ] Security headers are configured (CSP, HSTS, etc.)
+- [ ] CORS is properly configured
+- [ ] File uploads are scanned for malware
+- [ ] Regular security audits are scheduled
+
+---
+
+## 8. Estimated Total Remediation Effort
+
+- **Critical Issues:** 3-4 days
+- **High Priority:** 6-8 days
+- **Medium Priority:** 8-10 days
+- **Low Priority:** 3-4 days
+
+**Total:** 20-26 days (4-5 weeks) for complete remediation
+
+---
+
+## Conclusion
+
+The aicoderally-stack codebase demonstrates solid engineering practices and a well-designed feature set. However, the **complete absence of authentication on API routes** represents a critical security vulnerability that must be addressed immediately before any production deployment.
+
+The XSS vulnerabilities in search and markdown rendering are also critical and should be fixed in parallel with authentication implementation.
+
+Once these critical issues are resolved, the codebase will be in good shape for production use with standard monitoring and maintenance practices.
+
+**Recommendation:** **DO NOT DEPLOY TO PRODUCTION** until at minimum the 3 CRITICAL issues are fully resolved and tested.
+
+---
+
+**Report Generated:** November 23, 2025
+**Next Recommended Audit:** After critical fixes are implemented (est. 2-3 weeks)

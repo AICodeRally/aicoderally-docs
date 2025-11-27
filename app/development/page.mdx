@@ -1,0 +1,137 @@
+# Development
+
+Development guides, coding standards, and best practices for AICodeRally.
+
+## Documentation
+
+### [Coding Standards](/development/coding-standards)
+Best practices and patterns for AICodeRally development.
+
+**Covers:**
+- TypeScript conventions
+- React/Next.js patterns
+- API route structure
+- Database queries
+- Logging standards
+- Security best practices
+
+### [Testing](/development/testing)
+Comprehensive testing infrastructure and strategies.
+
+**Includes:**
+- Authentication tests
+- Environment variable validation
+- Database connectivity tests
+- AI provider integration tests
+- Pre-commit hooks
+
+### [Contributing](/development/contributing)
+How to contribute to AICodeRally development.
+
+**Topics:**
+- Branch strategy
+- Commit conventions
+- Pull request process
+- Code review checklist
+- Module development
+
+## Quick Start
+
+### Local Setup
+```bash
+# Clone repository
+git clone https://github.com/AICodeRally/aicoderally-stack.git
+cd aicoderally-stack
+
+# Install dependencies
+pnpm install
+
+# Set up environment
+cp apps/studio/.env.example apps/studio/.env.local
+# Add your database URL and API keys
+
+# Start development server
+pnpm --filter edge dev
+```
+
+### Development Commands
+```bash
+# Start dev server
+pnpm dev
+
+# Build for production
+pnpm build
+
+# Type check
+pnpm typecheck
+
+# Database commands
+npx prisma studio      # Open database GUI
+npx prisma generate    # Generate Prisma client
+npx prisma db push     # Push schema changes
+```
+
+## Development Workflow
+
+1. **Create Branch** → `git checkout -b yourname/feature-name`
+2. **Make Changes** → Write code following standards
+3. **Test Locally** → `pnpm build` and manual testing
+4. **Commit** → `git commit -m "feat: description"`
+5. **Push** → `git push origin yourname/feature-name`
+6. **Create PR** → GitHub pull request
+7. **Code Review** → Team reviews changes
+8. **Merge** → Deployed automatically to production
+
+## Code Quality
+
+### Pre-Commit Checks
+- ✅ ESLint validation
+- ✅ TypeScript type checking
+- ✅ Module structure validation
+- ✅ No console.log statements (use logger)
+
+### TypeScript Standards
+- Use explicit types (avoid `any`)
+- Define interfaces for all data structures
+- Functional components with proper typing
+- Server actions with type-safe schemas
+
+### Testing Requirements
+- Unit tests for utility functions
+- Integration tests for API routes
+- Authentication tests for protected endpoints
+- Manual testing for UI changes
+
+## Module Development
+
+### Creating a New Module
+1. Define module metadata in `packages/modules/your-module/index.ts`
+2. Create UI page in `apps/edge/app/modules/your-module/page.tsx`
+3. Add Prisma models if needed
+4. Register module in `packages/modules/index.ts`
+5. Test thoroughly
+6. Submit pull request
+
+See: [Contributing Guide](/development/contributing#module-development)
+
+## Tech Stack
+
+- **Framework**: Next.js 15 with App Router
+- **Language**: TypeScript 5
+- **Database**: Prisma Postgres
+- **Styling**: Tailwind CSS 3.4
+- **Package Manager**: pnpm 9
+- **Monorepo**: Turborepo
+
+See: [Tech Stack Overview](/tech-stack)
+
+## Resources
+
+- [Getting Started](/getting-started) - Initial setup
+- [Tech Stack](/tech-stack) - Technology documentation
+- [Modules](/modules) - Module system overview
+- [Deployment](/deployment) - Deploy to production
+
+---
+
+**Build with confidence. Code with clarity. Ship with quality.**

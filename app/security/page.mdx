@@ -1,0 +1,67 @@
+# Security
+
+AICodeRally security guidelines, audits, and best practices.
+
+## Documentation
+
+### [Security Audit Report](/security/audit-report)
+Comprehensive security assessment of the AICodeRally platform.
+
+**Covers:**
+- Authentication & authorization
+- Data protection
+- API security
+- Input validation
+- Secret management
+- Infrastructure security
+
+### [Security Checklist](/security/checklist)
+Pre-deployment security validation checklist.
+
+**Includes:**
+- Code security review
+- Environment variable audit
+- Authentication verification
+- Data encryption checks
+- API route protection
+- Secret management validation
+
+## Key Security Practices
+
+### Authentication
+- ✅ NextAuth v5 for all user authentication
+- ✅ Google and Apple OAuth providers
+- ✅ Secure session management
+- ✅ API route protection
+
+### Data Protection
+- ✅ Environment-based database isolation
+- ✅ Production data never exposed to dev/preview
+- ✅ Encrypted connections (SSL/TLS)
+- ✅ Database credentials in Vercel secrets
+
+### API Security
+- ✅ Server-side validation for all inputs
+- ✅ Rate limiting on sensitive endpoints
+- ✅ CORS configuration
+- ✅ No exposed internal APIs
+
+### Secret Management
+- ✅ All secrets in Vercel environment variables
+- ✅ Never commit `.env` files
+- ✅ Rotate API keys regularly
+- ✅ Production secrets separate from dev
+
+## Security Incidents
+
+Report security vulnerabilities to: **security@aicoderally.com**
+
+## Related Documentation
+
+- [Deployment Guide](/deployment) - Secure deployment practices
+- [Database Environment](/tech-stack/database-environment) - Database isolation
+- [Coding Standards](/development/coding-standards) - Secure coding practices
+
+---
+
+**Security is not a feature. It's a foundation.**

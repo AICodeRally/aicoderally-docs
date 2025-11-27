@@ -1,0 +1,424 @@
+# Database Setup Guide
+
+**Last Updated:** November 26, 2025
+
+---
+
+## Overview
+
+AICodeRally uses **two separate Prisma Postgres databases**:
+
+1. **Development Database** (`aicoderally-dev-db`)
+   - Used for: Local development, testing, experimentation
+   - Safe to reset, migrate, and modify freely
+   - Connection: Direct to Prisma Postgres + Prisma Accelerate
+
+2. **Production Database** (`aicoderally-prod-db`)
+   - Used for: Production deployments on Vercel
+   - Contains live user data
+   - **NEVER modify directly!**
+   - Connection: Direct to Prisma Postgres + Prisma Accelerate
+
+---
+
+## Environment Variables Structure
+
+### Development (`.env` file)
+
+```env
+# Direct connection to development database
+DATABASE_URL="postgres://[user]:[password]@db.prisma.io:5432/postgres?sslmode=require"
+DIRECT_URL="postgres://[user]:[password]@db.prisma.io:5432/postgres?sslmode=require"
+
+# Prisma Accelerate connection (optional, for connection pooling)
+PRISMA_DATABASE_URL="prisma+postgres://accelerate.prisma-data.net/?api_key=..."
+```
+
+### Production (Vercel Environment Variables)
+
+```env
+# Stored in Vercel Dashboard → Your Project → Settings → Environment Variables
+DATABASE_URL="postgres://[prod-user]:[prod-password]@db.prisma.io:5432/postgres?sslmode=require"
+DIRECT_URL="postgres://[prod-user]:[prod-password]@db.prisma.io:5432/postgres?sslmode=require"
+PRISMA_DATABASE_URL="prisma+postgres://accelerate.prisma-data.net/?api_key=..."
+```
+
+---
+
+## Setup Instructions
+
+### Step 1: Get Development Database Connection String
+
+1. Go to [Prisma Data Platform](https://console.prisma.io/)
+2. Select project: **aicoderally**
+3. Select database: **aicoderally-dev-db**
+4. Click "Connection String"
+5. Copy the connection string
+
+### Step 2: Configure Local Environment
+
+1. Copy `.env.example` to `.env`:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Open `.env` and paste your development database connection string:
+
+   ```env
+   DATABASE_URL="postgres://[your-dev-connection-string]"
+   DIRECT_URL="postgres://[your-dev-connection-string]"
+   ```
+
+3. (Optional) Add Prisma Accelerate connection:
+   - Go to [Prisma Accelerate](https://console.prisma.io/accelerate)
+   - Select **aicoderally-dev-db**
+   - Copy the Accelerate API key
+   - Add to `.env`:
+     ```env
+     PRISMA_DATABASE_URL="prisma+postgres://accelerate.prisma-data.net/?api_key=..."
+     ```
+
+### Step 3: Generate Prisma Client
+
+```bash
+pnpm db:generate
+```
+
+This reads your `prisma/schema.prisma` and generates the Prisma Client.
+
+### Step 4: Apply Migrations
+
+```bash
+pnpm db:migrate
+```
+
+This applies all pending migrations to your **development database**.
+
+### Step 5: Verify Connection
+
+```bash
+pnpm db:studio
+```
+
+This opens Prisma Studio - a visual database browser. You should see all your tables and data.
+
+---
+
+## Common Database Tasks
+
+### View Database in Browser
+
+```bash
+pnpm db:studio
+```
+
+### Create a New Migration
+
+```bash
+# 1. Modify prisma/schema.prisma
+# 2. Create migration
+pnpm db:migrate
+# 3. Name your migration (e.g., "add_user_role_field")
+```
+
+### Reset Development Database (DESTRUCTIVE!)
+
+```bash
+pnpm db:reset
+```
+
+**Warning:** This will delete ALL data in your development database!
+
+### Push Schema Changes Without Migration
+
+```bash
+pnpm db:push
+```
+
+**Use for:** Quick prototyping. Not recommended for team environments.
+
+### Check Migration Status
+
+```bash
+pnpm db:status
+```
+
+---
+
+## Production Database Management
+
+### ⚠️ IMPORTANT: Production Safety Rules
+
+1. **NEVER** run `pnpm db:push` or `pnpm db:reset` against production
+2. **NEVER** manually modify production data via Prisma Studio
+3. **ALWAYS** test migrations on development first
+4. **ALWAYS** backup before production migrations
+
+### Deploying Migrations to Production
+
+```bash
+# This command is safe for production
+pnpm db:migrate:deploy
+```
+
+**What it does:**
+
+- Applies pending migrations
+- Does NOT create new migrations
+- Does NOT reset the database
+- Does NOT drop any data
+
+**When to use:**
+
+- During deployment (automatically run by Vercel)
+- After merging migration PRs
+
+### Vercel Deployment Process
+
+Vercel automatically runs migrations during deployment:
+
+1. Build starts
+2. `prisma generate` runs (generates client)
+3. `prisma migrate deploy` runs (applies pending migrations)
+4. Application starts
+
+---
+
+## Database Connection Strategies
+
+### Direct Connection (DATABASE_URL)
+
+**Use for:**
+
+- Local development
+- Database migrations
+- Prisma Studio
+- One-off scripts
+
+**Connection String:**
+
+```
+postgres://user:password@db.prisma.io:5432/postgres?sslmode=require
+```
+
+### Prisma Accelerate (PRISMA_DATABASE_URL)
+
+**Use for:**
+
+- Production application
+- High-traffic endpoints
+- Connection pooling
+- Global edge deployments
+
+**Connection String:**
+
+```
+prisma+postgres://accelerate.prisma-data.net/?api_key=...
+```
+
+**Benefits:**
+
+- Connection pooling (handles thousands of concurrent connections)
+- Query caching (improves performance)
+- Global edge network (reduces latency)
+
+---
+
+## Troubleshooting
+
+### Error: "P1001: Can't reach database server"
+
+**Cause:** Invalid DATABASE_URL or network issue
+
+**Solution:**
+
+1. Verify your connection string is correct
+2. Check that your IP is whitelisted in Prisma Console
+3. Test connection: `psql [your-connection-string]`
+
+### Error: "P3005: Database schema is not in sync"
+
+**Cause:** Prisma Client is out of sync with database schema
+
+**Solution:**
+
+```bash
+pnpm db:generate
+pnpm db:migrate
+```
+
+### Error: "P3009: Failed migration"
+
+**Cause:** Migration failed (e.g., constraint violation, invalid SQL)
+
+**Solution:**
+
+1. Check migration file in `prisma/migrations/`
+2. Resolve schema conflicts
+3. Mark migration as resolved: `prisma migrate resolve --applied [migration-name]`
+4. Or rollback: `prisma migrate resolve --rolled-back [migration-name]`
+
+### Multiple Databases Confusion
+
+**Problem:** You're seeing data from the wrong database
+
+**Check which database you're connected to:**
+
+```bash
+# Check your .env DATABASE_URL
+grep DATABASE_URL .env
+
+# Open Prisma Studio to verify
+pnpm db:studio
+```
+
+**If connected to wrong database:**
+
+1. Update DATABASE_URL in `.env`
+2. Run `pnpm db:generate`
+3. Restart your dev server
+
+---
+
+## Database Backup & Recovery
+
+### Backing Up Development Database
+
+```bash
+# Option 1: Export via Prisma Studio
+# 1. Open Prisma Studio: pnpm db:studio
+# 2. Select table → Export as CSV/JSON
+
+# Option 2: SQL dump (requires psql)
+pg_dump [your-dev-connection-string] > backup-dev.sql
+```
+
+### Backing Up Production Database
+
+**Best Practice:** Use Prisma Data Platform automated backups
+
+1. Go to [Prisma Console](https://console.prisma.io/)
+2. Select **aicoderally-prod-db**
+3. Click "Backups" tab
+4. Enable automated daily backups
+
+**Manual backup:**
+
+```bash
+# NEVER run this against production without approval!
+pg_dump [your-prod-connection-string] > backup-prod-$(date +%Y%m%d).sql
+```
+
+### Restoring from Backup
+
+```bash
+# Development database (safe)
+psql [your-dev-connection-string] < backup-dev.sql
+
+# Production database (REQUIRES APPROVAL!)
+# Contact team lead before running this!
+```
+
+---
+
+## Schema Changes Workflow
+
+### 1. Local Development
+
+```bash
+# 1. Modify prisma/schema.prisma
+# 2. Generate migration
+pnpm db:migrate
+
+# 3. Test the migration
+pnpm dev
+# (verify app works with new schema)
+
+# 4. Commit migration files
+git add prisma/migrations/
+git commit -m "feat: add user role field"
+```
+
+### 2. Code Review
+
+- Review migration SQL in `prisma/migrations/[timestamp]_[name]/migration.sql`
+- Check for:
+  - Data loss (dropping columns/tables)
+  - Breaking changes (non-nullable fields without defaults)
+  - Performance issues (missing indexes)
+
+### 3. Deployment
+
+```bash
+# 1. Merge PR
+git checkout master
+git pull
+
+# 2. Vercel auto-deploys
+# - Runs `prisma generate`
+# - Runs `prisma migrate deploy`
+# - Starts application
+
+# 3. Verify production
+# - Check Vercel deployment logs
+# - Test affected features
+# - Monitor error logs
+```
+
+---
+
+## Best Practices
+
+### ✅ DO
+
+- Test all migrations on development database first
+- Use descriptive migration names
+- Add indexes for frequently queried fields
+- Include rollback plans for risky migrations
+- Keep migrations small and focused
+- Backup before major schema changes
+
+### ❌ DON'T
+
+- Run `db:reset` on production
+- Modify production data manually
+- Skip migrations (use `db:push` in dev only)
+- Create migrations with data loss without team approval
+- Store production credentials in `.env` files
+- Share database credentials publicly
+
+---
+
+## Quick Reference
+
+| Command                  | Dev DB | Prod DB | Description                     |
+| ------------------------ | ------ | ------- | ------------------------------- |
+| `pnpm db:generate`       | ✅     | ✅      | Generate Prisma Client          |
+| `pnpm db:migrate`        | ✅     | ❌      | Create & apply migrations       |
+| `pnpm db:migrate:deploy` | ✅     | ✅      | Apply pending migrations (safe) |
+| `pnpm db:push`           | ✅     | ❌      | Push schema without migration   |
+| `pnpm db:studio`         | ✅     | ⚠️      | Open database browser           |
+| `pnpm db:reset`          | ✅     | ❌      | Reset database (DESTRUCTIVE)    |
+| `pnpm db:seed`           | ✅     | ⚠️      | Seed database with test data    |
+
+Legend:
+
+- ✅ Safe to use
+- ⚠️ Use with caution (get approval first)
+- ❌ Never use
+
+---
+
+## Support
+
+**Questions about databases?**
+
+- Check: [Prisma Docs](https://www.prisma.io/docs/)
+- Ask: #engineering channel in Slack
+- Contact: Database admin (todd@aicoderally.com)
+
+**Database Issues:**
+
+- Development DB issues: Fix freely
+- Production DB issues: Contact team lead immediately

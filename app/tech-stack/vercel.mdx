@@ -1,0 +1,597 @@
+# Vercel - Deployment & Configuration
+
+**Last Updated:** November 24, 2025
+
+---
+
+## Vercel Setup
+
+**Account:** AICodeRally team
+**Projects:** 2 (Studio, Website)
+**Plan:** Pro (or Hobby for now)
+
+---
+
+## Prisma Postgres (Primary Database)
+
+**IMPORTANT:** As of 2025-11-24, the primary database is Prisma Postgres via Vercel integration.
+
+### Database Details
+- **Provider:** Prisma Postgres (managed PostgreSQL)
+- **Integration:** Vercel Storage (auto-configured env vars)
+- **ORM:** Prisma Client v6.8.0
+- **Schema:** `prisma/schema.prisma`
+
+### Environment Variables (Auto-provisioned)
+```bash
+# Primary connection (via Accelerate pooler)
+DATABASE_URL="prisma+postgres://accelerate.prisma-data.net/?api_key=..."
+
+# Direct connection (for migrations)
+DIRECT_URL="postgres://...@db.prisma.io:5432/postgres?sslmode=require"
+```
+
+### CLI Commands
+```bash
+# Generate Prisma client
+npx prisma generate
+
+# Push schema to database
+npx prisma db push
+
+# Open Prisma Studio (GUI)
+npx prisma studio
+
+# Run seed script
+npx tsx prisma/seed.ts
+```
+
+### Architecture
+- **Prisma Postgres:** All application data (nomenclature, modules, pit wall, knowledge)
+- **Auth/Storage/Realtime:** TBD - see ZACH_README.md for discussion
+
+---
+
+## Projects
+
+### 1. Studio (Main App)
+**Project Name:** aicoderally-studio
+**Repository:** github.com/AICodeRally/aicoderally-stack
+**Root Directory:** `apps/studio`
+**Framework:** Next.js 15
+**Build Command:** `pnpm build`
+**Output Directory:** `.next`
+**Install Command:** `pnpm install`
+
+**Domains:**
+- Production: `studio.aicoderally.com`
+- Preview: `aicoderally-studio-*.vercel.app` (auto-generated per PR)
+
+**Environment Variables:**
+```bash
+# Database (Prisma Postgres)
+DATABASE_URL=prisma+postgres://accelerate.prisma-data.net/?api_key=...
+DIRECT_URL=postgres://...@db.prisma.io:5432/postgres?sslmode=require
+
+# App
+NEXT_PUBLIC_APP_URL=https://studio.aicoderally.com
+
+# Email (Resend)
+RESEND_API_KEY=re_...
+EMAIL_FROM=notifications@aicoderally.com
+
+# AI (Optional)
+ANTHROPIC_API_KEY=sk-ant-...
+```
+
+### 2. Website (Marketing)
+**Project Name:** aicoderally-website
+**Repository:** github.com/AICodeRally/aicoderally-stack
+**Root Directory:** `apps/website`
+**Framework:** Next.js 15
+**Build Command:** `npm run build`
+**Output Directory:** `.next`
+**Install Command:** `npm install`
+
+**Domains:**
+- Production: `aicoderally.com` (or `aicoderally-stack.vercel.app`)
+- Preview: `aicoderally-website-*.vercel.app`
+
+**Environment Variables:**
+```bash
+NEXT_PUBLIC_APP_URL=https://aicoderally.com
+NEXT_PUBLIC_ADMIN_PASSWORD=aicoderally2025  # For /admin/health
+```
+
+---
+
+## Deployment Flow
+
+```
+Git Push to GitHub
+    ↓
+GitHub webhook triggers Vercel
+    ↓
+Vercel pulls latest code
+    ↓
+Installs dependencies (pnpm install)
+    ↓
+Runs build command (pnpm build)
+    ↓
+Deploys to Edge Network
+    ↓
+Updates production URL
+    ↓
+Build time: ~1-2 minutes
+```
+
+### Automatic Deployments
+
+**Production:**
+- Branch: `master`
+- Trigger: Push to `master`
+- URL: Custom domain (studio.aicoderally.com)
+- Deploy: Automatic
+
+**Preview:**
+- Branch: Any other branch (feature/*, etc.)
+- Trigger: Push to any non-master branch
+- URL: Auto-generated (branch-name-*.vercel.app)
+- Deploy: Automatic
+
+**Pull Request:**
+- Creates preview deployment
+- Shows in PR comments
+- Useful for testing before merge
+
+---
+
+## Vercel CLI
+
+**Installed:** ✅ v48.6.0 at `/opt/homebrew/bin/vercel`
+
+### Common Commands
+
+```bash
+# Login
+vercel login
+
+# Link project (first time)
+cd apps/studio
+vercel link
+
+# Deploy manually (rarely needed - use git push instead)
+vercel deploy
+
+# Deploy to production
+vercel --prod
+
+# View logs
+vercel logs
+vercel logs --follow  # Live logs
+
+# Environment variables
+vercel env ls                    # List all env vars
+vercel env add VAR_NAME          # Add new variable
+vercel env rm VAR_NAME           # Remove variable
+vercel env pull .env.local       # Download to local file
+
+# Project info
+vercel project ls                # List all projects
+vercel inspect <deployment-url>  # Inspect deployment
+
+# Domains
+vercel domains ls                # List domains
+vercel domains add studio.aicoderally.com
+vercel domains rm old-domain.com
+
+# Rollback
+vercel rollback <deployment-url>  # Rollback to previous deployment
+```
+
+---
+
+## Domain Configuration
+
+### DNS Setup (Vercel)
+
+**For Subdomain (studio.aicoderally.com):**
+1. Add domain in Vercel dashboard
+2. Create CNAME record in DNS:
+   ```
+   Type: CNAME
+   Name: studio
+   Value: cname.vercel-dns.com
+   TTL: Auto
+   ```
+3. Wait for SSL certificate (automatic, ~5 min)
+
+**For Root Domain (aicoderally.com):**
+1. Add domain in Vercel dashboard
+2. Create A records in DNS:
+   ```
+   Type: A
+   Name: @
+   Value: 76.76.21.21  # Vercel IP
+   ```
+3. Add AAAA records for IPv6:
+   ```
+   Type: AAAA
+   Name: @
+   Value: 2606:4700:d0::1  # Vercel IPv6
+   ```
+4. Wait for SSL certificate
+
+**SSL:**
+- Automatic via Let's Encrypt
+- Renews automatically
+- Forced HTTPS (HTTP → HTTPS redirect)
+
+---
+
+## Build Configuration
+
+### vercel.json (Root)
+```json
+{
+  "installCommand": "pnpm install",
+  "buildCommand": "pnpm build"
+}
+```
+
+### vercel.json (Per App)
+```json
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next",
+  "framework": "nextjs"
+}
+```
+
+### next.config.ts
+```typescript
+const config: NextConfig = {
+  // Enable standalone output for smaller deployments
+  output: 'standalone',
+
+  // Turborepo integration
+  transpilePackages: ['@rally/core', '@rally/ui'],
+
+  // Environment variables
+  env: {
+    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+  },
+};
+```
+
+---
+
+## Environment Variables
+
+### Managing Env Vars
+
+**Add via Dashboard:**
+1. Go to Project Settings
+2. Click "Environment Variables"
+3. Add name, value, and environments (Production/Preview/Development)
+4. Click "Save"
+
+**Add via CLI:**
+```bash
+vercel env add VARIABLE_NAME production
+# Paste value when prompted
+```
+
+**Pull to Local:**
+```bash
+vercel env pull .env.local
+# Downloads all production env vars
+```
+
+### Environment Types
+
+**Production:**
+- Used for production deployments (master branch)
+- Sensitive values (API keys, database URLs)
+
+**Preview:**
+- Used for preview deployments (PRs, branches)
+- Can use same or different values
+
+**Development:**
+- Used locally with `vercel dev`
+- Usually same as preview
+
+---
+
+## Performance Optimization
+
+### Edge Network
+- Vercel automatically deploys to 100+ edge locations
+- CDN caching for static assets
+- Low latency worldwide
+
+### Caching Strategy
+```typescript
+// API route caching
+export const revalidate = 60; // Revalidate every 60 seconds
+
+// Page caching
+export const dynamic = 'force-static'; // Static generation
+export const revalidate = 3600; // Revalidate every hour
+```
+
+### Bundle Size
+```bash
+# Check bundle size locally
+pnpm build
+# Look for: First Load JS shared by all
+
+# Analyze bundle
+npm install -g @next/bundle-analyzer
+ANALYZE=true pnpm build
+```
+
+---
+
+## Monitoring
+
+### Deployment Logs
+```bash
+# View recent deployments
+vercel list
+
+# View specific deployment logs
+vercel logs <deployment-url>
+
+# Live logs
+vercel logs --follow
+```
+
+### Build Analytics
+- View in Vercel Dashboard
+- See: Build time, deployment frequency, errors
+- Location: Project → Analytics
+
+### Runtime Logs
+- View in Vercel Dashboard
+- See: Function invocations, errors, performance
+- Location: Project → Logs
+
+### Performance Metrics
+- Core Web Vitals (LCP, FID, CLS)
+- Location: Project → Speed Insights (Pro plan)
+
+---
+
+## Troubleshooting
+
+### Build Failures
+
+**"Module not found"**
+```bash
+# Check dependencies
+pnpm install
+
+# Verify imports
+# Make sure @rally/core, etc. are in dependencies
+```
+
+**"Build exceeded timeout"**
+```bash
+# Optimize build:
+# 1. Remove unused dependencies
+# 2. Check for infinite loops in build
+# 3. Optimize images (use next/image)
+```
+
+**"Environment variable not found"**
+```bash
+# Add in Vercel dashboard:
+# Project Settings → Environment Variables
+# Or use CLI:
+vercel env add VARIABLE_NAME production
+```
+
+### Deployment Issues
+
+**"Domain not verified"**
+- Check DNS records
+- Wait 24-48 hours for propagation
+- Try removing and re-adding domain
+
+**"SSL certificate error"**
+- Wait 5-10 minutes after adding domain
+- Vercel auto-provisions Let's Encrypt cert
+- Check domain ownership
+
+**"Deployment stuck"**
+- Check Vercel status page
+- Try manual redeploy: `vercel --prod`
+- Contact Vercel support
+
+### Runtime Issues
+
+**"Function timeout"**
+- Default: 10 seconds (Hobby), 60 seconds (Pro)
+- Optimize slow API routes
+- Use Edge Functions for fast responses
+
+**"Memory limit exceeded"**
+- Default: 1024 MB (Hobby), 3009 MB (Pro)
+- Optimize memory usage
+- Reduce bundle size
+
+---
+
+## Best Practices
+
+### DO:
+- ✅ Use environment variables for secrets
+- ✅ Test locally before deploying
+- ✅ Use preview deployments for testing
+- ✅ Monitor build times
+- ✅ Optimize bundle size
+- ✅ Use Edge Functions when possible
+
+### DON'T:
+- ❌ Commit secrets to git
+- ❌ Deploy directly to production without testing
+- ❌ Use server-side rendering for everything
+- ❌ Ignore build warnings
+- ❌ Skip performance optimization
+
+---
+
+## Vercel Features
+
+### Serverless Functions
+```typescript
+// app/api/hello/route.ts
+export async function GET() {
+  return Response.json({ message: 'Hello' });
+}
+
+// Auto-deployed as serverless function
+// URL: /api/hello
+```
+
+### Edge Functions
+```typescript
+export const runtime = 'edge';
+
+export async function GET() {
+  return Response.json({ message: 'Hello from Edge' });
+}
+
+// Runs on edge network (faster, global)
+```
+
+### Incremental Static Regeneration (ISR)
+```typescript
+export const revalidate = 3600; // 1 hour
+
+export default function Page({ data }) {
+  return <div>{data}</div>;
+}
+
+// Static page, regenerates every hour
+```
+
+### Image Optimization
+```typescript
+import Image from 'next/image';
+
+<Image
+  src="/photo.jpg"
+  alt="Photo"
+  width={500}
+  height={300}
+  // Vercel automatically optimizes
+/>
+```
+
+---
+
+## Cost Optimization
+
+**Hobby Plan (Free):**
+- 100 GB bandwidth/month
+- 100 hours build time/month
+- 10 seconds function timeout
+- Good for: Development, small projects
+
+**Pro Plan ($20/month):**
+- 1 TB bandwidth/month
+- 400 hours build time/month
+- 60 seconds function timeout
+- Analytics & monitoring
+- Good for: Production apps
+
+**Monitor Usage:**
+```bash
+# Check usage
+vercel billing
+
+# View project usage
+vercel inspect <deployment-url>
+```
+
+---
+
+## Integration with Other Services
+
+### Prisma Postgres
+- Integrated via Vercel Storage
+- Automatic environment variable provisioning
+- Connection pooling via Prisma Accelerate
+- See [Database Guide](/tech-stack/database) for details
+
+### Resend (Email)
+```typescript
+// API route
+import { Resend } from 'resend';
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+export async function POST(request: Request) {
+  await resend.emails.send({
+    from: 'notifications@aicoderally.com',
+    to: 'user@example.com',
+    subject: 'Hello',
+    html: '<p>Email content</p>'
+  });
+}
+```
+
+### GitHub
+- Automatic deployments on push
+- PR preview deployments
+- Deployment comments in PRs
+
+---
+
+## Security
+
+### Headers
+```typescript
+// next.config.ts
+module.exports = {
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY'
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff'
+          }
+        ]
+      }
+    ];
+  }
+};
+```
+
+### Environment Variable Security
+- ✅ Server-only vars (no `NEXT_PUBLIC_` prefix)
+- ✅ Rotate keys regularly
+- ✅ Use different keys for preview/production
+- ✅ Never log sensitive values
+
+---
+
+## Resources
+
+- **Vercel Docs:** https://vercel.com/docs
+- **Next.js on Vercel:** https://vercel.com/docs/frameworks/nextjs
+- **Vercel CLI:** https://vercel.com/docs/cli
+- **Edge Functions:** https://vercel.com/docs/functions/edge-functions
+
+---
+
+**This file is part of AI memory - AI agents always read this for deployment operations.**

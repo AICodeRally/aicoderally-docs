@@ -1,0 +1,674 @@
+# Coding Standards - Best Practices & Patterns
+
+**Last Updated:** November 24, 2025
+
+---
+
+## General Principles
+
+1. **Simplicity Over Cleverness** - Write code that's easy to understand
+2. **Consistency** - Follow existing patterns in the codebase
+3. **DRY (Don't Repeat Yourself)** - Extract common logic
+4. **YAGNI (You Aren't Gonna Need It)** - Don't over-engineer
+5. **Fail Fast** - Validate inputs early, throw errors clearly
+
+---
+
+## TypeScript Standards
+
+### File Naming
+
+```
+✅ Good:
+- kebab-case for files: user-profile.tsx, api-client.ts
+- PascalCase for components: UserProfile.tsx, ApiClient.tsx
+- lowercase for utilities: logger.ts, constants.ts
+
+❌ Bad:
+- UserProfile.ts (component should be .tsx)
+- api_client.ts (use kebab-case)
+- ApiClient.js (use TypeScript)
+```
+
+### Type Definitions
+
+```typescript
+// ✅ Good: Explicit types
+interface User {
+  id: string;
+  email: string;
+  name: string;
+  createdAt: Date;
+}
+
+function getUser(id: string): Promise<User> {
+  // ...
+}
+
+// ❌ Bad: Implicit any
+function getUser(id) {
+  // ...
+}
+
+// ✅ Good: Use const assertions for constants
+const STATUS = {
+  PENDING: 'pending',
+  APPROVED: 'approved',
+  REJECTED: 'rejected',
+} as const;
+
+type Status = typeof STATUS[keyof typeof STATUS];
+
+// ❌ Bad: Plain objects without types
+const STATUS = {
+  PENDING: 'pending',
+  // ...
+};
+```
+
+### Import Organization
+
+```typescript
+// ✅ Good: Organized imports
+// 1. External dependencies
+import { useEffect, useState } from 'react';
+import { NextRequest, NextResponse } from 'next/server';
+
+// 2. Internal packages
+import { RallyModule } from '@rally/core';
+import { Button } from '@rally/ui';
+
+// 3. Local imports
+import { logger } from '@/app/lib/logger';
+import { UserProfile } from './UserProfile';
+import type { User } from './types';
+
+// ❌ Bad: Mixed up, no organization
+import { UserProfile } from './UserProfile';
+import { useState } from 'react';
+import { RallyModule } from '@rally/core';
+```
+
+### Function Conventions
+
+```typescript
+// ✅ Good: Descriptive names, clear return types
+async function fetchUserById(userId: string): Promise<User | null> {
+  const { data, error } = await supabase
+    .from('users')
+    .select('*')
+    .eq('id', userId)
+    .single();
+
+  if (error) {
+    log.error('Failed to fetch user', error, { userId });
+    return null;
+  }
+
+  return data;
+}
+
+// ❌ Bad: Vague names, no types
+async function get(id) {
+  const res = await supabase.from('users').select('*').eq('id', id);
+  return res.data;
+}
+```
+
+---
+
+## React/Next.js Standards
+
+### Component Structure
+
+```typescript
+// ✅ Good: Clear structure
+'use client';
+
+import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/Button';
+
+interface UserCardProps {
+  userId: string;
+  onUpdate?: (user: User) => void;
+}
+
+export function UserCard({ userId, onUpdate }: UserCardProps) {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadUser();
+  }, [userId]);
+
+  async function loadUser() {
+    // Implementation
+  }
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!user) {
+    return <div>User not found</div>;
+  }
+
+  return (
+    <div className="p-4 border rounded-lg">
+      <h2>{user.name}</h2>
+      <Button onClick={() => onUpdate?.(user)}>Update</Button>
+    </div>
+  );
+}
+
+// ❌ Bad: Mixed logic, no types
+export default function Component(props) {
+  const [data, setData] = useState();
+  // Everything in one component, no organization
+}
+```
+
+### Hooks Rules
+
+```typescript
+// ✅ Good: Custom hooks with clear names
+function useUser(userId: string) {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    fetchUser();
+  }, [userId]);
+
+  async function fetchUser() {
+    try {
+      const data = await getUserById(userId);
+      setUser(data);
+    } catch (err) {
+      setError(err as Error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return { user, loading, error, refetch: fetchUser };
+}
+
+// Usage
+const { user, loading, error, refetch } = useUser('123');
+```
+
+### Server vs Client Components
+
+```typescript
+// ✅ Server Component (default)
+// No 'use client' directive
+// Can fetch data directly
+export default async function Page() {
+  const data = await fetchData();
+  return <div>{data}</div>;
+}
+
+// ✅ Client Component
+// Needs 'use client' for interactivity
+'use client';
+import { useState } from 'react';
+
+export function InteractiveButton() {
+  const [count, setCount] = useState(0);
+  return <button onClick={() => setCount(c => c + 1)}>{count}</button>;
+}
+```
+
+---
+
+## API Route Standards
+
+### Structure
+
+```typescript
+// ✅ Good: Clear, well-structured
+import { NextRequest, NextResponse } from 'next/server';
+import { log } from '@/app/lib/logger';
+import { ApiResponse } from '@/app/lib/api-response';
+
+// GET /api/users/[id]
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+
+    // Validate input
+    if (!id) {
+      return ApiResponse.badRequest('User ID is required');
+    }
+
+    // Fetch data
+    const user = await getUserById(id);
+
+    if (!user) {
+      return ApiResponse.notFound('User');
+    }
+
+    // Success response
+    return ApiResponse.ok({ user });
+  } catch (error) {
+    log.error('Error fetching user', error, { id });
+    return ApiResponse.internalError();
+  }
+}
+
+// POST /api/users
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+
+    // Validate with Zod
+    const validation = validateRequest(userSchema, body);
+    if (!validation.success) {
+      return ApiResponse.badRequest(validation.error);
+    }
+
+    // Create user
+    const user = await createUser(validation.data);
+
+    return ApiResponse.ok({ user }, 'User created successfully');
+  } catch (error) {
+    log.error('Error creating user', error);
+    return ApiResponse.internalError();
+  }
+}
+```
+
+### Error Handling
+
+```typescript
+// ✅ Good: Structured error handling
+try {
+  const result = await riskyOperation();
+  return ApiResponse.ok(result);
+} catch (error) {
+  if (error instanceof ValidationError) {
+    return ApiResponse.badRequest(error.message);
+  }
+
+  if (error instanceof NotFoundError) {
+    return ApiResponse.notFound(error.resource);
+  }
+
+  log.error('Unexpected error', error);
+  return ApiResponse.internalError();
+}
+
+// ❌ Bad: Generic error handling
+try {
+  // ...
+} catch (e) {
+  return NextResponse.json({ error: 'Something went wrong' }, { status: 500 });
+}
+```
+
+---
+
+## Database Patterns (Supabase)
+
+### Queries
+
+```typescript
+// ✅ Good: Specific columns, proper error handling
+const { data, error } = await supabase
+  .from('users')
+  .select('id, name, email, created_at')
+  .eq('id', userId)
+  .single();
+
+if (error) {
+  log.error('Database query failed', error, { userId });
+  throw new DatabaseError('Failed to fetch user');
+}
+
+return data;
+
+// ❌ Bad: Select all, no error handling
+const { data } = await supabase
+  .from('users')
+  .select('*')
+  .eq('id', userId)
+  .single();
+
+return data;
+```
+
+### Relationships
+
+```typescript
+// ✅ Good: Use joins efficiently
+const { data } = await supabase
+  .from('comments')
+  .select(`
+    id,
+    body,
+    author,
+    thread:threads!inner (
+      id,
+      title
+    ),
+    reactions (
+      emoji,
+      user_email
+    )
+  `)
+  .eq('thread_id', threadId);
+
+// ❌ Bad: Multiple separate queries
+const comments = await supabase.from('comments').select('*');
+for (const comment of comments) {
+  comment.thread = await supabase.from('threads').select('*').eq('id', comment.thread_id);
+  comment.reactions = await supabase.from('reactions').select('*').eq('comment_id', comment.id);
+}
+```
+
+---
+
+## Logging Standards
+
+### Use Structured Logging
+
+```typescript
+import { log } from '@/app/lib/logger';
+
+// ✅ Good: Structured logging with context
+log.info('User created', {
+  userId: user.id,
+  email: user.email,
+  source: 'api',
+});
+
+log.error('Failed to send email', error, {
+  recipient: email,
+  template: 'welcome',
+  attempt: 3,
+});
+
+log.api('POST /api/users', {
+  statusCode: 201,
+  duration: 234,
+});
+
+// ❌ Bad: console.log (exposes secrets in production)
+console.log('User:', user);
+console.error('Error:', error);
+```
+
+### Log Levels
+
+```typescript
+log.debug('Detailed info for debugging', { details });  // Dev only
+log.info('General informational message', { context });  // Normal ops
+log.warn('Warning but not critical', { issue });         // Needs attention
+log.error('Error occurred', error, { context });         // Requires action
+log.security('Security event', { event, user });         // Security monitoring
+```
+
+---
+
+## Security Best Practices
+
+### Input Validation
+
+```typescript
+// ✅ Good: Validate all inputs
+import { z } from 'zod';
+
+const userSchema = z.object({
+  email: z.string().email(),
+  name: z.string().min(1).max(100),
+  age: z.number().int().min(0).max(150),
+});
+
+const validation = userSchema.safeParse(input);
+if (!validation.success) {
+  return ApiResponse.badRequest(validation.error.message);
+}
+
+// ❌ Bad: Trust user input
+const { email, name, age } = await request.json();
+await createUser({ email, name, age });  // No validation!
+```
+
+### Prevent SQL Injection
+
+```typescript
+// ✅ Good: Use Supabase query builder (parameterized)
+const { data } = await supabase
+  .from('users')
+  .select('*')
+  .eq('email', userEmail);  // Safe - parameterized
+
+// ❌ Bad: Raw SQL with string concatenation
+const query = `SELECT * FROM users WHERE email = '${userEmail}'`;  // VULNERABLE!
+```
+
+### Secrets Management
+
+```typescript
+// ✅ Good: Environment variables
+const apiKey = process.env.ANTHROPIC_API_KEY;
+
+if (!apiKey) {
+  throw new Error('ANTHROPIC_API_KEY not configured');
+}
+
+// ❌ Bad: Hardcoded secrets
+const apiKey = 'sk-ant-api03-abc123...';  // NEVER DO THIS!
+```
+
+---
+
+## Performance Best Practices
+
+### Optimize Queries
+
+```typescript
+// ✅ Good: Limit, pagination, indexes
+const { data } = await supabase
+  .from('comments')
+  .select('id, body, author, created_at')
+  .eq('thread_id', threadId)
+  .order('created_at', { ascending: false })
+  .range(0, 49);  // First 50 results
+
+// ❌ Bad: Fetch everything
+const { data } = await supabase
+  .from('comments')
+  .select('*');  // Could be millions of rows!
+```
+
+### Use React.memo for Expensive Components
+
+```typescript
+// ✅ Good: Memoize to prevent re-renders
+import { memo } from 'react';
+
+export const ExpensiveComponent = memo(function ExpensiveComponent({ data }: Props) {
+  // Complex rendering logic
+  return <div>{/* ... */}</div>;
+});
+
+// ❌ Bad: Re-renders on every parent update
+export function ExpensiveComponent({ data }: Props) {
+  // ...
+}
+```
+
+### Dynamic Imports for Code Splitting
+
+```typescript
+// ✅ Good: Load heavy components only when needed
+import dynamic from 'next/dynamic';
+
+const HeavyChart = dynamic(() => import('./HeavyChart'), {
+  loading: () => <p>Loading chart...</p>,
+  ssr: false,  // Don't render on server
+});
+
+// ❌ Bad: Import everything upfront
+import { HeavyChart } from './HeavyChart';  // Adds to bundle even if not used
+```
+
+---
+
+## Testing Standards (Future)
+
+### Unit Tests
+
+```typescript
+// ✅ Good: Test pure functions
+describe('formatDate', () => {
+  it('formats ISO date correctly', () => {
+    const result = formatDate('2025-01-15T10:30:00Z');
+    expect(result).toBe('January 15, 2025');
+  });
+
+  it('handles invalid dates', () => {
+    const result = formatDate('invalid');
+    expect(result).toBe('Invalid date');
+  });
+});
+```
+
+### Integration Tests
+
+```typescript
+// ✅ Good: Test API routes
+describe('POST /api/users', () => {
+  it('creates user with valid data', async () => {
+    const response = await POST(
+      new NextRequest('http://localhost/api/users', {
+        method: 'POST',
+        body: JSON.stringify({
+          email: 'test@example.com',
+          name: 'Test User',
+        }),
+      })
+    );
+
+    expect(response.status).toBe(201);
+    const data = await response.json();
+    expect(data.user.email).toBe('test@example.com');
+  });
+});
+```
+
+---
+
+## Documentation Standards
+
+### Code Comments
+
+```typescript
+// ✅ Good: Explain why, not what
+// Calculate tax based on user's location (US states have different rates)
+const tax = calculateTax(amount, user.state);
+
+// Check if user is within trial period (14 days from signup)
+const isInTrial = daysSinceSignup(user) <= 14;
+
+// ❌ Bad: State the obvious
+// Set x to 5
+const x = 5;
+
+// Loop through array
+for (const item of items) {
+  // ...
+}
+```
+
+### Function Documentation
+
+```typescript
+/**
+ * Sends a notification email to the user
+ *
+ * @param userId - The ID of the user to notify
+ * @param template - Email template name ('welcome' | 'alert' | 'reminder')
+ * @param data - Template variables
+ * @returns True if email was sent successfully
+ * @throws EmailError if sending fails after 3 retries
+ */
+async function sendNotificationEmail(
+  userId: string,
+  template: EmailTemplate,
+  data: Record<string, unknown>
+): Promise<boolean> {
+  // ...
+}
+```
+
+---
+
+## File Organization
+
+### Module Structure
+
+```
+packages/modules/my-module/
+  ├── index.ts           # Module metadata (required)
+  ├── types.ts           # TypeScript types
+  ├── utils.ts           # Helper functions
+  └── README.md          # Module documentation
+
+apps/studio/app/modules/my-module/
+  ├── page.tsx           # Main page component
+  ├── components/        # Module-specific components
+  │   ├── Header.tsx
+  │   └── Footer.tsx
+  └── lib/               # Module-specific utilities
+      └── helpers.ts
+```
+
+### API Routes
+
+```
+apps/studio/app/api/
+  ├── users/
+  │   ├── route.ts           # GET/POST /api/users
+  │   └── [id]/
+  │       ├── route.ts       # GET/PUT/DELETE /api/users/[id]
+  │       └── settings/
+  │           └── route.ts   # GET/PUT /api/users/[id]/settings
+  └── health/
+      └── route.ts           # GET /api/health
+```
+
+---
+
+## Code Review Checklist
+
+**Before Submitting PR:**
+- [ ] Code follows TypeScript standards
+- [ ] All functions have proper types
+- [ ] Error handling is comprehensive
+- [ ] Security vulnerabilities checked
+- [ ] No console.log (use logger)
+- [ ] No hardcoded secrets
+- [ ] Imports are organized
+- [ ] Code is well-commented (where needed)
+- [ ] Performance considered
+- [ ] Tested locally
+
+---
+
+## Resources
+
+- **TypeScript Docs:** https://www.typescriptlang.org/docs/
+- **Next.js Docs:** https://nextjs.org/docs
+- **React Docs:** https://react.dev
+- **Supabase Docs:** https://supabase.com/docs
+
+---
+
+**This file is part of AI memory - AI agents always follow these standards when writing code.**
