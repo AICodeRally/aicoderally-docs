@@ -128,3 +128,7 @@ To add new documentation:
 ## 📄 License
 
 Part of the AICodeRally platform.
+
+---
+
+**Repository:** `AICodeRally/aicoderally-docs` (transferred from toddleb 2025-11-28)
