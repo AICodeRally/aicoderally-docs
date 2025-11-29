@@ -1,0 +1,576 @@
+export const metadata = {
+  title: 'Rally AI End-to-End Example',
+  description: 'Complete walkthrough of how Rally AI supports a new idea from Studio through Edge to Summit using the STEM Club Manager example'
+}
+
+# Rally AI – End-to-End Example
+
+**From New Idea → Studio → Edge → Summit**
+
+This document walks through a concrete, end-to-end example of how **Rally AI** supports a new idea across all three AICodeRally tiers using the 3–6–∞ Framework.
+
+**Example:** After-School STEM Club Manager
+
+---
+
+## 1. Idea Overview – "After-School STEM Club Manager"
+
+**Concept:**
+A digital system that helps schools or community centers run after-school STEM clubs:
+
+- Manage students and parents
+- Schedule sessions
+- Track attendance
+- Share resources
+- Collect feedback
+
+**Evolution Path:**
+
+- **Studio:** Single-club management app
+- **Edge:** Full program management platform (multiple clubs, schools)
+- **Summit:** District-wide or multi-organization system
+
+---
+
+## 2. Stage 1 – Studio (Creator AI – 3 Steps)
+
+### Tier: Studio (App Layer)
+**Methodology:** 3 Steps — Ideate → Create → Validate
+
+### 2.1 Ideate
+
+**Goal:** Turn the raw idea into a clear app concept.
+
+**Creator AI helps the user:**
+
+**Clarify the problem:**
+- "STEM clubs are hard to coordinate; spreadsheets and email chains are messy."
+
+**Identify users:**
+- Club organizers
+- Students
+- Parents
+- School admins
+
+**Define outcomes:**
+- Easier scheduling
+- Clear communication
+- Attendance visibility
+- Simple resource sharing
+
+**Creator AI uses:**
+
+- **Studio App Template** from the Prompt Library
+- **RAG access** to:
+  - Architecture 3.0 docs
+  - 3–6–∞ framework
+  - Existing modules (events, contacts, messaging)
+
+**Result:**
+
+A `studio-stem-club-planner` app spec:
+- **id:** `studio-stem-club-planner`
+- **domain:** `education`
+- **modules:** `events-management`, `contacts`, `projects`
+
+---
+
+### 2.2 Create
+
+**Goal:** Produce an actual working Studio app.
+
+**Creator AI generates:**
+
+**File structure:**
+```
+apps/studio/app/apps/stem-club-planner/page.tsx
+```
+
+**Metadata registration:**
+```typescript
+// apps/studio/lib/apps.ts
+{
+  id: "studio-stem-club-planner",
+  slug: "stem-club-planner",
+  name: "STEM Club Planner",
+  description: "Plan and manage after-school STEM clubs.",
+  domain: "education",
+  primaryModules: ["events-management", "contacts", "projects"]
+}
+```
+
+**Uses relevant modules:**
+- `events-management` for sessions
+- `contacts` for students/parents
+- `projects` for projects or units
+
+**Builds a simple UI:**
+- Create sessions
+- Assign participants
+- Track attendance
+- View basic stats
+
+**The app is lightweight and follows Studio layering rules.**
+
+---
+
+### 2.3 Validate
+
+**Goal:** Confirm the app actually solves a real problem.
+
+**Creator AI assists in:**
+
+**Creating a validation checklist:**
+- ✓ Can organizers add sessions easily?
+- ✓ Can they see who's registered?
+- ✓ Can they mark attendance?
+- ✓ Can they see basic stats (sessions, active students)?
+
+**Suggesting user tests:**
+- "Run this with 1–2 real clubs for 2–4 weeks."
+
+**Capturing feedback:**
+- Validation notes within the app
+- Separate Studio "validation" artifact
+
+**At the end of Studio:**
+
+✅ The "STEM Club Planner" app exists as a Studio app
+✅ Early usage and feedback indicate readiness for Edge
+
+---
+
+## 3. Stage 2 – Edge (Operator AI – 6 P's)
+
+### Tier: Edge (Business Layer)
+**Methodology:** 6 P's — People, Process, Products, Performance, Pipeline, Platform
+
+If the idea proves out at Studio, the next step is to **turn it into a business OS**.
+
+**Scenario:** A small edu-consulting org or school district wants to run STEM clubs across multiple schools.
+
+### Operator AI maps the solution onto the 6 P's:
+
+### P1 — People
+
+**Who's involved:**
+- Organizers, admins, teachers, volunteers
+- Students, parents
+- School administrators
+
+**Roles and permissions:**
+- Club organizer (create/edit sessions)
+- Teacher (view/assist)
+- Parent (view child's participation)
+- Admin (oversight, reporting)
+
+---
+
+### P2 — Process
+
+**Operational workflows:**
+- Program setup (who runs what, where, when)
+- Session scheduling
+- Enrollment and attendance
+- Feedback loops
+
+**Example workflow:**
+1. Create club program
+2. Schedule sessions
+3. Enroll students
+4. Track attendance
+5. Collect feedback
+6. Report outcomes
+
+---
+
+### P3 — Products/Programs
+
+**What's delivered:**
+- Different club types (Robotics, Coding, Science Lab)
+- Program packages (8-week term, ongoing, seasonal)
+
+**Standardization:**
+- Club templates
+- Session formats
+- Resource libraries
+
+---
+
+### P4 — Performance
+
+**KPIs and analytics:**
+- Program participation metrics
+- Attendance trends
+- Feedback surveys
+- Completion rates
+- Retention statistics
+
+**Dashboards:**
+- Club performance
+- Student engagement
+- Parent satisfaction
+
+---
+
+### P5 — Pipeline
+
+**Growth and acquisition:**
+- Interested students/parents
+- New school partners
+- Grant/funding opportunities
+
+**Lifecycle management:**
+- Awareness → Interest → Enrollment → Participation → Completion
+
+---
+
+### P6 — Platform
+
+**Enabling tools:**
+- Email notifications
+- Calendar integration
+- Payment integration (if applicable)
+- Data export/reporting
+- Parent portal
+
+**Integrations:**
+- School information systems
+- Communication platforms
+- Payment processors
+
+---
+
+### Edge Solution Creation
+
+**Operator AI proposes:**
+
+**Edge solution:** `edge-stem-program-os`
+
+**Configuration:**
+```typescript
+{
+  id: "edge-stem-program-os",
+  label: "STEM Program OS",
+  domain: "education",
+  summary: "Complete operating system for after-school STEM programs",
+  idealCustomerProfile: "Schools, districts, and edu orgs running enrichment programs",
+  moduleIds: [
+    "events-management",
+    "contacts",
+    "projects",
+    "impact-analytics",
+    "email-marketing"
+  ],
+  workflows: [
+    {
+      id: "program-creation",
+      label: "Create New Program",
+      mappedPillars: ["Process", "Products"]
+    },
+    {
+      id: "session-management",
+      label: "Manage Sessions",
+      mappedPillars: ["Process", "Platform"]
+    },
+    {
+      id: "attendance-tracking",
+      label: "Track Attendance",
+      mappedPillars: ["People", "Performance"]
+    },
+    {
+      id: "reporting",
+      label: "Generate Reports",
+      mappedPillars: ["Performance", "Platform"]
+    }
+  ]
+}
+```
+
+**This Edge solution gets registered and surfaced in the Edge portal as a vertical OS for after-school STEM programs.**
+
+---
+
+## 4. Stage 3 – Summit (Enterprise AI – ∞ Extensions)
+
+### Tier: Summit (Enterprise Layer)
+**Methodology:** ∞ Extensions — Governance, Scale, Integration, Intelligence, Strategy, Change
+
+If the STEM Club Manager gains a foothold across multiple schools or a district, Summit becomes relevant.
+
+**Scenario:** A school district wants to manage enrichment programs across 20+ schools with governance and compliance.
+
+### Enterprise AI considers:
+
+**Scale requirements:**
+- Multiple schools
+- Multiple programs (STEM + arts + athletics)
+- Multiple funding sources
+- District-level oversight
+- Compliance and risk (safety, consent, attendance laws)
+
+### Summit solution: `summit-education-enrichment-governance`
+
+---
+
+### ∞1 — Governance
+
+**Policies and controls:**
+- Attendance tracking requirements
+- Communication standards
+- Approval workflows for new programs
+- Safety and consent compliance
+- Data privacy and security
+
+**Risk management:**
+- Incident reporting
+- Background checks
+- Liability tracking
+
+---
+
+### ∞2 — Scale
+
+**Multi-entity support:**
+- 20+ schools
+- Multiple regions
+- Different program types
+
+**Organizational structure:**
+- District → Region → School → Club
+
+**Rollout coordination:**
+- Phased implementation
+- Training schedules
+- Support tiers
+
+---
+
+### ∞3 — Integration
+
+**System connections:**
+- SIS (Student Information System)
+- HR systems
+- Finance/accounting
+- Grant management
+- Parent portals
+
+**Data unification:**
+- Cross-school reporting
+- Unified student records
+- Centralized analytics
+
+---
+
+### ∞4 — Intelligence
+
+**AI-powered insights:**
+- Which programs are most effective?
+- Where to expand or adjust resourcing?
+- Predictive attendance modeling
+- Optimal scheduling recommendations
+
+**Automation:**
+- Auto-scheduling
+- Smart notifications
+- Resource allocation
+
+---
+
+### ∞5 — Strategy
+
+**Enterprise performance:**
+- District-wide enrichment strategy
+- OKRs and strategic dashboards
+- Budget allocation optimization
+- Impact measurement
+
+**Executive visibility:**
+- Board-level reporting
+- Community impact metrics
+- ROI analysis
+
+---
+
+### ∞6 — Change
+
+**Rollout planning:**
+- Implementation roadmap
+- Training programs
+- Communication plans
+
+**Adoption tracking:**
+- Staff usage metrics
+- Parent engagement
+- Student participation
+
+**Feedback loops:**
+- Continuous improvement
+- Stakeholder input
+- Iterative refinement
+
+---
+
+### Summit Solution Configuration
+
+```typescript
+{
+  id: "summit-education-enrichment-governance",
+  label: "Education Enrichment Governance Suite",
+  domain: "education",
+  summary: "District-wide governance for enrichment programs",
+  idealCustomerProfile: "School districts, multi-school networks, edu consortiums",
+  moduleIds: [
+    "events-management",
+    "contacts",
+    "projects",
+    "impact-analytics",
+    "compliance-tracking",
+    "grant-management"
+  ],
+  edgeSolutionIds: [
+    "edge-stem-program-os"
+  ],
+  workflows: [
+    {
+      id: "district-governance",
+      label: "District Governance",
+      scope: ["Governance", "Scale"]
+    },
+    {
+      id: "cross-school-integration",
+      label: "Cross-School Integration",
+      scope: ["Integration", "Intelligence"]
+    },
+    {
+      id: "strategic-planning",
+      label: "Strategic Planning",
+      scope: ["Strategy", "Performance"]
+    },
+    {
+      id: "rollout-management",
+      label: "Rollout Management",
+      scope: ["Change", "Scale"]
+    }
+  ]
+}
+```
+
+---
+
+## 5. How Rally AI Orchestrates All This
+
+### Creator AI (Studio ALM)
+
+**Responsibilities:**
+- Generate Studio apps from ideas
+- Register apps properly
+- Suggest validation steps
+- Follow 3-step methodology
+
+**For STEM Club example:**
+1. Receives idea from user
+2. Uses RAG to find relevant modules
+3. Generates `studio-stem-club-planner`
+4. Creates UI following Studio patterns
+5. Provides validation checklist
+
+---
+
+### Operator AI (Edge ALM)
+
+**Responsibilities:**
+- Map validated apps to 6 P's
+- Generate Edge solutions
+- Wire solutions into Edge portal
+- Define workflows
+
+**For STEM Club example:**
+1. Reads Studio app and usage data
+2. Maps functionality to 6 P's
+3. Generates `edge-stem-program-os`
+4. Defines workflows for each pillar
+5. Registers in Edge portal
+
+---
+
+### Enterprise AI (Summit ALM)
+
+**Responsibilities:**
+- Design enterprise-scale solutions
+- Add governance and compliance
+- Integrate across systems
+- Plan rollouts and change management
+
+**For STEM Club example:**
+1. Analyzes multi-school requirements
+2. Designs `summit-education-enrichment-governance`
+3. Adds ∞ extensions (governance, scale, etc.)
+4. Plans district-wide implementation
+5. Provides executive dashboards
+
+---
+
+### Shared Infrastructure
+
+**All three ALMs:**
+
+✅ Use a shared private LLM
+✅ Use RAG to access:
+- Architecture 3.0 docs
+- 3–6–∞ Framework
+- Module registries
+- Solution templates
+- Showcase case studies (TacoFinder, STEM Club, etc.)
+
+✅ Follow Architecture 3.0 rules:
+- Naming conventions (studio-, edge-, summit-)
+- File locations and registries
+- Design system compliance
+- No tier mixing
+
+---
+
+## 6. Summary Table
+
+| Stage | Tier | AI | Methodology | Output | Timeline |
+|-------|------|----|-----------|----|----------|
+| **1** | Studio | Creator AI | 3 Steps | `studio-stem-club-planner` | Days-weeks |
+| **2** | Edge | Operator AI | 6 P's | `edge-stem-program-os` | Weeks-months |
+| **3** | Summit | Enterprise AI | ∞ Extensions | `summit-education-enrichment-governance` | Months-years |
+
+---
+
+## 7. Key Takeaways
+
+**Studio demonstrates:**
+- ✅ Small, focused, rapid experimentation
+- ✅ Single app for single use case
+- ✅ Fast validation and iteration
+
+**Edge demonstrates:**
+- ✅ Structured, reusable business OS
+- ✅ 6 P's framework application
+- ✅ Multi-school, multi-program support
+
+**Summit demonstrates:**
+- ✅ Enterprise-scale orchestration
+- ✅ Governance and compliance
+- ✅ Cross-system integration
+
+**Rally AI coordinates the evolution across tiers while Architecture 3.0 and the 3–6–∞ Framework keep everything coherent and safe.**
+
+---
+
+## Related Documentation
+
+- [3–6–∞ Framework](/architecture/3-6-infinity) - Complete methodology overview
+- [Rally AI Overview](/tools/rally-ai) - Multi-AI orchestrator documentation
+- [Architecture 3.0 Release Notes](/architecture/release-notes) - What changed in Architecture 3.0
+- [Prompt Library](/development/prompt-library) - Architecture-aware AI prompt generators
+- [System Architecture](/architecture/unified) - Complete ecosystem documentation
+
+---
+
+**Last Updated:** November 28, 2025
+**Version:** 1.0.0
