@@ -1,0 +1,581 @@
+export const metadata = {
+  title: 'Franchise System',
+  description: 'AICodeRally franchise tiers (Studio, Edge, Summit), qualification process, and certification program'
+}
+
+# AICodeRally Franchise System
+
+**Last Updated:** November 28, 2025
+
+> **Master Reference:** See [`UNIFIED_ARCHITECTURE.md` Section 8](https://github.com/AICodeRally/aicoderally-stack/blob/master/UNIFIED_ARCHITECTURE.md#8-franchise-layer) for the authoritative specification.
+
+AICodeRally is a **product + franchise** model designed to scale AI-native app development across multiple locations and skill levels.
+
+---
+
+## Overview
+
+The AICodeRally franchise system offers three distinct tiers, each designed for different markets and skill levels:
+
+```
+    ┌─────────────────────────────────────────┐
+    │              Summit Tier                │
+    │       Enterprise AI Consulting          │
+    │   Fortune 500, large enterprises        │
+    └─────────────────────────────────────────┘
+                     ▲
+                     │ builds on
+                     │
+       ┌─────────────────────────────┐
+       │          Edge Tier          │
+       │   SMB AI App Builder        │
+       │ Solo developers, agencies   │
+       └─────────────────────────────┘
+                     ▲
+                     │ builds on
+                     │
+┌──────────────────────────────────────────┐
+│              Studio Tier                 │
+│    Full-Production App Studio            │
+│  Physical franchise locations            │
+└──────────────────────────────────────────┘
+```
+
+Each tier has access to the core AICodeRally technology stack, with increasing levels of support, training, and customization.
+
+---
+
+## Three Franchise Tiers
+
+### Studio Tier (Physical Franchise)
+
+**Target Market:** Entrepreneurs who want a physical AI development studio
+
+**What You Get:**
+
+- **Rally Stack** - Complete monorepo with all production modules
+- **Rally AI** - Multi-AI orchestrator with unlimited usage
+- **Module Library** - 50+ production-ready modules
+- **Physical Branding**:
+  - Studio signage and environmental design
+  - Racing sloth mascot merchandise
+  - Branded swag and materials
+- **Comprehensive Training**:
+  - 2-week intensive on-site training
+  - Ongoing curriculum updates
+  - Monthly workshops
+- **Technical Support**:
+  - Dedicated support channel
+  - Architecture review sessions
+  - Priority bug fixes
+- **Marketing Materials**:
+  - Website templates
+  - Social media content
+  - Client pitch decks
+
+**Investment:**
+
+| Item | Cost |
+|------|------|
+| Initial Franchise Fee | $50,000 |
+| Monthly Franchise Fee | $2,000 |
+| Revenue Share | 10% of client projects |
+
+**Ideal For:**
+
+- Experienced developers looking to start a business
+- Agencies wanting to add AI development services
+- Entrepreneurs with technical co-founders
+- Former tech consultants
+
+**Example Studio Profile:**
+
+```
+🏢 Studio Name: "Rally Lab Detroit"
+📍 Location: Downtown Detroit, MI
+👥 Team Size: 4 developers, 1 designer, 1 business lead
+💼 Services: Custom apps, AI integration, business automation
+🎯 Target Clients: Local businesses, nonprofits, SMBs
+💰 Average Project: $25k - $100k
+```
+
+---
+
+### Edge Tier (SMB AI App Builder)
+
+**Target Market:** Solo developers and small agencies working remotely
+
+**What You Get:**
+
+- **Rally Stack** - Core monorepo with 20 essential modules
+- **Rally AI** - Multi-AI orchestrator (capped usage)
+- **Digital Branding**:
+  - Logo and brand guidelines
+  - Digital assets
+  - Social media templates
+- **Online Training**:
+  - Self-paced video courses
+  - Live monthly Q&A sessions
+  - Documentation access
+- **Community Support**:
+  - Private Slack channel
+  - Community forums
+  - Peer mentorship program
+- **Module Marketplace Access**:
+  - Sell custom modules
+  - License additional modules
+
+**Investment:**
+
+| Item | Cost |
+|------|------|
+| Initial Fee | $10,000 |
+| Monthly SaaS Fee | $500 |
+| Revenue Share | 5% of projects |
+
+**Ideal For:**
+
+- Solo developers building AI apps
+- Small remote teams (2-5 people)
+- Digital agencies adding AI services
+- Consultants offering AI solutions
+
+**Example Edge Profile:**
+
+```
+💻 Business Name: "AI App Studio"
+📍 Location: Remote (US-based)
+👤 Team Size: 1 developer (you)
+💼 Services: Quick AI app prototypes, SaaS tools, automation
+🎯 Target Clients: Startups, solo founders, small businesses
+💰 Average Project: $5k - $25k
+```
+
+---
+
+### Summit Tier (Enterprise AI Consulting)
+
+**Target Market:** Fortune 500 companies and large enterprises
+
+**What You Get:**
+
+- **Full Rally Stack** - All modules, unlimited access
+- **Custom Module Development**:
+  - Dedicated engineering support
+  - Custom modules built for your needs
+  - White-label options
+- **Dedicated AI Training**:
+  - On-site workshops
+  - Executive briefings
+  - Team training programs
+- **Enterprise Features**:
+  - SSO integration
+  - Advanced security audits
+  - Compliance certifications
+  - Multi-tenant architecture
+- **Enterprise SLAs**:
+  - 24/7 priority support
+  - Guaranteed response times
+  - Dedicated account manager
+  - Quarterly business reviews
+
+**Investment:**
+
+| Item | Cost |
+|------|------|
+| Project Fee | $100,000+ per engagement |
+| Monthly Retainer | $25,000 (optional) |
+| Licensing | Custom (based on scale) |
+
+**Ideal For:**
+
+- Enterprise AI consultancies
+- Large system integrators
+- Fortune 500 internal teams
+- Government contractors
+
+**Example Summit Profile:**
+
+```
+🏢 Client: "Fortune 500 Retail Company"
+📍 Location: Global (HQ in NYC)
+👥 Team Size: 20+ developers, multiple vendors
+💼 Services: AI governance platform, multi-agent orchestration
+🎯 Scope: Enterprise-wide AI transformation
+💰 Engagement Value: $500k - $2M+
+```
+
+---
+
+## Qualification Funnel
+
+All franchise applicants must complete a rigorous 5-step qualification process to ensure quality and brand consistency.
+
+### Step 1: Pre-Test (Online)
+
+**Duration:** 2 hours
+
+**Components:**
+
+1. **Technical Assessment**
+   - TypeScript fundamentals
+   - React/Next.js proficiency
+   - Python basics
+   - Git workflow knowledge
+
+2. **AI Literacy Test**
+   - Prompt engineering skills
+   - LLM knowledge (Claude, GPT, Gemini)
+   - Understanding of AI limitations
+   - Ethical AI considerations
+
+3. **Business Acumen Quiz**
+   - Client management
+   - Project scoping
+   - Pricing strategies
+   - Business operations
+
+**Pass Requirement:** 60% minimum across all sections
+
+**What Happens Next:**
+- Pass → Invited to Step 2 (Build Challenge)
+- Fail → Can retake after 30 days
+
+---
+
+### Step 2: Build Challenge
+
+**Duration:** 48 hours
+
+**Task:** Build a functional Rally module from scratch
+
+**Requirements:**
+
+1. **Functional UI**
+   - Working user interface
+   - Responsive design
+   - Follows Rally UI guidelines
+   - Accessible (WCAG AA)
+
+2. **Proper Metadata**
+   - Correct module contract
+   - Complete metadata fields
+   - Proper versioning
+   - Documentation
+
+3. **Code Quality**
+   - TypeScript strict mode
+   - No linter errors
+   - Proper error handling
+   - Clean architecture
+
+4. **Testing**
+   - Unit tests (80%+ coverage)
+   - Integration tests
+   - E2E tests for critical paths
+
+5. **Rally AI Validation**
+   - Must pass `rally-ai validate`
+   - No security vulnerabilities
+   - Performance acceptable
+   - Best practices followed
+
+**Evaluation Criteria:**
+
+| Category | Weight | Pass Threshold |
+|----------|--------|----------------|
+| Functionality | 30% | 80%+ |
+| Code Quality | 25% | 75%+ |
+| Design/UX | 20% | 70%+ |
+| Testing | 15% | 80%+ |
+| Documentation | 10% | 75%+ |
+
+**Pass Requirement:** 75% overall score
+
+**Example Challenge:**
+
+```markdown
+## Build Challenge: Event RSVP Manager
+
+Create a module that allows users to:
+1. Create events with date, time, location
+2. Invite attendees via email
+3. Track RSVPs (yes/no/maybe)
+4. View attendee list
+5. Send reminders
+
+Technical Requirements:
+- Use Prisma for database
+- Email integration (mock is fine)
+- Real-time updates (optional)
+- Mobile-responsive
+
+Time Limit: 48 hours
+Submission: Git repository link
+```
+
+---
+
+### Step 3: Interview
+
+**Duration:** 1-2 hours
+
+**Format:** Video call with AICodeRally team
+
+**Topics Covered:**
+
+1. **Technical Deep-Dive**
+   - Walk through your build challenge code
+   - Explain architectural decisions
+   - Discuss scaling strategies
+   - Security considerations
+
+2. **Business Fit**
+   - Why AICodeRally franchise?
+   - Business plan overview
+   - Target market analysis
+   - Growth projections
+
+3. **Cultural Alignment**
+   - "Racing sloth" ethos (fast + relaxed)
+   - Approach to client relationships
+   - Team collaboration style
+   - Community involvement
+
+4. **Reference Checks**
+   - Previous employers/clients
+   - Technical references
+   - Business references
+
+**Outcome:** Pass/Fail decision within 5 business days
+
+---
+
+### Step 4: Certification
+
+**Duration:** 2 weeks (full-time) or 4 weeks (part-time)
+
+**Format:** Intensive training program
+
+**Week 1: Rally Stack Mastery**
+
+- Day 1-2: Monorepo architecture
+- Day 3-4: Module system deep dive
+- Day 5: Python automation tools
+
+**Week 2: Rally AI & Production**
+
+- Day 1-2: Multi-AI orchestration
+- Day 3: Agent protocol
+- Day 4-5: Production deployment
+
+**Projects:**
+
+Build **3 production modules** that demonstrate:
+1. Complex data modeling
+2. AI integration
+3. Real-world business value
+
+**Final Exam:**
+
+- 50 questions (multiple choice + coding)
+- 3 practical exercises
+- Pass requirement: 90% minimum
+
+**Certification:**
+
+Upon passing:
+- Official AICodeRally Certified Developer certificate
+- Listed in franchise directory
+- Access to franchise resources
+
+---
+
+### Step 5: Onboarding
+
+**Duration:** 30 days
+
+**Activities:**
+
+**Week 1: Setup**
+- Receive Rally Stack codebase
+- Environment configuration
+- Branding materials
+- Legal agreements
+
+**Week 2: Training**
+- 1-on-1 onboarding sessions
+- Tool walkthroughs
+- First client simulation
+- Marketing setup
+
+**Week 3: Launch Prep**
+- Website launch
+- Social media setup
+- First marketing campaign
+- Client prospecting
+
+**Week 4: Go Live**
+- Official franchise launch
+- First client project kickoff
+- Ongoing support begins
+- Join monthly franchise calls
+
+---
+
+## Deliverables Package
+
+Every franchisee receives:
+
+### Technical Assets
+
+- **Rally Stack Repository**
+  - Full monorepo access
+  - Module library
+  - CI/CD pipelines
+  - Testing infrastructure
+
+- **Rally AI CLI**
+  - Multi-AI orchestrator
+  - Command reference
+  - Best practices guide
+  - Example workflows
+
+- **Documentation**
+  - Complete system docs
+  - API reference
+  - Architecture guides
+  - Troubleshooting
+
+### Brand Assets
+
+- **Visual Identity**
+  - Logo files (SVG, PNG)
+  - Brand guidelines
+  - Color palette
+  - Typography system
+
+- **Marketing Materials**
+  - Website template
+  - Client pitch deck
+  - Case study templates
+  - Social media graphics
+
+- **Physical Assets** (Studio tier only)
+  - Signage designs
+  - Sloth mascot art
+  - Office branding guide
+  - Swag catalog
+
+### Support & Training
+
+- **Curriculum**
+  - Video courses
+  - Written guides
+  - Workshops
+  - Certification paths
+
+- **Community Access**
+  - Private Slack workspace
+  - Monthly franchise calls
+  - Peer mentorship program
+  - Shared resources library
+
+- **Ongoing Support**
+  - Dedicated support channel
+  - Architecture reviews
+  - Code reviews
+  - Business consulting
+
+---
+
+## Success Metrics
+
+**What makes a successful franchise?**
+
+### Studio Tier Targets (Year 1)
+
+- **Clients:** 10-15 projects
+- **Revenue:** $250k - $500k
+- **Modules Built:** 5+ custom modules
+- **Team Size:** 3-6 people
+
+### Edge Tier Targets (Year 1)
+
+- **Clients:** 20-30 projects
+- **Revenue:** $100k - $200k
+- **Modules Built:** 3+ custom modules
+- **Team Size:** 1-3 people
+
+### Summit Tier Targets (Year 1)
+
+- **Clients:** 2-5 enterprise engagements
+- **Revenue:** $500k - $2M+
+- **Custom Solutions:** 10+ modules
+- **Team Size:** 10-20 people
+
+---
+
+## Frequently Asked Questions
+
+### Can I start as Edge and upgrade to Studio?
+
+Yes! Many franchisees start with Edge to learn the system, then upgrade to Studio when ready for a physical location.
+
+### What happens if I don't meet revenue targets?
+
+We provide business coaching and marketing support. However, consistently missing targets may result in franchise agreement review.
+
+### Can I sell my franchise?
+
+Yes, with AICodeRally approval. The new owner must complete qualification and certification.
+
+### Are territories exclusive?
+
+Studio tier: Yes, exclusive within 50-mile radius
+Edge tier: No territorial restrictions
+Summit tier: Industry vertical exclusivity available
+
+### What if AICodeRally Stack is updated?
+
+All franchisees receive updates automatically. Major changes include training sessions.
+
+---
+
+## Getting Started
+
+Ready to join the AICodeRally franchise network?
+
+### Next Steps
+
+1. **[Submit Pre-Test Application](#)** - Start the qualification process
+2. **[Download Info Pack](#)** - Detailed franchise documents
+3. **[Schedule Discovery Call](#)** - Talk to the franchise team
+4. **[View Success Stories](#)** - Meet existing franchisees
+
+### Contact
+
+**Franchise Team:** franchise@aicoderally.com
+
+**Phone:** (555) 123-4567
+
+**Office Hours:** Mon-Fri, 9am-5pm EST
+
+---
+
+## Related Documentation
+
+- [Unified System Architecture](/architecture/unified) - Complete ecosystem overview
+- [Rally Stack](/platform) - Monorepo structure and modules
+- [Rally AI](/tools/rally-ai) - Multi-AI orchestration
+- [Agent Protocol](/development/agent-protocol) - Development workflow
+
+---
+
+## Master Reference
+
+This page is derived from:
+
+**📄 [`UNIFIED_ARCHITECTURE.md` Section 8](https://github.com/AICodeRally/aicoderally-stack/blob/master/UNIFIED_ARCHITECTURE.md#8-franchise-layer)**
+
+For the complete specification and business model details, see the master architecture document.

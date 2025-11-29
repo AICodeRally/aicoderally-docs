@@ -1,0 +1,512 @@
+export const metadata = {
+  title: 'Unified System Architecture',
+  description: 'Complete AICodeRally ecosystem architecture - Rally Stack, Rally AI, Agent Protocol, and Franchise System'
+}
+
+# AICodeRally — Unified System Architecture
+
+**Version 1.0** · **Last Updated:** November 28, 2025
+
+> **Master Reference:** [`UNIFIED_ARCHITECTURE.md`](https://github.com/AICodeRally/aicoderally-stack/blob/master/UNIFIED_ARCHITECTURE.md) in the main repository is the authoritative source for this documentation.
+
+---
+
+## Purpose
+
+AICodeRally is **not one product.** It's an **ecosystem**:
+
+- A **monorepo factory** ([Rally Stack](#rally-stack))
+- A **multi-AI orchestrator** ([Rally AI](#rally-ai))
+- A **module system** (Rally Modules)
+- A **brand + franchise model** ([Franchise Layer](#franchise-layer))
+- A **teaching environment**
+- A **rapid-prototype engine** for real businesses
+
+This page provides the complete system architecture that governs every technical and operational layer.
+
+---
+
+## System Overview
+
+AICodeRally is built on a **dual-core architecture**:
+
+```
+      ┌─────────────────────────────────────────┐
+      │         AICodeRally Ecosystem           │
+      ├─────────────────────────────────────────┤
+      │  Rally Stack (Monorepo Factory)         │
+      │  – Next.js front-of-house               │
+      │  – Python "back-of-house" automation    │
+      │  – Rally Modules (plug-in Lego blocks)  │
+      ├─────────────────────────────────────────┤
+      │  Rally AI (Multi-AI Orchestrator)       │
+      │  – Claude (Architect)                   │
+      │  – Gemini (Strategist)                  │
+      │  – GPT-4/5 (Executor)                   │
+      │  – Vercel AI Gateway                    │
+      ├─────────────────────────────────────────┤
+      │  Agent Protocol                         │
+      │  – Claude Code + ChatGPT division       │
+      │  – .ai rules & memory system            │
+      ├─────────────────────────────────────────┤
+      │  Franchise Layers                       │
+      │  – Studio / Edge / Summit tiers         │
+      │  – Qualification & certification        │
+      ├─────────────────────────────────────────┤
+      │  Brand System (Racing Sloth Identity)   │
+      │  – mascots, palette, traits             │
+      └─────────────────────────────────────────┘
+```
+
+The system is **modular, predictable, and scalable** to hundreds of modules and thousands of franchise installs.
+
+### Design Principles
+
+**Why This Architecture?**
+
+1. **Metadata-First**: Modules are defined by metadata contracts, not implementation
+2. **TypeScript + Python Split**: TypeScript for UI/UX, Python for automation/generation
+3. **No Heroic Migrations**: Build forward, not backward
+4. **AI-Native**: Every layer is designed to be AI-readable and AI-modifiable
+5. **Franchise-Ready**: Can be replicated across 100+ franchise locations
+
+### System Constraints & Guarantees
+
+**Constraints:**
+
+- All modules MUST follow the metadata contract
+- All AI operations MUST use BYOK (Bring Your Own Key)
+- All agents MUST follow .ai/ directory rules
+- All UIs MUST use the Rally UI kit
+
+**Guarantees:**
+
+- Sub-60s feature design with Rally AI
+- Zero-config module scaffolding
+- Predictable deployment to Vercel
+- Franchise-reproducible workflows
+
+---
+
+## Rally Stack (Monorepo Factory)
+
+A **personal software factory** for generating working apps, modules, and prototypes at speed.
+
+### Core Philosophy
+
+- **TypeScript/Next.js** = what the user sees
+- **Python** = automation, generation, orchestration
+- **Modules** = Lego blocks (metadata-first, UI-second)
+- **No heroic migrations** – build forward, not backward
+
+### Folder Structure
+
+```
+rally-stack/
+├── apps/
+│   ├── studio/                 # Main Next.js UI (Studio tier)
+│   ├── edge/                  # SMB app builder (Edge tier)
+│   └── summit/                # Enterprise offering (Summit tier)
+├── packages/
+│   ├── core/                  # Contracts & types
+│   ├── ui/                    # Shared UI kit
+│   └── modules/               # Real modules (pit-wall, consensus, etc.)
+├── tools/
+│   ├── rally-ai/             # Multi-AI orchestrator CLI
+│   └── python/               # Automation layer
+├── .ai/                       # Agent control system
+└── docs/                      # Documentation
+```
+
+### Module Contract
+
+Every module MUST export this structure:
+
+```typescript
+export const module: RallyModule = {
+  meta: {
+    id: string,              // kebab-case, unique
+    name: string,            // Display name
+    description: string,     // Short description
+    version: string,         // Semantic versioning
+    category: ModuleCategory, // Enum: AI | Data | Tools | etc
+    route: string,           // /modules/[id]
+  }
+}
+```
+
+**Why Metadata-First?**
+- Enables automatic registration
+- Allows Python to scaffold without knowing implementation
+- Makes modules AI-discoverable
+- Supports franchise replication
+
+**Learn More:**
+- [Platform Overview](/platform) - Monorepo structure and tech stack
+- [Module System](/modules) - Browse all modules
+- [Module Lifecycle](/modules/lifecycle) - How to create modules
+
+---
+
+## Rally AI (Multi-Model Orchestrator)
+
+Rally AI is a CLI that treats AI models like a team.
+
+### Model Roles
+
+- **Claude** → Architect (deep technical, security, structure)
+- **Gemini** → Strategist (business logic, integration, enterprise requirements)
+- **GPT-4/5** → Executor (sprint plans, code details, tactical refinements)
+
+This triad eliminates blind spots that a single model has.
+
+### Commands
+
+```bash
+# Generate architecture
+rally-ai design "feature-name" --context "requirements..."
+
+# Create 4-week build plan
+rally-ai sprint-plan "feature-name"
+
+# Security & requirements audit
+rally-ai validate "feature-name"
+
+# Multi-agent debate
+rally-ai collaborate "feature-name" --rounds 3
+
+# Complete lifecycle in one command
+rally-ai workflow "feature-name"
+```
+
+### Flow
+
+```
+User → Rally AI → MultiAIOrchestrator → Providers
+                              ↓
+                     design-docs/
+                     sprint-plans/
+                     validation/
+                     collaborations/
+```
+
+### Gateway Integration
+
+The Vercel AI Gateway normalizes:
+- Auth
+- Logging
+- Caching
+- Provider switching
+- Rate limits
+
+The orchestrator automatically falls back to SDK mode if gateway is unavailable.
+
+**Learn More:**
+- [Rally AI Documentation](/tools/rally-ai) - Complete Rally AI guide
+- [AI Gateway Integration](/integration/ai-gateway) - Setup and usage
+
+---
+
+## Agent Protocol (.ai Directory)
+
+This is the behavioral OS of the AICodeRally agents.
+
+### Files
+
+- `SYSTEM.md` → architectural rules
+- `CURRENT_TASK.md` → what the agents should focus on
+- `AGENT_MEMORY.md` → long-term patterns, decisions, preferences
+
+### Agent Roles
+
+**Claude Code:**
+- Architecture
+- Complex logic
+- Reviews
+- Migrations
+
+**ChatGPT:**
+- UI scaffolding
+- Boilerplate
+- Pattern replication
+- Speed
+
+### Handoff Protocol
+
+1. ChatGPT builds scaffold
+2. Claude reviews and corrects patterns
+3. ChatGPT implements corrections
+4. Claude approves
+5. Commit & merge
+
+**No side-channel divergence allowed.**
+
+**Learn More:**
+- [Agent Protocol Documentation](/development/agent-protocol) - Detailed handoff protocol
+
+---
+
+## Module Lifecycle (End-to-End)
+
+```
+Idea → Create → Register → UI → Logic → Validation → Deploy
+```
+
+### 1. Create
+
+```bash
+python tools/python/create_module.py id "Name" category
+```
+
+Generates:
+- Folder
+- Metadata
+- Page
+- Registry entry
+
+### 2. Register
+
+Auto-injected into `packages/modules/index.ts`.
+
+### 3. UI
+
+Built inside: `apps/studio/app/modules/[id]/page.tsx`
+
+### 4. Logic
+
+Goes in:
+- `packages/core/` for shared logic
+- `packages/ui/` for shared visuals
+- Or module folder if needed
+
+### 5. Validation
+
+```bash
+rally-ai validate "module-id"
+```
+
+### 6. Deployment
+
+Vercel (Next.js) + optional Python host (Fly, Railway).
+
+**Learn More:**
+- [Module Lifecycle Guide](/modules/lifecycle) - Step-by-step module creation
+
+---
+
+## UX / UI System
+
+### Principles
+
+- Minimalist
+- High contrast
+- Racing-sloth aesthetic
+- Colorful gradient accents
+- Consistent spacing system
+- No creative drift allowed
+
+### UI Kit
+
+Lives in `packages/ui`.
+
+Components support:
+- Tailwind
+- Zero proprietary patterns
+- Reuse across modules
+
+### UX Contract
+
+Every module page must include:
+- Title
+- Description
+- Action area
+- Metadata
+- Breadcrumb back to /modules
+
+**Learn More:**
+- [Design System](/design-system) - Complete design system documentation
+
+---
+
+## DevOps & Environment
+
+### Hosting
+
+- **Next.js app** → Vercel
+- **Python tools** → CLI, optional web dashboard (FastAPI)
+- **Vector DB / Supabase** → Optional
+
+### Secrets
+
+- AI keys
+- Gateway OIDC token
+- (Optional) Supabase keys
+
+### OIDC Token Refresh
+
+Every 12 hours:
+
+```bash
+vercel env pull
+```
+
+### Local Dev
+
+```bash
+pnpm dev --filter studio
+python tools/python/create_module.py ...
+```
+
+**Learn More:**
+- [Deployment Guide](/deployment) - Production deployment
+- [Environment Variables](/deployment/environment-variables) - Complete env var reference
+
+---
+
+## Franchise Layer
+
+AICodeRally is a product + franchise.
+
+### Three Tiers
+
+**Studio** – Physical franchise, full-production apps
+**Edge** – SMB AI app builder
+**Summit** – Enterprise AI/LLM engagements
+
+### Qualification Funnel
+
+1. Pre-test (online)
+2. Build challenge (using Rally Stack)
+3. Interview
+4. Certification
+5. Onboarding
+
+### Certification
+
+Agents validate their modules.
+Rally AI ensures high-quality code.
+
+### Deliverables
+
+Franchisees get:
+- Rally Stack
+- Rally AI
+- Modules library
+- Curriculum
+- Sloth brand pack
+- Community support
+
+**Learn More:**
+- [Franchise Documentation](/franchise) - Complete franchise guide
+
+---
+
+## Business Model (Technical View)
+
+AICodeRally creates multiple revenue streams:
+
+### SaaS
+- Rally AI BYOK
+- Gateway cost
+- Hosted modules
+
+### Franchise Fees
+- Initial fee
+- Monthlies
+- Training
+
+### Module Marketplace
+- Sell modules
+- Upsell data integrations
+- White-label partner modules
+
+### Enterprise
+- Summit tier
+- Multi-agent AI coaching
+- AI governance
+- Internal app factories
+
+---
+
+## Brand & Identity System
+
+### The Sloth Paradox
+
+- **AI** = slow, relaxed, approachable sloth
+- **Rally** = speed, racing, modern energy
+
+This contrast is the core brand identity.
+
+### Visual Keywords
+
+- Racing goggles
+- "Draped over logo" posture
+- Neon gradients (cyan → magenta)
+- Playful but modern
+
+**Learn More:**
+- [Brand Guidelines](/brand) - Complete brand and identity system
+
+---
+
+## Glossary
+
+| Term | Definition |
+|------|------------|
+| **Rally Stack** | Monorepo factory |
+| **Rally AI** | Multi-AI orchestrator CLI |
+| **Module** | Metadata-defined building block |
+| **Agent Protocol** | Rules for interacting with AI assistants |
+| **Studio** | Franchise offering (one idea → one app) |
+| **Edge** | SMB offering (business OS around apps) |
+| **Summit** | Enterprise offering (custom, cross-app scale) |
+
+---
+
+## Related Documentation
+
+### Application Architecture
+- [Architecture 3.0](/architecture) - Four-layer application architecture (Modules → Studio → Edge → Summit)
+
+### Development
+- [Getting Started](/getting-started) - Setup and first steps
+- [Platform Overview](/platform) - Monorepo structure
+- [Contributing](/development/contributing) - Contribution guidelines
+- [Agent Protocol](/development/agent-protocol) - AI agent coordination
+
+### Tools & Integration
+- [Rally AI](/tools/rally-ai) - Multi-AI orchestrator documentation
+- [AI Gateway](/integration/ai-gateway) - Vercel AI Gateway with BYOK
+- [Module System](/modules) - Browse and create modules
+
+### Deployment & Operations
+- [Deployment Guide](/deployment) - Production deployment
+- [Environment Variables](/deployment/environment-variables) - Configuration
+- [Tech Stack](/tech-stack) - Technology deep dive
+
+### Business & Brand
+- [Franchise](/franchise) - Franchise tiers and certification
+- [Design System](/design-system) - UX/UI standards
+- [Brand Guidelines](/brand) - Brand identity and visual system
+
+---
+
+## Master Reference
+
+This page is derived from the master architecture document:
+
+**📄 [`UNIFIED_ARCHITECTURE.md`](https://github.com/AICodeRally/aicoderally-stack/blob/master/UNIFIED_ARCHITECTURE.md)**
+
+The master document in the main repository is the **single source of truth**. All other documentation must align with it.
+
+When the master document changes → the entire ecosystem documentation changes.
+
+When something isn't defined in the master → it doesn't exist yet.
+
+---
+
+## Final Notes
+
+**If it's not in the UNIFIED_ARCHITECTURE.md → it's not core to AICodeRally.**
+
+For the complete technical specification with implementation details, architecture deep dives, and code examples, see the [master architecture document](https://github.com/AICodeRally/aicoderally-stack/blob/master/UNIFIED_ARCHITECTURE.md).

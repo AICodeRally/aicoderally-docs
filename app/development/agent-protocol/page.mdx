@@ -1,0 +1,461 @@
+export const metadata = {
+  title: 'Agent Protocol',
+  description: 'AI Agent coordination protocol for AICodeRally - Claude Code and ChatGPT role separation, handoff protocol, and .ai directory system'
+}
+
+# Agent Protocol
+
+**Last Updated:** November 28, 2025
+
+> **Master Reference:** See [`UNIFIED_ARCHITECTURE.md` Section 4](https://github.com/AICodeRally/aicoderally-stack/blob/master/UNIFIED_ARCHITECTURE.md#4-agent-protocol-ai-directory) for the authoritative specification.
+
+The Agent Protocol is the **behavioral OS** of the AICodeRally agents. It defines how AI assistants (Claude Code, ChatGPT, and others) collaborate on code development while maintaining consistency and quality.
+
+---
+
+## Overview
+
+AICodeRally uses multiple AI agents with specialized roles to maximize development efficiency and code quality. The Agent Protocol ensures:
+
+- **Clear role separation** - Each agent has specific responsibilities
+- **Structured handoffs** - Agents pass work through a defined protocol
+- **No side-channel divergence** - All changes go through the same review process
+- **Persistent memory** - Agents remember patterns and decisions
+
+---
+
+## .ai Directory Structure
+
+The `.ai/` directory contains configuration files that govern agent behavior:
+
+```
+.ai/
+├── SYSTEM.md              # Architectural rules (immutable)
+├── CURRENT_TASK.md        # Active focus area (mutable)
+├── AGENT_MEMORY.md        # Long-term patterns (append-only)
+├── GUIDE_*.md             # Specific domain guides
+├── agents/                # Agent configurations
+│   ├── doc.md            # Documentation agent
+│   └── [agent-name].md   # Custom agents
+└── commands/              # Custom slash commands
+    ├── doc.md            # /doc command
+    └── [command].md      # Custom commands
+```
+
+### File Purposes
+
+#### SYSTEM.md
+**Purpose:** Immutable architectural rules
+
+**Contains:**
+- Core system constraints
+- Non-negotiable patterns
+- Module contract requirements
+- Design system rules
+
+**Example:**
+```markdown
+# System Architecture Rules
+
+## Module Contract (Non-Negotiable)
+
+All modules MUST export:
+\`\`\`typescript
+export const module: RallyModule = {
+  meta: {
+    id: string,
+    name: string,
+    description: string,
+    version: string,
+    category: ModuleCategory,
+    route: string,
+  }
+}
+\`\`\`
+```
+
+#### CURRENT_TASK.md
+**Purpose:** Active focus area (mutable)
+
+**Contains:**
+- Current sprint goals
+- Active features being developed
+- Immediate priorities
+- Blockers or dependencies
+
+**Example:**
+```markdown
+# Current Task
+
+## Active Work: User Authentication Module
+
+**Priority:** HIGH
+**Owner:** Claude Code
+**Started:** Nov 28, 2025
+
+### Requirements
+- NextAuth v5 integration
+- Google OAuth + email/password
+- RBAC with roles (admin, user, guest)
+
+### Status
+- [x] Schema design
+- [ ] Auth API routes
+- [ ] UI components
+- [ ] Testing
+```
+
+#### AGENT_MEMORY.md
+**Purpose:** Long-term patterns (append-only)
+
+**Contains:**
+- Design decisions and rationale
+- Established patterns
+- Things that worked well
+- Things to avoid
+- Team preferences
+
+**Example:**
+```markdown
+# Agent Memory
+
+## Design Decisions
+
+### 2025-11-28: Module Registration
+**Decision:** Use automatic registration via `packages/modules/index.ts`
+**Rationale:** Prevents manual registration errors, ensures consistency
+**Pattern:** Python script auto-updates registry file
+
+### 2025-11-20: Error Handling
+**Decision:** Always use try/catch with specific error types
+**Rationale:** Better debugging, clearer error messages
+**Pattern:** Create custom error classes (e.g., `TokenExpiredError`)
+```
+
+---
+
+## Agent Roles
+
+### Claude Code
+
+**Primary Responsibilities:**
+- Architecture decisions
+- Complex logic implementation
+- Code reviews
+- Security audits
+- Performance analysis
+- Database migrations
+
+**Strengths:**
+- Deep reasoning
+- Long-context understanding
+- Pattern recognition
+- Security awareness
+
+**When to Use:**
+- Refactoring large codebases
+- Designing new systems
+- Reviewing PRs
+- Debugging complex issues
+- Security-sensitive code
+- Performance optimization
+
+**Example Task:**
+```markdown
+## Task for Claude Code
+
+**Type:** Architecture Review
+
+Review the new payment processing module for:
+1. Security vulnerabilities (SQL injection, XSS, auth bypass)
+2. Performance bottlenecks
+3. Error handling completeness
+4. Database transaction safety
+5. Alignment with module contract
+
+Provide detailed feedback with code examples.
+```
+
+### ChatGPT
+
+**Primary Responsibilities:**
+- UI scaffolding
+- Boilerplate generation
+- Pattern replication
+- Quick iterations
+- Documentation writing
+- Test generation
+
+**Strengths:**
+- Fast iteration
+- Code generation speed
+- Pattern matching
+- Creative solutions
+
+**When to Use:**
+- Creating new components
+- Writing documentation
+- Generating tests
+- Quick prototyping
+- Repetitive tasks
+- UI mockups
+
+**Example Task:**
+```markdown
+## Task for ChatGPT
+
+**Type:** UI Scaffolding
+
+Create a new module page for the "Pipeline" module:
+1. Follow the module page contract (title, description, action area, metadata)
+2. Use components from `@rally/ui`
+3. Include basic CRUD operations (create, view, edit pipelines)
+4. Add loading states and error handling
+5. Match existing module page patterns
+
+After scaffolding, hand off to Claude Code for review.
+```
+
+---
+
+## Handoff Protocol
+
+**The Rule: No side-channel divergence allowed.**
+
+All code changes must flow through the standard handoff protocol to ensure quality and consistency.
+
+### Standard Flow
+
+```
+┌─────────────────────────────────────────────┐
+│ 1. ChatGPT builds scaffold                  │
+│    - UI components                          │
+│    - Boilerplate code                       │
+│    - Initial tests                          │
+└──────────────┬──────────────────────────────┘
+               ↓
+┌─────────────────────────────────────────────┐
+│ 2. Claude reviews and corrects patterns     │
+│    - Security check                         │
+│    - Architecture alignment                 │
+│    - Performance review                     │
+│    - Provides specific feedback             │
+└──────────────┬──────────────────────────────┘
+               ↓
+┌─────────────────────────────────────────────┐
+│ 3. ChatGPT implements corrections           │
+│    - Applies Claude's feedback              │
+│    - Updates code                           │
+│    - Adds missing elements                  │
+└──────────────┬──────────────────────────────┘
+               ↓
+┌─────────────────────────────────────────────┐
+│ 4. Claude approves                          │
+│    - Final validation                       │
+│    - Confirms alignment                     │
+│    - Approves for merge                     │
+└──────────────┬──────────────────────────────┘
+               ↓
+┌─────────────────────────────────────────────┐
+│ 5. Commit & merge                           │
+│    - Git commit                             │
+│    - PR submission                          │
+│    - Deploy to production                   │
+└─────────────────────────────────────────────┘
+```
+
+### Example Handoff
+
+#### Step 1: ChatGPT Scaffold
+
+```markdown
+## Handoff: UI Component → Code Review
+
+**From:** ChatGPT (UI scaffolding complete)
+**To:** Claude Code (review request)
+
+**Created:**
+- `packages/ui/components/ModuleCard.tsx`
+- `packages/ui/components/__tests__/ModuleCard.test.tsx`
+- Basic prop types
+- Loading and error states
+
+**Ready for Review:**
+Please review for:
+1. TypeScript type safety
+2. Accessibility (ARIA labels)
+3. Error handling patterns
+4. Performance (memoization needed?)
+```
+
+#### Step 2: Claude Review
+
+```markdown
+## Review: ModuleCard Component
+
+**Reviewer:** Claude Code
+**Status:** Needs Revisions
+
+**Security:**
+✅ No XSS vulnerabilities (props are properly sanitized)
+✅ No unsafe HTML rendering
+
+**Architecture:**
+⚠️ Missing `displayName` for debugging
+⚠️ Props interface should extend `React.HTMLAttributes<HTMLDivElement>`
+
+**Performance:**
+⚠️ Should memoize the component (frequent re-renders likely)
+✅ No expensive computations
+
+**Recommended Changes:**
+
+\`\`\`typescript
+import React, { memo } from 'react';
+
+interface ModuleCardProps extends React.HTMLAttributes<HTMLDivElement> {
+  id: string;
+  name: string;
+  description: string;
+  category: ModuleCategory;
+}
+
+export const ModuleCard = memo<ModuleCardProps>(({ id, name, description, category, ...props }) => {
+  // ... implementation
+});
+
+ModuleCard.displayName = 'ModuleCard';
+\`\`\`
+
+**Next Steps:**
+- Apply recommended changes
+- Add displayName
+- Extend HTMLAttributes
+- Re-submit for approval
+```
+
+#### Step 3: ChatGPT Implements
+
+```markdown
+## Handoff: Revisions Applied
+
+**From:** ChatGPT (corrections implemented)
+**To:** Claude Code (re-review)
+
+**Changes Made:**
+✅ Added `displayName = 'ModuleCard'`
+✅ Props interface now extends `React.HTMLAttributes<HTMLDivElement>`
+✅ Wrapped component with `memo()`
+✅ Updated tests to match new interface
+
+**Ready for Final Approval**
+```
+
+#### Step 4: Claude Approves
+
+```markdown
+## Final Review: ModuleCard Component
+
+**Reviewer:** Claude Code
+**Status:** APPROVED ✅
+
+All feedback addressed:
+✅ Type safety improved
+✅ Performance optimized with memo
+✅ Accessibility maintained
+✅ Tests updated
+
+**Approval:** Ready to merge
+```
+
+---
+
+## Best Practices
+
+### For All Agents
+
+1. **Always document handoffs** - Use clear handoff messages
+2. **Reference the .ai directory** - Check SYSTEM.md and AGENT_MEMORY.md before making decisions
+3. **Update AGENT_MEMORY.md** - Document important decisions and patterns
+4. **Follow the module contract** - All modules must conform to the standard
+5. **Use clear commit messages** - Follow conventional commits format
+
+### For ChatGPT (Scaffolding)
+
+1. **Follow established patterns** - Check existing components before creating new ones
+2. **Request review early** - Don't wait until everything is perfect
+3. **Document assumptions** - If unclear, state what you assumed
+4. **Include tests** - Scaffold basic tests alongside components
+5. **Use TypeScript strictly** - Always provide proper types
+
+### For Claude Code (Reviewing)
+
+1. **Be specific** - Provide code examples, not just concepts
+2. **Prioritize feedback** - Security > Performance > Style
+3. **Explain reasoning** - Don't just say what to change, explain why
+4. **Check for patterns** - Ensure consistency with existing codebase
+5. **Approve clearly** - Use "APPROVED ✅" when ready
+
+---
+
+## No Side-Channel Divergence
+
+**What is side-channel divergence?**
+
+When one agent makes changes without going through the handoff protocol:
+- ChatGPT scaffolds AND refines without review
+- Claude makes direct changes without documenting
+- Changes bypass the review process
+
+**Why is this bad?**
+
+- Inconsistent code quality
+- Pattern drift
+- Security vulnerabilities
+- Lost knowledge (not documented)
+- Breaking changes slip through
+
+**How to prevent:**
+
+1. **Always complete the full handoff cycle**
+2. **Document all changes in handoff messages**
+3. **Don't skip reviews, even for "small" changes**
+4. **Update AGENT_MEMORY.md with decisions**
+5. **Use git commits to track handoffs**
+
+---
+
+## Integration with Rally AI
+
+The Agent Protocol complements Rally AI by defining how agents work together on implementation, while Rally AI handles multi-model design and validation.
+
+**Rally AI:** Architecture, design, planning (multi-model orchestration)
+**Agent Protocol:** Implementation, review, refinement (agent collaboration)
+
+**Example Workflow:**
+
+1. **Rally AI** generates architecture with `rally-ai design`
+2. **ChatGPT** scaffolds initial implementation based on design docs
+3. **Claude Code** reviews implementation via Agent Protocol
+4. **ChatGPT** applies corrections
+5. **Claude Code** approves
+6. **Rally AI** validates final implementation with `rally-ai validate`
+
+---
+
+## Related Documentation
+
+- [Unified System Architecture](/architecture/unified) - Complete system overview
+- [Rally AI Documentation](/tools/rally-ai) - Multi-AI orchestration
+- [Contributing Guide](/development/contributing) - Contribution workflow
+- [Module Lifecycle](/modules/lifecycle) - How agents collaborate on modules
+
+---
+
+## Master Reference
+
+This page is derived from:
+
+**📄 [`UNIFIED_ARCHITECTURE.md` Section 4](https://github.com/AICodeRally/aicoderally-stack/blob/master/UNIFIED_ARCHITECTURE.md#4-agent-protocol-ai-directory)**
+
+For the complete specification and implementation details, see the master architecture document.

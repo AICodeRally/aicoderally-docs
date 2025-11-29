@@ -1,0 +1,621 @@
+export const metadata = {
+  title: 'Design System',
+  description: 'AICodeRally UX/UI design system - design tokens, component library, spacing, colors, and typography'
+}
+
+# AICodeRally Design System
+
+**Last Updated:** November 28, 2025
+
+> **Master Reference:** See [`UNIFIED_ARCHITECTURE.md` Section 6](https://github.com/AICodeRally/aicoderally-stack/blob/master/UNIFIED_ARCHITECTURE.md#6-ux--ui-system) for the authoritative specification.
+
+The AICodeRally Design System ensures consistent, accessible, and beautiful user interfaces across all modules and applications.
+
+---
+
+## Design Principles
+
+**Core Principles:**
+
+1. **Minimalist** - Remove everything unnecessary
+2. **High Contrast** - Accessibility first (WCAG AA+)
+3. **Racing-Sloth Aesthetic** - Playful yet professional
+4. **Colorful Gradient Accents** - Cyan → Magenta energy
+5. **Consistent Spacing System** - 4px base unit
+6. **No Creative Drift Allowed** - Follow the system strictly
+
+---
+
+## Color System
+
+### Primary Palette
+
+The racing-sloth color palette combines speed (bright, energetic colors) with calm (balanced, approachable tones).
+
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginTop: '1rem', marginBottom: '2rem' }}>
+  <div style={{ padding: '2rem', background: '#00d9ff', borderRadius: '0.5rem', color: '#0a0e1a' }}>
+    <div style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>Primary - Cyan</div>
+    <code>#00d9ff</code>
+  </div>
+  <div style={{ padding: '2rem', background: '#ff00e5', borderRadius: '0.5rem', color: 'white' }}>
+    <div style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>Secondary - Magenta</div>
+    <code>#ff00e5</code>
+  </div>
+  <div style={{ padding: '2rem', background: '#ffd700', borderRadius: '0.5rem', color: '#0a0e1a' }}>
+    <div style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>Accent - Gold</div>
+    <code>#ffd700</code>
+  </div>
+</div>
+
+### Background & Surface Colors
+
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginTop: '1rem', marginBottom: '2rem' }}>
+  <div style={{ padding: '2rem', background: '#0a0e1a', borderRadius: '0.5rem', color: 'white', border: '1px solid #1a1f2e' }}>
+    <div style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>Background - Dark Navy</div>
+    <code>#0a0e1a</code>
+  </div>
+  <div style={{ padding: '2rem', background: '#1a1f2e', borderRadius: '0.5rem', color: 'white', border: '1px solid #2a2f3e' }}>
+    <div style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>Surface</div>
+    <code>#1a1f2e</code>
+  </div>
+</div>
+
+### Text Colors
+
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginTop: '1rem', marginBottom: '2rem' }}>
+  <div style={{ padding: '2rem', background: '#0a0e1a', borderRadius: '0.5rem', color: '#ffffff' }}>
+    <div style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>Text - White</div>
+    <code>#ffffff</code>
+  </div>
+  <div style={{ padding: '2rem', background: '#0a0e1a', borderRadius: '0.5rem', color: '#94a3b8' }}>
+    <div style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>Text Muted - Gray</div>
+    <code>#94a3b8</code>
+  </div>
+</div>
+
+### CSS Variables
+
+```css
+/* Design Tokens */
+:root {
+  /* Colors - Rally Racing Theme */
+  --color-primary: #00d9ff; /* Cyan */
+  --color-secondary: #ff00e5; /* Magenta */
+  --color-accent: #ffd700; /* Gold */
+  --color-bg: #0a0e1a; /* Dark navy */
+  --color-surface: #1a1f2e; /* Surface */
+  --color-text: #ffffff; /* White */
+  --color-text-muted: #94a3b8; /* Gray */
+}
+```
+
+---
+
+## Typography
+
+### Font Families
+
+**Sans Serif (Primary):**
+- Family: `Inter`
+- Usage: Body text, headings, UI elements
+- Weights: 400 (regular), 500 (medium), 600 (semibold), 700 (bold)
+
+**Monospace (Code):**
+- Family: `JetBrains Mono`
+- Usage: Code blocks, technical content
+- Weights: 400 (regular), 700 (bold)
+
+### Type Scale
+
+| Element | Size | Line Height | Weight | Usage |
+|---------|------|-------------|--------|--------|
+| `h1` | 2.5rem (40px) | 1.2 | 700 | Page titles |
+| `h2` | 2rem (32px) | 1.3 | 700 | Section headings |
+| `h3` | 1.5rem (24px) | 1.4 | 600 | Subsection headings |
+| `h4` | 1.25rem (20px) | 1.4 | 600 | Card titles |
+| `body` | 1rem (16px) | 1.6 | 400 | Body text |
+| `small` | 0.875rem (14px) | 1.5 | 400 | Captions, labels |
+| `code` | 0.9rem (14.4px) | 1.5 | 400 | Inline code |
+
+### CSS Variables
+
+```css
+:root {
+  /* Typography */
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  /* Font sizes */
+  --text-xs: 0.75rem; /* 12px */
+  --text-sm: 0.875rem; /* 14px */
+  --text-base: 1rem; /* 16px */
+  --text-lg: 1.125rem; /* 18px */
+  --text-xl: 1.25rem; /* 20px */
+  --text-2xl: 1.5rem; /* 24px */
+  --text-3xl: 2rem; /* 32px */
+  --text-4xl: 2.5rem; /* 40px */
+}
+```
+
+---
+
+## Spacing System
+
+### 4px Base Unit
+
+All spacing uses a **4px base unit** for perfect visual rhythm.
+
+| Token | Value | Pixels | Usage |
+|-------|-------|--------|--------|
+| `--space-1` | 0.25rem | 4px | Tiny gaps |
+| `--space-2` | 0.5rem | 8px | Small padding |
+| `--space-3` | 0.75rem | 12px | Compact spacing |
+| `--space-4` | 1rem | 16px | Standard spacing |
+| `--space-6` | 1.5rem | 24px | Comfortable spacing |
+| `--space-8` | 2rem | 32px | Large spacing |
+| `--space-12` | 3rem | 48px | Section spacing |
+| `--space-16` | 4rem | 64px | Page spacing |
+
+### Usage Examples
+
+```tsx
+// Compact card
+<div className="p-4"> {/* 16px padding */}
+  <h3 className="mb-2">Title</h3> {/* 8px margin bottom */}
+  <p className="text-sm">Description</p>
+</div>
+
+// Comfortable section
+<section className="py-12 px-6"> {/* 48px vertical, 24px horizontal */}
+  <h2 className="mb-8">Section Title</h2> {/* 32px margin bottom */}
+  <div className="space-y-4"> {/* 16px gap between children */}
+    {/* Content */}
+  </div>
+</section>
+```
+
+---
+
+## Component Library
+
+### UI Kit Location
+
+```
+packages/ui/
+├── components/         # Reusable UI components
+│   ├── Button.tsx
+│   ├── Card.tsx
+│   ├── Input.tsx
+│   ├── Modal.tsx
+│   ├── Table.tsx
+│   ├── Badge.tsx
+│   ├── Tabs.tsx
+│   └── ModuleCard.tsx
+├── layouts/           # Page layouts
+│   ├── ModuleLayout.tsx
+│   ├── DashboardLayout.tsx
+│   └── AuthLayout.tsx
+├── styles/            # Design tokens & globals
+│   ├── tokens.css
+│   ├── globals.css
+│   └── animations.css
+└── themes/            # Theme configurations
+    ├── default.ts
+    └── dark.ts
+```
+
+### Button Component
+
+**Variants:** Primary, Secondary, Outline, Ghost
+
+**Sizes:** Small, Medium, Large
+
+```tsx
+import { Button } from '@rally/ui';
+
+// Primary button (default)
+<Button>Click Me</Button>
+
+// Secondary button
+<Button variant="secondary">Cancel</Button>
+
+// Outline button
+<Button variant="outline">Learn More</Button>
+
+// Ghost button
+<Button variant="ghost">Skip</Button>
+
+// Small size
+<Button size="sm">Small</Button>
+
+// Large size
+<Button size="lg">Large</Button>
+```
+
+**Example Implementation:**
+
+```tsx
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
+  size?: 'sm' | 'md' | 'lg';
+}
+
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ variant = 'primary', size = 'md', className, ...props }, ref) => {
+    return (
+      <button
+        ref={ref}
+        className={cn(
+          'inline-flex items-center justify-center rounded-md font-medium transition-colors',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+          'disabled:pointer-events-none disabled:opacity-50',
+          {
+            'bg-primary text-bg hover:bg-primary/90': variant === 'primary',
+            'bg-surface text-text hover:bg-surface/80': variant === 'secondary',
+            'border-2 border-primary text-primary hover:bg-primary hover:text-bg': variant === 'outline',
+            'hover:bg-surface/50 text-text': variant === 'ghost',
+          },
+          {
+            'h-8 px-3 text-sm': size === 'sm',
+            'h-10 px-4': size === 'md',
+            'h-12 px-6 text-lg': size === 'lg',
+          },
+          className
+        )}
+        {...props}
+      />
+    );
+  }
+);
+
+Button.displayName = 'Button';
+```
+
+### Card Component
+
+**Container for grouped content**
+
+```tsx
+import { Card } from '@rally/ui';
+
+<Card>
+  <Card.Header>
+    <Card.Title>Module Name</Card.Title>
+    <Card.Description>Brief description</Card.Description>
+  </Card.Header>
+  <Card.Content>
+    {/* Main content */}
+  </Card.Content>
+  <Card.Footer>
+    <Button>Action</Button>
+  </Card.Footer>
+</Card>
+```
+
+### Input Component
+
+**Form inputs with validation states**
+
+```tsx
+import { Input } from '@rally/ui';
+
+// Text input
+<Input type="text" placeholder="Enter name" />
+
+// With label
+<Input label="Email" type="email" placeholder="you@example.com" />
+
+// With error
+<Input
+  label="Password"
+  type="password"
+  error="Password must be at least 8 characters"
+/>
+
+// Disabled
+<Input disabled placeholder="Disabled input" />
+```
+
+### Module Card Component
+
+**Specialized card for displaying modules**
+
+```tsx
+import { ModuleCard } from '@rally/ui';
+
+<ModuleCard
+  id="pit-wall"
+  name="Pit Wall"
+  description="AI orchestration and multi-agent coordination"
+  category="AI"
+  icon="⚡"
+  status="active"
+  onClick={() => navigate('/modules/pit-wall')}
+/>
+```
+
+---
+
+## Module Page Contract
+
+Every module page MUST include these elements:
+
+### Required Sections
+
+1. **Title** - Module name (H1)
+2. **Description** - What the module does
+3. **Action Area** - Primary actions (buttons, forms)
+4. **Metadata** - Version, category, status
+5. **Breadcrumb** - Navigation back to /modules
+
+### Example Module Page
+
+```tsx
+// apps/studio/app/modules/[id]/page.tsx
+import { ModuleLayout } from '@rally/ui';
+import { Button } from '@rally/ui';
+
+export default function ModulePage() {
+  return (
+    <ModuleLayout
+      title="Module Name"
+      description="Brief description of what this module does"
+      category="AI"
+      version="1.0.0"
+      status="active"
+    >
+      {/* Action Area */}
+      <div className="flex gap-4 mb-8">
+        <Button>Primary Action</Button>
+        <Button variant="outline">Secondary Action</Button>
+      </div>
+
+      {/* Main Content */}
+      <div className="space-y-8">
+        <section>
+          <h2 className="text-2xl font-bold mb-4">Features</h2>
+          {/* Feature list */}
+        </section>
+
+        <section>
+          <h2 className="text-2xl font-bold mb-4">Usage</h2>
+          {/* Usage examples */}
+        </section>
+      </div>
+
+      {/* Metadata Footer */}
+      <div className="mt-12 pt-8 border-t border-surface">
+        <div className="flex gap-6 text-sm text-text-muted">
+          <span>Version: 1.0.0</span>
+          <span>Category: AI</span>
+          <span>Status: Active</span>
+        </div>
+      </div>
+    </ModuleLayout>
+  );
+}
+```
+
+---
+
+## Shadows & Elevation
+
+Use subtle shadows to create depth and hierarchy.
+
+```css
+:root {
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.2);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.3);
+}
+```
+
+**Usage:**
+
+| Element | Shadow | Usage |
+|---------|--------|--------|
+| Cards | `shadow-md` | Standard elevation |
+| Dropdowns | `shadow-lg` | Floating menus |
+| Modals | `shadow-xl` | Overlays |
+| Buttons (hover) | `shadow-sm` | Subtle feedback |
+
+---
+
+## Border Radius
+
+Consistent rounding creates a cohesive feel.
+
+```css
+:root {
+  --radius-sm: 0.25rem; /* 4px */
+  --radius-md: 0.5rem; /* 8px */
+  --radius-lg: 1rem; /* 16px */
+  --radius-full: 9999px; /* Pills/circles */
+}
+```
+
+**Usage:**
+
+| Element | Radius | Usage |
+|---------|--------|--------|
+| Buttons | `radius-md` | Standard |
+| Cards | `radius-lg` | Containers |
+| Inputs | `radius-md` | Form fields |
+| Badges | `radius-full` | Pill shape |
+
+---
+
+## Gradients
+
+Use gradients sparingly for accents and highlights.
+
+```css
+/* Primary gradient (Cyan → Magenta) */
+.gradient-primary {
+  background: linear-gradient(135deg, #00d9ff 0%, #ff00e5 100%);
+}
+
+/* Accent gradient (Cyan → Gold) */
+.gradient-accent {
+  background: linear-gradient(135deg, #00d9ff 0%, #ffd700 100%);
+}
+
+/* Text gradient */
+.gradient-text {
+  background: linear-gradient(135deg, #00d9ff 0%, #ff00e5 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+```
+
+---
+
+## Accessibility
+
+### WCAG AA Compliance
+
+All components must meet WCAG AA standards:
+
+- **Contrast ratio:** Minimum 4.5:1 for normal text, 3:1 for large text
+- **Focus indicators:** Visible focus states on all interactive elements
+- **Keyboard navigation:** All functionality accessible via keyboard
+- **ARIA labels:** Proper labeling for screen readers
+
+### Focus Styles
+
+```css
+/* Focus ring */
+.focus-visible:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+```
+
+### Color Blindness
+
+Test all color combinations for:
+- Protanopia (red-blind)
+- Deuteranopia (green-blind)
+- Tritanopia (blue-blind)
+
+Never rely on color alone to convey information.
+
+---
+
+## Animation Guidelines
+
+Use subtle animations for better UX:
+
+```css
+/* Transitions */
+.transition-default {
+  transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.transition-fast {
+  transition: all 100ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.transition-slow {
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+```
+
+**When to animate:**
+- ✅ Button hovers/clicks
+- ✅ Modal enter/exit
+- ✅ Loading states
+- ✅ Dropdown menus
+- ❌ Page transitions (too slow)
+- ❌ Excessive movement (distracting)
+
+---
+
+## Usage Examples
+
+### Building a Module Page
+
+```tsx
+import { ModuleLayout, Button, Card } from '@rally/ui';
+
+export default function PitWallModule() {
+  return (
+    <ModuleLayout
+      title="Pit Wall"
+      description="AI orchestration and multi-agent coordination"
+      category="AI"
+      version="1.0.0"
+    >
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card>
+          <Card.Header>
+            <Card.Title>Claude Agent</Card.Title>
+            <Card.Description>Architecture & Security</Card.Description>
+          </Card.Header>
+          <Card.Content>
+            <p className="text-sm text-text-muted">
+              Deep reasoning and long-context understanding
+            </p>
+          </Card.Content>
+          <Card.Footer>
+            <Button size="sm">Configure</Button>
+          </Card.Footer>
+        </Card>
+
+        <Card>
+          <Card.Header>
+            <Card.Title>GPT-4 Agent</Card.Title>
+            <Card.Description>Execution & Speed</Card.Description>
+          </Card.Header>
+          <Card.Content>
+            <p className="text-sm text-text-muted">
+              Fast iteration and code generation
+            </p>
+          </Card.Content>
+          <Card.Footer>
+            <Button size="sm">Configure</Button>
+          </Card.Footer>
+        </Card>
+      </div>
+    </ModuleLayout>
+  );
+}
+```
+
+---
+
+## Design Review Checklist
+
+Before shipping UI, verify:
+
+- [ ] **Spacing** - Uses 4px base unit system
+- [ ] **Colors** - From design token palette
+- [ ] **Typography** - Uses Inter or JetBrains Mono
+- [ ] **Contrast** - Meets WCAG AA (4.5:1 minimum)
+- [ ] **Focus states** - Visible on all interactive elements
+- [ ] **Responsive** - Works on mobile, tablet, desktop
+- [ ] **Animations** - Subtle and performant
+- [ ] **Module contract** - Follows page structure
+- [ ] **Component usage** - Uses @rally/ui components
+- [ ] **Dark mode** - Looks good in dark theme
+
+---
+
+## Related Documentation
+
+- [Unified System Architecture](/architecture/unified) - Complete ecosystem
+- [Module System](/modules) - Module development
+- [Platform Overview](/platform) - Monorepo structure
+- [Brand Guidelines](/brand) - Brand identity
+
+---
+
+## Master Reference
+
+This page is derived from:
+
+**📄 [`UNIFIED_ARCHITECTURE.md` Section 6](https://github.com/AICodeRally/aicoderally-stack/blob/master/UNIFIED_ARCHITECTURE.md#6-ux--ui-system)**
+
+For the complete specification and implementation details, see the master architecture document.
