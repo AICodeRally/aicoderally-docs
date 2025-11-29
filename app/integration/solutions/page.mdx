@@ -1,0 +1,500 @@
+export const metadata = {
+  title: 'Solutions Layer Integration',
+  description: 'How to build and deploy Solutions on Edge and Summit platforms'
+}
+
+# Solutions Layer Integration Guide
+
+Complete guide to building, configuring, and deploying Solutions in the AICodeRally platform.
+
+## What are Solutions?
+
+**Solutions** are vertical bundles of modules configured for specific industries or use cases. They sit between the **Modules layer** (internal capabilities) and the **Edge/Summit layers** (customer-facing portals).
+
+### Types of Solutions
+
+**Edge Solutions** - Business-focused vertical bundles
+- `edge-designer-biz-kit` – Creative studios
+- `edge-brand-hub` – Brand/marketing teams
+- `edge-nonprofit-fundraiser` – Nonprofits
+- `edge-restaurant-refresh` – Restaurants
+
+**Summit Solutions** - Enterprise-scale orchestration
+- `summit-bhg-spm-suite` – SPM consulting platform
+- `summit-enterprise-spm-accelerator` – Enterprise SPM governance
+
+---
+
+## Solution Architecture
+
+Solutions are defined in `packages/solutions/*` and consumed by Edge and Summit apps:
+
+```
+packages/solutions/
+├── edge/                          # Edge Solutions
+│   ├── designer-biz-kit/         # Creative studio bundle
+│   ├── brand-hub/                # Brand/marketing bundle
+│   ├── nonprofit-fundraiser/     # Nonprofit bundle
+│   └── restaurant-refresh/       # Restaurant bundle
+└── summit/                        # Summit Solutions
+    ├── bhg-spm-suite/            # BHG SPM solution
+    └── enterprise-spm/           # Enterprise SPM
+```
+
+---
+
+## Creating an Edge Solution
+
+### Step 1: Define Solution Metadata
+
+Create `packages/solutions/edge/my-solution/index.ts`:
+
+```typescript
+import { EdgeSolution } from "@rally/core";
+
+export const mySolution: EdgeSolution = {
+  meta: {
+    id: "edge-my-solution",
+    name: "My Business Solution",
+    description: "Complete business solution for [industry]",
+    version: "1.0.0",
+    tier: "edge",
+    domain: "my-industry",
+  },
+
+  // Modules included in this solution
+  modules: [
+    "donor-management",
+    "grant-tracking",
+    "pipeline-management",
+    "dashboard-builder",
+  ],
+
+  // Solution-specific configuration
+  config: {
+    branding: {
+      primaryColor: "#6366f1",
+      logo: "/solutions/my-solution/logo.svg",
+    },
+    features: {
+      billing: true,
+      analytics: true,
+      multiTenant: false,
+    },
+  },
+};
+```
+
+### Step 2: Configure Solution Routes
+
+Create solution-specific pages in `apps/edge/app/solutions/my-solution/`:
+
+```
+apps/edge/app/solutions/my-solution/
+├── page.tsx                 # Landing page
+├── dashboard/
+│   └── page.tsx            # Dashboard view
+├── setup/
+│   └── page.tsx            # Setup wizard
+└── settings/
+    └── page.tsx            # Configuration
+```
+
+### Step 3: Implement Landing Page
+
+Create `apps/edge/app/solutions/my-solution/page.tsx`:
+
+```typescript
+import { mySolution } from "@rally/solutions/edge/my-solution";
+import { ModuleGrid } from "@/components/ModuleGrid";
+
+export default function MySolutionPage() {
+  return (
+    <div className="mx-auto max-w-7xl p-8">
+      <h1 className="text-4xl font-bold mb-4">
+        {mySolution.meta.name}
+      </h1>
+      <p className="text-xl text-gray-600 mb-8">
+        {mySolution.meta.description}
+      </p>
+
+      {/* Solution features */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <FeatureCard
+          title="Manage Customers"
+          description="CRM and pipeline management"
+          icon="users"
+        />
+        <FeatureCard
+          title="Track Projects"
+          description="Project and task management"
+          icon="briefcase"
+        />
+        <FeatureCard
+          title="View Analytics"
+          description="Dashboards and insights"
+          icon="chart"
+        />
+      </div>
+
+      {/* Included modules */}
+      <h2 className="text-2xl font-semibold mb-4">
+        Included Modules
+      </h2>
+      <ModuleGrid modules={mySolution.modules} />
+    </div>
+  );
+}
+```
+
+### Step 4: Register Solution
+
+Add to `packages/solutions/edge/index.ts`:
+
+```typescript
+export * from "./my-solution";
+export * from "./designer-biz-kit";
+export * from "./brand-hub";
+// ... other solutions
+```
+
+### Step 5: Wire into Edge App
+
+Update `apps/edge/app/page.tsx` to show available solutions:
+
+```typescript
+import { mySolution } from "@rally/solutions/edge/my-solution";
+import { designerBizKit } from "@rally/solutions/edge/designer-biz-kit";
+
+const solutions = [mySolution, designerBizKit];
+
+export default function EdgeHome() {
+  return (
+    <div className="max-w-7xl mx-auto p-8">
+      <h1 className="text-4xl font-bold mb-8">
+        Choose Your Solution
+      </h1>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {solutions.map((solution) => (
+          <SolutionCard
+            key={solution.meta.id}
+            solution={solution}
+            href={`/solutions/${solution.meta.id.replace('edge-', '')}`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+```
+
+---
+
+## Creating a Summit Solution
+
+Summit Solutions are similar to Edge Solutions but orchestrate across multiple Edge portals:
+
+### Step 1: Define Summit Solution
+
+Create `packages/solutions/summit/my-enterprise-solution/index.ts`:
+
+```typescript
+import { SummitSolution } from "@rally/core";
+
+export const myEnterpriseSolution: SummitSolution = {
+  meta: {
+    id: "summit-my-enterprise-solution",
+    name: "My Enterprise Solution",
+    description: "Cross-org governance and analytics",
+    version: "1.0.0",
+    tier: "summit",
+    domain: "enterprise",
+  },
+
+  // Edge solutions this builds on
+  edgeSolutions: [
+    "edge-designer-biz-kit",
+    "edge-brand-hub",
+  ],
+
+  // Additional modules for cross-org features
+  modules: [
+    "strategic-revenue-ops",
+    "governance-framework",
+    "executive-dashboard",
+  ],
+
+  // Summit-specific config
+  config: {
+    multiTenant: true,
+    governance: {
+      auditLogging: true,
+      rbac: true,
+      complianceFramework: "SOC2",
+    },
+    analytics: {
+      crossOrg: true,
+      realTime: true,
+    },
+  },
+};
+```
+
+### Step 2: Implement Cross-Org Features
+
+Create `apps/summit/app/solutions/my-enterprise-solution/`:
+
+```typescript
+// apps/summit/app/solutions/my-enterprise-solution/page.tsx
+import { myEnterpriseSolution } from "@rally/solutions/summit/my-enterprise-solution";
+
+export default function EnterprisesSolutionPage() {
+  return (
+    <div className="max-w-7xl mx-auto p-8">
+      <h1 className="text-4xl font-bold mb-4">
+        {myEnterpriseSolution.meta.name}
+      </h1>
+
+      {/* Cross-org dashboard */}
+      <CrossOrgDashboard
+        edgeSolutions={myEnterpriseSolution.edgeSolutions}
+      />
+
+      {/* Governance controls */}
+      <GovernancePanel
+        config={myEnterpriseSolution.config.governance}
+      />
+
+      {/* Analytics views */}
+      <AnalyticsDashboard
+        crossOrg={myEnterpriseSolution.config.analytics.crossOrg}
+      />
+    </div>
+  );
+}
+```
+
+---
+
+## Solution Configuration
+
+### Environment Variables
+
+Each solution can have environment-specific configuration:
+
+```bash
+# .env.local for Edge solution
+SOLUTION_ID=edge-designer-biz-kit
+SOLUTION_BRANDING_PRIMARY_COLOR=#6366f1
+SOLUTION_FEATURES_BILLING=true
+SOLUTION_FEATURES_ANALYTICS=true
+
+# .env.local for Summit solution
+SOLUTION_ID=summit-enterprise-spm
+SOLUTION_MULTI_TENANT=true
+SOLUTION_GOVERNANCE_ENABLED=true
+```
+
+### Database Schema
+
+Solutions may extend the base schema with solution-specific tables:
+
+```prisma
+// prisma/schema.prisma
+
+// Base module tables
+model Donor { ... }
+model Grant { ... }
+
+// Edge solution tables
+model EdgeDesignerProject {
+  id        String   @id @default(cuid())
+  solutionId String  // References solution
+  // ... fields
+}
+
+// Summit solution tables
+model SummitGovernancePolicy {
+  id        String   @id @default(cuid())
+  solutionId String
+  // ... fields
+}
+```
+
+---
+
+## Deployment
+
+### Edge Solution Deployment
+
+1. **Build solution package:**
+   ```bash
+   pnpm --filter @rally/solutions build
+   ```
+
+2. **Deploy Edge app with solution:**
+   ```bash
+   pnpm --filter edge build
+   vercel deploy --prod
+   ```
+
+3. **Configure in Vercel:**
+   - Set `SOLUTION_ID` environment variable
+   - Set solution-specific config vars
+
+### Summit Solution Deployment
+
+1. **Build all dependencies:**
+   ```bash
+   pnpm build
+   ```
+
+2. **Deploy Summit app:**
+   ```bash
+   pnpm --filter summit build
+   vercel deploy --prod
+   ```
+
+3. **Configure multi-tenancy:**
+   - Set up tenant database isolation
+   - Configure RBAC policies
+   - Enable governance features
+
+---
+
+## Testing
+
+### Unit Tests
+
+Test solution configuration:
+
+```typescript
+// packages/solutions/edge/my-solution/__tests__/solution.test.ts
+import { mySolution } from "../index";
+
+describe("My Solution", () => {
+  it("should have valid metadata", () => {
+    expect(mySolution.meta.id).toBe("edge-my-solution");
+    expect(mySolution.meta.tier).toBe("edge");
+  });
+
+  it("should include required modules", () => {
+    expect(mySolution.modules).toContain("pipeline-management");
+    expect(mySolution.modules).toContain("dashboard-builder");
+  });
+
+  it("should have valid configuration", () => {
+    expect(mySolution.config.features.billing).toBe(true);
+  });
+});
+```
+
+### Integration Tests
+
+Test solution pages:
+
+```typescript
+// apps/edge/__tests__/solutions/my-solution.test.tsx
+import { render, screen } from "@testing-library/react";
+import MySolutionPage from "@/app/solutions/my-solution/page";
+
+describe("My Solution Page", () => {
+  it("should render solution name", () => {
+    render(<MySolutionPage />);
+    expect(screen.getByText("My Business Solution")).toBeInTheDocument();
+  });
+
+  it("should show included modules", () => {
+    render(<MySolutionPage />);
+    expect(screen.getByText("Pipeline Management")).toBeInTheDocument();
+  });
+});
+```
+
+---
+
+## Best Practices
+
+### 1. Solution Naming
+
+- **Edge**: `edge-[industry]-[purpose]`
+  - ✅ `edge-designer-biz-kit`
+  - ✅ `edge-restaurant-refresh`
+  - ❌ `restaurant-solution` (missing tier prefix)
+
+- **Summit**: `summit-[org-type]-[system]`
+  - ✅ `summit-enterprise-spm`
+  - ✅ `summit-bhg-spm-suite`
+  - ❌ `spm-platform` (missing tier prefix)
+
+### 2. Module Reuse
+
+- ✅ Always use modules from `packages/modules/*`
+- ❌ Never redefine module logic in solutions
+- ✅ Configure modules, don't fork them
+- ✅ Extend modules with solution-specific views
+
+### 3. Configuration Over Code
+
+- ✅ Use config objects for customization
+- ✅ Keep solution logic declarative
+- ❌ Avoid solution-specific business logic
+- ✅ Use modules for business logic
+
+### 4. Clear Boundaries
+
+- **Modules**: Capabilities (what can be done)
+- **Solutions**: Bundles (how capabilities are packaged)
+- **Edge/Summit**: Presentation (how bundles are delivered)
+
+---
+
+## Troubleshooting
+
+### Solution not appearing in Edge/Summit
+
+**Check:**
+1. Solution is exported from `packages/solutions/[tier]/index.ts`
+2. Solution ID matches route: `/solutions/[id]`
+3. Metadata `tier` property is correct (`"edge"` or `"summit"`)
+
+### Modules not loading
+
+**Check:**
+1. Module IDs are correct in solution's `modules` array
+2. Modules are installed: `pnpm install`
+3. Module exports are correct in `packages/modules/index.ts`
+
+### Configuration not applying
+
+**Check:**
+1. Environment variables are set in Vercel
+2. Variable names match solution config structure
+3. Solution is rebuilt after config changes
+
+---
+
+## Next Steps
+
+- [View Architecture 3.0](/architecture) - Understand the full 4-layer architecture
+- [Browse Modules](/modules) - See all available modules
+- [Deployment Guide](/deployment) - Deploy your solution to production
+- [Tech Stack](/tech-stack) - Learn about the underlying technology
+
+---
+
+## Example Solutions
+
+Explore existing solutions for reference:
+
+- **Edge Designer Biz Kit**: `packages/solutions/edge/designer-biz-kit`
+- **Edge Brand Hub**: `packages/solutions/edge/brand-hub`
+- **Summit BHG SPM Suite**: `packages/solutions/summit/bhg-spm-suite`
+
+Each solution includes:
+- Complete metadata configuration
+- Module selection and configuration
+- Solution-specific pages and components
+- Deployment configuration
+- Test coverage

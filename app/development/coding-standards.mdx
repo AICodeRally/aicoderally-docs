@@ -94,24 +94,22 @@ import { RallyModule } from '@rally/core';
 ```typescript
 // ✅ Good: Descriptive names, clear return types
 async function fetchUserById(userId: string): Promise<User | null> {
-  const { data, error } = await supabase
-    .from('users')
-    .select('*')
-    .eq('id', userId)
-    .single();
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
 
-  if (error) {
+    return user;
+  } catch (error) {
     log.error('Failed to fetch user', error, { userId });
     return null;
   }
-
-  return data;
 }
 
 // ❌ Bad: Vague names, no types
 async function get(id) {
-  const res = await supabase.from('users').select('*').eq('id', id);
-  return res.data;
+  const res = await prisma.user.findUnique({ where: { id } });
+  return res;
 }
 ```
 
@@ -313,61 +311,71 @@ try {
 
 ---
 
-## Database Patterns (Supabase)
+## Database Patterns (Prisma)
 
 ### Queries
 
 ```typescript
 // ✅ Good: Specific columns, proper error handling
-const { data, error } = await supabase
-  .from('users')
-  .select('id, name, email, created_at')
-  .eq('id', userId)
-  .single();
+try {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      createdAt: true,
+    },
+  });
 
-if (error) {
+  if (!user) {
+    throw new NotFoundError('User not found');
+  }
+
+  return user;
+} catch (error) {
   log.error('Database query failed', error, { userId });
   throw new DatabaseError('Failed to fetch user');
 }
 
-return data;
-
 // ❌ Bad: Select all, no error handling
-const { data } = await supabase
-  .from('users')
-  .select('*')
-  .eq('id', userId)
-  .single();
+const user = await prisma.user.findUnique({
+  where: { id: userId },
+});
 
-return data;
+return user;
 ```
 
 ### Relationships
 
 ```typescript
-// ✅ Good: Use joins efficiently
-const { data } = await supabase
-  .from('comments')
-  .select(`
-    id,
-    body,
-    author,
-    thread:threads!inner (
-      id,
-      title
-    ),
-    reactions (
-      emoji,
-      user_email
-    )
-  `)
-  .eq('thread_id', threadId);
+// ✅ Good: Use includes efficiently
+const comments = await prisma.comment.findMany({
+  where: { threadId },
+  select: {
+    id: true,
+    body: true,
+    author: true,
+    thread: {
+      select: {
+        id: true,
+        title: true,
+      },
+    },
+    reactions: {
+      select: {
+        emoji: true,
+        userEmail: true,
+      },
+    },
+  },
+});
 
-// ❌ Bad: Multiple separate queries
-const comments = await supabase.from('comments').select('*');
+// ❌ Bad: Multiple separate queries (N+1 problem)
+const comments = await prisma.comment.findMany();
 for (const comment of comments) {
-  comment.thread = await supabase.from('threads').select('*').eq('id', comment.thread_id);
-  comment.reactions = await supabase.from('reactions').select('*').eq('comment_id', comment.id);
+  comment.thread = await prisma.thread.findUnique({ where: { id: comment.threadId } });
+  comment.reactions = await prisma.reaction.findMany({ where: { commentId: comment.id } });
 }
 ```
 
@@ -442,14 +450,14 @@ await createUser({ email, name, age });  // No validation!
 ### Prevent SQL Injection
 
 ```typescript
-// ✅ Good: Use Supabase query builder (parameterized)
-const { data } = await supabase
-  .from('users')
-  .select('*')
-  .eq('email', userEmail);  // Safe - parameterized
+// ✅ Good: Use Prisma query builder (parameterized)
+const user = await prisma.user.findUnique({
+  where: { email: userEmail },  // Safe - parameterized
+});
 
 // ❌ Bad: Raw SQL with string concatenation
 const query = `SELECT * FROM users WHERE email = '${userEmail}'`;  // VULNERABLE!
+await prisma.$queryRaw(query);  // Never do this!
 ```
 
 ### Secrets Management
@@ -474,17 +482,20 @@ const apiKey = 'sk-ant-api03-abc123...';  // NEVER DO THIS!
 
 ```typescript
 // ✅ Good: Limit, pagination, indexes
-const { data } = await supabase
-  .from('comments')
-  .select('id, body, author, created_at')
-  .eq('thread_id', threadId)
-  .order('created_at', { ascending: false })
-  .range(0, 49);  // First 50 results
+const comments = await prisma.comment.findMany({
+  where: { threadId },
+  select: {
+    id: true,
+    body: true,
+    author: true,
+    createdAt: true,
+  },
+  orderBy: { createdAt: 'desc' },
+  take: 50,  // First 50 results
+});
 
 // ❌ Bad: Fetch everything
-const { data } = await supabase
-  .from('comments')
-  .select('*');  // Could be millions of rows!
+const comments = await prisma.comment.findMany();  // Could be millions of rows!
 ```
 
 ### Use React.memo for Expensive Components
@@ -667,7 +678,7 @@ apps/studio/app/api/
 - **TypeScript Docs:** https://www.typescriptlang.org/docs/
 - **Next.js Docs:** https://nextjs.org/docs
 - **React Docs:** https://react.dev
-- **Supabase Docs:** https://supabase.com/docs
+- **Prisma Docs:** https://www.prisma.io/docs
 
 ---
 

@@ -82,7 +82,7 @@ AICodeRally is a monorepo-based platform built to turn ideas into apps, apps int
 
 **Responsibilities:**
 - Prisma client (`prisma.ts`)
-- Supabase or other external service connectors
+- External service connectors
 - Database access layer
 
 **Rule:**
@@ -233,7 +233,7 @@ AICodeRally is a monorepo-based platform built to turn ideas into apps, apps int
 
 ### Environment Variables
 - **Database:** `DATABASE_URL`
-- **Auth:** Supabase keys
+- **Auth:** NextAuth configuration
 - **AI Gateway:** `VERCEL_OIDC_TOKEN`
 - **Provider Keys:** `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GOOGLE_API_KEY`
 
@@ -249,7 +249,7 @@ AICodeRally is a monorepo-based platform built to turn ideas into apps, apps int
 ## Third-Party Services
 
 ### Authentication
-- Supabase Auth
+- NextAuth v5
 - Role-based access control
 - Tier-specific permissions
 
@@ -261,7 +261,6 @@ AICodeRally is a monorepo-based platform built to turn ideas into apps, apps int
 
 ### Storage
 - Vercel Blob (file uploads)
-- Supabase Storage (alternative)
 
 ### Email
 - Resend or SendGrid (transactional)

@@ -1,0 +1,548 @@
+export const metadata = {
+  title: 'Environment Variables Guide',
+  description: 'Complete guide to all environment variables used in AICodeRally applications'
+}
+
+# Environment Variables Guide
+
+Complete reference for all environment variables used in the AICodeRally platform.
+
+> **📝 Note:** This guide reflects the actual environment variables from the main stack repository. Always check `.env.example` files in the codebase for the latest configurations.
+
+---
+
+## Quick Start
+
+### Development Setup
+
+1. **Copy the template:**
+   ```bash
+   cd ~/dev/aicoderally-stack
+   cp .env.example .env
+   ```
+
+2. **Fill in required values** (see sections below)
+
+3. **Pull Vercel-managed variables:**
+   ```bash
+   vercel env pull
+   ```
+
+### Production Setup
+
+**IMPORTANT:** Never commit production secrets to `.env` files!
+
+- Store all production variables in **Vercel Dashboard** → Your Project → Settings → Environment Variables
+- Use `vercel env pull` locally to sync environment variables
+
+---
+
+## Database (Prisma Postgres)
+
+### Development Database
+
+**Required for local development:**
+
+```bash
+# Get from: https://console.prisma.io/
+DATABASE_URL="postgres://[user]:[password]@db.prisma.io:5432/postgres?sslmode=require"
+DIRECT_URL="postgres://[user]:[password]@db.prisma.io:5432/postgres?sslmode=require"
+```
+
+**Optional - Prisma Accelerate (connection pooling):**
+
+```bash
+# Get from: https://console.prisma.io/accelerate
+PRISMA_DATABASE_URL="prisma+postgres://accelerate.prisma-data.net/?api_key=your_dev_accelerate_api_key"
+```
+
+### Production Database
+
+**Store these in Vercel, NOT in `.env` files:**
+
+- `PROD_DATABASE_URL` - Production Prisma Postgres URL
+- `PROD_DIRECT_URL` - Production direct connection URL
+- `PROD_PRISMA_DATABASE_URL` - Production Accelerate URL
+
+### Database Names
+
+- **Development:** `aicoderally-dev-db`
+- **Production:** `aicoderally-prod-db`
+
+---
+
+## Authentication (NextAuth v5)
+
+### NextAuth Secret
+
+**Required - Generate a random secret:**
+
+```bash
+# Generate with: https://generate-secret.vercel.app/32
+AUTH_SECRET="your_random_32_character_secret_here"
+```
+
+### GitHub OAuth
+
+**Create OAuth App:** https://github.com/settings/applications/new
+
+**Development:**
+- Homepage URL: `http://localhost:3000`
+- Callback URL: `http://localhost:3000/api/auth/callback/github`
+
+**Production:**
+- Homepage URL: `https://aicoderally.com`
+- Callback URL: `https://aicoderally.com/api/auth/callback/github`
+
+**Variables:**
+
+```bash
+AUTH_GITHUB_ID="your_github_oauth_client_id"
+AUTH_GITHUB_SECRET="your_github_oauth_client_secret"
+```
+
+### Google OAuth (Edge App)
+
+**Create OAuth Client:** https://console.cloud.google.com/apis/credentials
+
+```bash
+GOOGLE_CLIENT_ID="your-google-client-id"
+GOOGLE_CLIENT_SECRET="your-google-client-secret"
+```
+
+### Apple OAuth (Edge App)
+
+**Create App ID:** https://developer.apple.com/account/resources/identifiers
+
+```bash
+APPLE_ID="your-apple-id"
+APPLE_SECRET="your-apple-secret"
+```
+
+---
+
+## Realtime Features (Pusher)
+
+**Get credentials:** https://dashboard.pusher.com/
+
+**Used for:** Pit Wall realtime comments, notifications
+
+```bash
+PUSHER_APP_ID="your_pusher_app_id_here"
+PUSHER_SECRET="your_pusher_secret_here"
+NEXT_PUBLIC_PUSHER_KEY="your_pusher_key_here"
+NEXT_PUBLIC_PUSHER_CLUSTER="us3"  # or your chosen cluster
+```
+
+---
+
+## File Storage (Vercel Blob)
+
+**Get token:** Vercel Dashboard → Your Project → Storage → Blob
+
+**Used for:** File attachments, image uploads
+
+```bash
+BLOB_READ_WRITE_TOKEN="your_vercel_blob_token_here"
+```
+
+---
+
+## AI Services
+
+### Anthropic (Claude)
+
+**Get API keys:** https://console.anthropic.com/
+
+**Used for:** AI chat, code generation, content analysis
+
+```bash
+ANTHROPIC_API_KEY="sk-ant-api03-your_anthropic_api_key_here"
+ANTHROPIC_ADMIN_KEY="sk-ant-admin01-your_anthropic_admin_key_here"
+ANTHROPIC_ORG_ID="your_anthropic_org_id_here"
+
+# Optional: Route through Vercel AI Gateway
+ANTHROPIC_BASE_URL="https://gateway.vercel.ai/v1/anthropic"
+```
+
+### OpenAI (GPT-4, Codex)
+
+**Get API keys:** https://platform.openai.com/api-keys
+
+**Used for:** Rally AI orchestration, code generation, sprint planning
+
+```bash
+OPENAI_API_KEY="sk-proj-your_openai_api_key_here"
+OPENAI_ADMIN_KEY="sk-admin-your_openai_admin_key_here"
+OPENAI_ORG_ID="org-your_openai_org_id_here"
+OPENAI_PROJECT_ID="proj_your_openai_project_id_here"
+
+# Optional: Route through Vercel AI Gateway
+OPENAI_BASE_URL="https://gateway.vercel.ai/v1/openai"
+```
+
+### Google (Gemini)
+
+**Get API key:** https://makersuite.google.com/app/apikey
+
+**Used for:** Rally AI business validation, multi-modal AI
+
+```bash
+GOOGLE_API_KEY="your_google_gemini_api_key_here"
+
+# Optional: Route through Vercel AI Gateway
+GOOGLE_BASE_URL="https://gateway.vercel.ai/v1/google"
+```
+
+### Hugging Face
+
+**Get API key:** https://huggingface.co/settings/tokens
+
+**Used for:** Open source models, embeddings
+
+```bash
+HUGGING_FACE_API_KEY="hf_your_hugging_face_api_key_here"
+```
+
+---
+
+## Vercel AI Gateway (BYOK)
+
+The AI Gateway routes requests through Vercel for monitoring, caching, and rate limiting while using **your own API keys** (BYOK - Bring Your Own Key).
+
+### Authentication
+
+**Option 1: OIDC Token (Recommended)**
+
+```bash
+# Auto-generated by Vercel CLI
+vercel env pull
+
+# This creates:
+VERCEL_OIDC_TOKEN="auto_generated_token"
+```
+
+Token expires every 12 hours. Run `vercel env pull` to refresh.
+
+**Option 2: API Key (Alternative)**
+
+Create in Vercel Dashboard → AI Gateway → API Keys:
+
+```bash
+AI_GATEWAY_API_KEY="your_ai_gateway_api_key_here"
+```
+
+### Configuration
+
+**Add provider API keys in Vercel Dashboard:**
+1. Go to Vercel Dashboard → AI Gateway → BYOK
+2. Add your Anthropic, OpenAI, and Google API keys
+3. Save configuration
+
+**Gateway endpoint:**
+
+```bash
+AI_GATEWAY_URL="https://ai-gateway.vercel.sh/v1/chat/completions"
+```
+
+**See also:** [AI Gateway Integration Guide](/integration/ai-gateway)
+
+---
+
+## Developer Tools
+
+### GitHub Token
+
+**Create token:** https://github.com/settings/tokens
+
+**Permissions needed:** `repo` (full control)
+
+**Used for:** System health checks, repository analysis
+
+```bash
+GITHUB_TOKEN="ghp_your_github_personal_access_token_here"
+```
+
+### Vercel Token
+
+**Create token:** https://vercel.com/account/tokens
+
+**Used for:** Deployment status, environment variable management
+
+```bash
+VERCEL_TOKEN="your_vercel_token_here"
+```
+
+---
+
+## Email (Resend)
+
+**Get API key:** https://resend.com/api-keys
+
+**Used for:** Transactional emails, notifications
+
+```bash
+RESEND_API_KEY="re_your_resend_api_key_here"
+EMAIL_FROM="notifications@aicoderally.com"
+```
+
+---
+
+## General App Settings
+
+### Public URL
+
+```bash
+# Development
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+
+# Production (set in Vercel)
+NEXT_PUBLIC_APP_URL="https://aicoderally.com"
+```
+
+### Admin Settings
+
+```bash
+# Comma-separated list
+ADMIN_EMAILS="todd@aicoderally.com,zach@aicoderally.com"
+
+# Admin dashboard password (change for production!)
+NEXT_PUBLIC_ADMIN_PASSWORD="aicoderally2025"
+```
+
+---
+
+## App-Specific Variables
+
+### Studio App
+
+```bash
+# NextAuth URL
+NEXTAUTH_URL="http://localhost:3000"  # or production URL
+```
+
+### Edge App
+
+```bash
+# NextAuth URL
+NEXTAUTH_URL="http://localhost:3001"  # or production URL
+```
+
+### Summit App
+
+```bash
+# NextAuth URL
+NEXTAUTH_URL="http://localhost:3002"  # or production URL
+```
+
+---
+
+## Prisma Commands
+
+Reference for database operations:
+
+```bash
+# Generate Prisma Client
+pnpm db:generate
+
+# Create and apply migrations (DEV ONLY)
+pnpm db:migrate
+
+# Apply migrations (PRODUCTION)
+pnpm db:migrate:deploy
+
+# Push schema changes without migration (DEV ONLY)
+pnpm db:push
+
+# Open Prisma Studio GUI
+pnpm db:studio
+
+# Reset database (DEV ONLY - DESTRUCTIVE!)
+pnpm db:reset
+```
+
+---
+
+## Multi-Database Setup
+
+You have **two databases**:
+
+### 1. Development Database
+
+**Name:** `aicoderally-dev-db`
+
+**Use for:**
+- Local development
+- Testing
+- Experimentation
+
+**Variables:**
+- `DATABASE_URL`
+- `DIRECT_URL`
+- `PRISMA_DATABASE_URL`
+
+**Safe to:** Reset, migrate, modify
+
+### 2. Production Database
+
+**Name:** `aicoderally-prod-db`
+
+**Use for:**
+- Production deployments only
+
+**Variables:**
+- `PROD_DATABASE_URL`
+- `PROD_DIRECT_URL`
+- `PROD_PRISMA_DATABASE_URL`
+
+**Stored in:** Vercel environment variables (NOT in `.env` files!)
+
+**NEVER:** Modify without backup!
+
+---
+
+## Security Best Practices
+
+### ✅ DO
+
+- Store production secrets in Vercel Dashboard
+- Use `vercel env pull` for local development
+- Generate strong random secrets (32+ characters)
+- Rotate API keys regularly
+- Use different databases for dev and production
+- Keep `.env` files in `.gitignore`
+
+### ❌ DON'T
+
+- Commit `.env` files to git
+- Use production secrets in development
+- Share API keys in chat/email
+- Use weak passwords or secrets
+- Run migrations directly against production
+- Expose secrets in client-side code
+
+---
+
+## Environment Variable Checklist
+
+### Required for ALL Apps
+
+- [ ] `DATABASE_URL` - Prisma Postgres connection
+- [ ] `DIRECT_URL` - Direct database connection
+- [ ] `AUTH_SECRET` - NextAuth secret (32+ characters)
+- [ ] `NEXTAUTH_URL` - App URL for OAuth callbacks
+
+### Required for AI Features
+
+- [ ] `ANTHROPIC_API_KEY` - Claude API access
+- [ ] `OPENAI_API_KEY` - GPT-4/Codex access
+- [ ] `GOOGLE_API_KEY` - Gemini access
+
+### Required for AI Gateway
+
+- [ ] `VERCEL_OIDC_TOKEN` - Gateway authentication (auto-generated)
+- [ ] `AI_GATEWAY_URL` - Gateway endpoint
+
+### Required for Realtime Features
+
+- [ ] `PUSHER_APP_ID` - Pusher app ID
+- [ ] `PUSHER_SECRET` - Pusher secret
+- [ ] `NEXT_PUBLIC_PUSHER_KEY` - Pusher public key
+- [ ] `NEXT_PUBLIC_PUSHER_CLUSTER` - Pusher cluster
+
+### Required for File Uploads
+
+- [ ] `BLOB_READ_WRITE_TOKEN` - Vercel Blob storage
+
+### Optional but Recommended
+
+- [ ] `PRISMA_DATABASE_URL` - Accelerate for connection pooling
+- [ ] `RESEND_API_KEY` - Email notifications
+- [ ] `GITHUB_TOKEN` - System health checks
+- [ ] `VERCEL_TOKEN` - Deployment management
+
+---
+
+## Troubleshooting
+
+### "Environment variable not found"
+
+**Check:**
+1. Variable is defined in `.env` file
+2. Variable name is spelled correctly
+3. `.env` file is in the app directory (not root)
+4. App is restarted after adding variables
+
+### "Database connection failed"
+
+**Check:**
+1. `DATABASE_URL` and `DIRECT_URL` are correct
+2. Database exists in Prisma Dashboard
+3. IP is whitelisted (if applicable)
+4. Prisma Client is generated: `pnpm db:generate`
+
+### "OAuth callback error"
+
+**Check:**
+1. `NEXTAUTH_URL` matches your app URL
+2. OAuth app callback URL matches `NEXTAUTH_URL/api/auth/callback/[provider]`
+3. OAuth client ID and secret are correct
+4. `AUTH_SECRET` is set
+
+### "AI Gateway authentication failed"
+
+**Check:**
+1. `VERCEL_OIDC_TOKEN` is fresh (run `vercel env pull`)
+2. Provider API keys are added in Vercel Dashboard → AI Gateway → BYOK
+3. `AI_GATEWAY_URL` is correct
+4. Token hasn't expired (12-hour lifetime)
+
+---
+
+## Related Documentation
+
+- [Deployment Guide](/deployment) - Production deployment setup
+- [AI Gateway Integration](/integration/ai-gateway) - AI Gateway configuration
+- [Database Setup](/tech-stack/database) - Database configuration
+- [Getting Started](/getting-started) - Initial setup
+
+---
+
+## Quick Reference
+
+### Copy-Paste Template
+
+```bash
+# Database
+DATABASE_URL="postgres://..."
+DIRECT_URL="postgres://..."
+
+# Auth
+AUTH_SECRET="your_32_char_secret"
+NEXTAUTH_URL="http://localhost:3000"
+AUTH_GITHUB_ID="your_github_id"
+AUTH_GITHUB_SECRET="your_github_secret"
+
+# AI Services
+ANTHROPIC_API_KEY="sk-ant-..."
+OPENAI_API_KEY="sk-..."
+GOOGLE_API_KEY="..."
+
+# Vercel AI Gateway
+VERCEL_OIDC_TOKEN="[from vercel env pull]"
+AI_GATEWAY_URL="https://ai-gateway.vercel.sh/v1/chat/completions"
+
+# Realtime
+PUSHER_APP_ID="..."
+PUSHER_SECRET="..."
+NEXT_PUBLIC_PUSHER_KEY="..."
+NEXT_PUBLIC_PUSHER_CLUSTER="us3"
+
+# Storage
+BLOB_READ_WRITE_TOKEN="..."
+
+# Admin
+NEXT_PUBLIC_ADMIN_PASSWORD="aicoderally2025"
+```
+
+For the complete list, see `.env.example` in the repository root.

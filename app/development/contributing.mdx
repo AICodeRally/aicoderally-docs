@@ -327,9 +327,10 @@ git push origin yourname/feature-name
 ### Local Development
 Create `.env.local` in `apps/studio/`:
 ```bash
-SUPABASE_URL=your_supabase_url
-SUPABASE_ANON_KEY=your_anon_key
-SUPABASE_SERVICE_KEY=your_service_key
+DATABASE_URL=your_prisma_postgres_url
+DIRECT_URL=your_direct_database_url
+NEXTAUTH_SECRET=your_nextauth_secret
+NEXTAUTH_URL=http://localhost:3000
 ANTHROPIC_API_KEY=your_api_key  # Optional
 ```
 

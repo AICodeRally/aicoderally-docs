@@ -46,58 +46,122 @@ aicoderally-stack/
 - Turborepo (build orchestration)
 - pnpm (package management)
 
-## Three-Tier Strategy
+## Architecture 3.0: Four-Layer System
 
-### Studio - Learning Platform
+AICodeRally uses a **4-layer architecture** that provides clear separation of concerns and enables powerful reuse:
 
-**Purpose:** Entry-level, workshop-based learning
-**Target:** Individuals learning AI development
+### Layer 1: Modules (Capability Library)
+
+**Location:** `packages/modules/*`
+**Purpose:** Shared capability library (internal only)
+
+**Key Points:**
+- 86+ reusable modules (donors, grants, pipeline, brand assets, etc.)
+- Never visible to end users
+- Used by all layers above
+- Provides types, logic, and optional shared UI
+
+**Examples:**
+- `donor-management`
+- `grant-tracking`
+- `pipeline-management`
+- `brand-assets-library`
+- `content-calendar`
+- `campaigns-manager`
+
+### Layer 2: Ideation Studio (One Idea → One App)
+
+**Location:** `apps/studio`
+**URL:** `studio.aicoderally.com`
+**Tagline:** *One Idea → One App*
+
+**Purpose:** Turn a single idea into a working app (web, mobile, or website)
+
+**Focus:**
+- UX and value delivery
+- Simple flows and forms
+- Basic data structures
+- Zero friction creation
+
+**Examples:**
+- Birthday event app
+- PTA signup app
+- Brand lookbook app
+- Club roster app
+- Mini nonprofit landing page
+
+**What it's NOT:**
+- Full business operations (no billing, no pipeline management)
+- Multi-app orchestration
+- Enterprise governance
+
+### Layer 3: Edge Portal (Business Operations)
+
+**Location:** `apps/edge`
+**URL:** `edge.aicoderally.com`
+**Tagline:** *Run the Business Around Your Ideas*
+
+**Purpose:** Add business operations layer around apps
+
 **Features:**
-- 16 Studio-tier modules
-- Workshop session tracking
-- Certification system
-- Module builder workflow
+- Customer & account management
+- Billing and pipeline
+- Projects and operations
+- Dashboards and automations
+- Vertical solutions
 
-**Modules include:**
-- Birthday App
-- PTA Fundraiser
-- School Science Fair Project Tracker
-- Coffee Shop Loyalty Rewards
+**Edge Solutions:**
+- `edge-designer-biz-kit` – Creative studios
+- `edge-brand-hub` – Brand/marketing teams
+- `edge-nonprofit-fundraiser` – Nonprofits
+- `edge-restaurant-refresh` – Restaurants
 
-### Edge - SMB Platform
+**Uses:**
+- Modules from `packages/modules/*`
+- Edge solutions from `packages/solutions/*`
+- Shared UI from `@rally/ui`
 
-**Purpose:** 30-day AI transformation for small businesses
-**Target:** Small to medium businesses (1-100 employees)
+### Layer 4: Summit Solutions (Enterprise Orchestration)
+
+**Location:** `apps/summit`
+**URL:** `summit.aicoderally.com`
+**Tagline:** *Custom. Cross-App. Cross-Business. Scale.*
+
+**Purpose:** Custom solutions spanning multiple Edge portals and Studio apps
+
 **Features:**
-- Complete business modules
-- Multi-tenant support
-- Domain-specific bundles (NPEdge, BHGEdge, DevEdge)
-- Analytics dashboard
+- Cross-org analytics
+- Governance and compliance
+- Complex workflows across entities
+- Multi-tenant data views
+- AI agent orchestration
+- Enterprise-grade security
 
-**Modules include:**
-- SOW Builder
-- Pipeline Management
-- Donor Management
-- Grant Tracking
-- Volunteer Management
-- Commission Calculator
+**Summit Solutions:**
+- `summit-bhg-spm-suite` – SPM consulting platform
+- `summit-enterprise-spm-accelerator` – Enterprise SPM governance
 
-### Summit - Enterprise Platform
+**Target Customers:**
+- Enterprises (1000+ employees)
+- Multi-location organizations
+- Complex nonprofits
+- Institutions requiring cross-business orchestration
 
-**Purpose:** Enterprise AI strategy and governance
-**Target:** Large enterprises (1000+ employees)
-**Features:**
-- Strategic revenue operations
-- Role-based access control
-- Custom domain workflows
-- Governance & compliance
-- AI strategy consulting
+---
 
-**Applications:**
-- Strategic Revenue Operations
-- Enterprise Planning
-- Governance Framework
-- Custom AI Solutions
+## The Power of This Architecture
+
+This 4-layer structure provides:
+
+1. **Clear Narrative** - Easy for anyone to understand
+2. **Technical Sanity** - Scalable, maintainable system
+3. **Zero Overlap** - Each layer has distinct responsibilities
+4. **Clean Value Chain** - From idea → app → business → enterprise
+5. **Module Reuse** - Shared capabilities across all layers
+6. **Clear Boundaries** - For developers and AI agents
+7. **Perfect Franchise Story** - Sellable at every layer
+
+See the [Architecture 3.0](/architecture) documentation for complete details.
 
 ## Module System
 
@@ -221,6 +285,6 @@ See the [Deployment Guide](/deployment) for details.
 ## Next Steps
 
 - [Explore Modules](/modules)
-- [API Reference](/api)
 - [Deployment Guide](/deployment)
-- [Contributing Guide](/guides/contributing)
+- [Development Guide](/development)
+- [Contributing Guide](/development/contributing)

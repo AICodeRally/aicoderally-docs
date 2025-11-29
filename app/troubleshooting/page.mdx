@@ -1,0 +1,732 @@
+export const metadata = {
+  title: 'Troubleshooting Guide',
+  description: 'Solutions to common issues in AICodeRally development and deployment'
+}
+
+# Troubleshooting Guide
+
+Common issues and their solutions for AICodeRally development and deployment.
+
+---
+
+## Database Issues
+
+### "Prisma Client not generated"
+
+**Error:**
+```
+Error: @prisma/client did not initialize yet
+```
+
+**Solution:**
+```bash
+# Generate Prisma Client
+npx prisma generate
+
+# Or from monorepo root
+pnpm db:generate
+```
+
+---
+
+### "Database connection failed"
+
+**Error:**
+```
+P1001: Can't reach database server
+```
+
+**Check:**
+1. Environment variables are set correctly:
+   ```bash
+   echo $DATABASE_URL
+   echo $DIRECT_URL
+   ```
+
+2. Database exists in Prisma Dashboard:
+   - Visit https://console.prisma.io/
+   - Verify database is created
+
+3. Connection string format is correct:
+   ```bash
+   # Correct format:
+   DATABASE_URL="postgres://user:password@db.prisma.io:5432/postgres?sslmode=require"
+   ```
+
+4. IP is whitelisted (if applicable)
+
+---
+
+### "Migration failed"
+
+**Error:**
+```
+Error: P3009: migrate found failed migrations
+```
+
+**Solution:**
+```bash
+# Development: Reset database
+pnpm db:reset
+
+# Production: Never reset! Instead:
+pnpm db:migrate:deploy
+```
+
+---
+
+### "Table does not exist"
+
+**Error:**
+```
+P2021: table `User` does not exist
+```
+
+**Solution:**
+```bash
+# Push schema to database
+npx prisma db push
+
+# Or run migrations
+npx prisma migrate dev
+```
+
+---
+
+## Authentication Issues
+
+### "NextAuth session not found"
+
+**Error:**
+```
+Session is null
+```
+
+**Check:**
+1. `AUTH_SECRET` is set (32+ characters)
+2. `NEXTAUTH_URL` matches your current URL
+3. Cookies are enabled in browser
+4. Using correct auth endpoint
+
+**Solution:**
+```bash
+# Verify environment variables
+echo $AUTH_SECRET
+echo $NEXTAUTH_URL
+
+# Generate new secret if needed
+openssl rand -base64 32
+```
+
+---
+
+### "OAuth callback error"
+
+**Error:**
+```
+OAuthCallback error: invalid_request
+```
+
+**Check:**
+1. OAuth app callback URL matches:
+   ```
+   http://localhost:3000/api/auth/callback/github
+   ```
+
+2. Client ID and Secret are correct:
+   ```bash
+   echo $AUTH_GITHUB_ID
+   echo $AUTH_GITHUB_SECRET
+   ```
+
+3. OAuth app is not suspended
+
+**Solution:**
+Update callback URL in GitHub OAuth app settings:
+- Homepage: `http://localhost:3000`
+- Callback: `http://localhost:3000/api/auth/callback/github`
+
+---
+
+## Build Issues
+
+### "Module not found"
+
+**Error:**
+```
+Error: Cannot find module '@rally/core'
+```
+
+**Solution:**
+```bash
+# Reinstall dependencies
+rm -rf node_modules
+pnpm install
+
+# Or clean install
+pnpm clean
+pnpm install
+```
+
+---
+
+### "TypeScript errors"
+
+**Error:**
+```
+Type 'string | undefined' is not assignable to type 'string'
+```
+
+**Common fixes:**
+
+1. **Use non-null assertion (if you're sure it exists):**
+   ```typescript
+   const apiKey = process.env.API_KEY!;
+   ```
+
+2. **Add type guard:**
+   ```typescript
+   if (!process.env.API_KEY) {
+     throw new Error("API_KEY is required");
+   }
+   const apiKey = process.env.API_KEY;
+   ```
+
+3. **Provide fallback:**
+   ```typescript
+   const apiKey = process.env.API_KEY ?? "default-key";
+   ```
+
+---
+
+### "Build timeout on Vercel"
+
+**Error:**
+```
+Error: Command "pnpm build" timed out after 10 minutes
+```
+
+**Solutions:**
+
+1. **Check for infinite loops in build**
+2. **Reduce build size:**
+   ```bash
+   # Remove unused dependencies
+   pnpm prune
+   ```
+
+3. **Increase Vercel timeout (Pro plan)**
+
+4. **Split large apps into smaller deployments**
+
+---
+
+## AI Gateway Issues
+
+### "OIDC token expired"
+
+**Error:**
+```
+401 Unauthorized: OIDC token expired
+```
+
+**Solution:**
+```bash
+# Refresh token (expires every 12 hours)
+vercel env pull
+```
+
+**Or use API key instead:**
+```bash
+# Create in Vercel Dashboard → AI Gateway → API Keys
+export AI_GATEWAY_API_KEY="your_key"
+```
+
+---
+
+### "Model not found"
+
+**Error:**
+```
+400 Bad Request: Model 'anthropic/claude-sonnet-4-5' not found
+```
+
+**Check:**
+1. Provider API key is added in Vercel Dashboard → AI Gateway → BYOK
+2. Model name is correct:
+   - Anthropic: `anthropic/claude-sonnet-4-5`
+   - OpenAI: `openai/gpt-4o`
+   - Google: `google/gemini-2.5-flash`
+
+---
+
+### "Rate limit exceeded"
+
+**Error:**
+```
+429 Too Many Requests: Rate limit exceeded
+```
+
+**Solutions:**
+
+1. **Wait and retry:**
+   ```typescript
+   async function retryWithBackoff(fn, retries = 3) {
+     for (let i = 0; i < retries; i++) {
+       try {
+         return await fn();
+       } catch (error) {
+         if (error.status === 429 && i < retries - 1) {
+           await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, i)));
+         } else {
+           throw error;
+         }
+       }
+     }
+   }
+   ```
+
+2. **Use AI Gateway caching** (automatic)
+
+3. **Upgrade provider tier**
+
+---
+
+## Deployment Issues
+
+### "Environment variables not set"
+
+**Error:**
+```
+Error: ANTHROPIC_API_KEY is required
+```
+
+**Solution:**
+
+1. **Add in Vercel Dashboard:**
+   - Go to Project → Settings → Environment Variables
+   - Add variable name and value
+   - Select environments (Production, Preview, Development)
+   - Save
+
+2. **Redeploy:**
+   - Deployments → Latest → Redeploy
+
+---
+
+### "Deployment failed"
+
+**Check Vercel logs:**
+
+1. Go to Deployments → Failed deployment
+2. Click "View Build Logs"
+3. Look for specific error
+
+**Common causes:**
+- Missing environment variables
+- TypeScript errors
+- Build timeout
+- Database migration issues
+
+---
+
+## Realtime Issues
+
+### "Pusher connection failed"
+
+**Error:**
+```
+Pusher connection error: Authentication failed
+```
+
+**Check:**
+1. Pusher credentials are correct:
+   ```bash
+   echo $PUSHER_APP_ID
+   echo $PUSHER_SECRET
+   echo $NEXT_PUBLIC_PUSHER_KEY
+   ```
+
+2. Cluster is correct:
+   ```bash
+   echo $NEXT_PUBLIC_PUSHER_CLUSTER
+   ```
+
+3. App is enabled in Pusher Dashboard
+
+---
+
+### "Messages not received"
+
+**Check:**
+1. Channel name is correct
+2. Event name matches server-side trigger
+3. Browser console for connection errors
+4. Pusher Debug Console for activity
+
+**Debug:**
+```typescript
+// Enable Pusher logging
+Pusher.logToConsole = true;
+
+const pusher = new Pusher(key, {
+  cluster: 'us3',
+});
+```
+
+---
+
+## Development Issues
+
+### "Port already in use"
+
+**Error:**
+```
+Error: Port 3000 is already in use
+```
+
+**Solution:**
+```bash
+# Find process using port
+lsof -i :3000
+
+# Kill process
+kill -9 <PID>
+
+# Or use different port
+PORT=3005 pnpm dev
+```
+
+---
+
+### "Hot reload not working"
+
+**Solutions:**
+
+1. **Clear Next.js cache:**
+   ```bash
+   rm -rf .next
+   pnpm dev
+   ```
+
+2. **Check file watcher limits (Linux/Mac):**
+   ```bash
+   echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf
+   sudo sysctl -p
+   ```
+
+3. **Restart dev server:**
+   ```bash
+   # Stop (Ctrl+C) and restart
+   pnpm dev
+   ```
+
+---
+
+### "Module resolution errors"
+
+**Error:**
+```
+Cannot find module '@/components/Header'
+```
+
+**Check:**
+1. Path aliases in `tsconfig.json`:
+   ```json
+   {
+     "compilerOptions": {
+       "paths": {
+         "@/*": ["./app/*"],
+         "@rally/*": ["../../packages/*/src"]
+       }
+     }
+   }
+   ```
+
+2. File exists at expected path
+
+3. TypeScript server is running (VSCode: restart TS server)
+
+---
+
+## Performance Issues
+
+### "Slow API responses"
+
+**Check:**
+
+1. **Database query performance:**
+   ```bash
+   # Enable Prisma query logging
+   DATABASE_LOGGING=true pnpm dev
+   ```
+
+2. **Use Prisma Accelerate:**
+   ```bash
+   PRISMA_DATABASE_URL="prisma+postgres://..."
+   ```
+
+3. **Add database indexes:**
+   ```prisma
+   model User {
+     email String @unique
+     @@index([email])
+   }
+   ```
+
+---
+
+### "High memory usage"
+
+**Solutions:**
+
+1. **Limit database query results:**
+   ```typescript
+   const users = await prisma.user.findMany({
+     take: 100, // Limit to 100
+   });
+   ```
+
+2. **Use pagination:**
+   ```typescript
+   const users = await prisma.user.findMany({
+     skip: page * limit,
+     take: limit,
+   });
+   ```
+
+3. **Clear unused data:**
+   ```typescript
+   // Select only needed fields
+   const users = await prisma.user.findMany({
+     select: {
+       id: true,
+       email: true,
+     },
+   });
+   ```
+
+---
+
+## Testing Issues
+
+### "Tests failing"
+
+**Common causes:**
+
+1. **Environment variables not set:**
+   ```bash
+   # Create .env.test
+   cp .env.example .env.test
+   ```
+
+2. **Database not seeded:**
+   ```bash
+   npx prisma db seed
+   ```
+
+3. **Stale test data:**
+   ```bash
+   # Reset test database
+   NODE_ENV=test npx prisma db reset
+   ```
+
+---
+
+## CLI Tool Issues
+
+### "rally-ai command not found"
+
+**Solution:**
+```bash
+# Make executable
+chmod +x tools/rally
+
+# Or run via pnpm
+cd tools/rally-ai
+pnpm dev design "feature"
+
+# Or add to PATH
+export PATH="$PATH:$(pwd)/tools"
+```
+
+---
+
+### "vercel command not found"
+
+**Solution:**
+```bash
+# Install Vercel CLI globally
+npm install -g vercel
+
+# Or use npx
+npx vercel env pull
+```
+
+---
+
+## Browser Issues
+
+### "localStorage quota exceeded"
+
+**Error:**
+```
+QuotaExceededError: localStorage limit exceeded
+```
+
+**Solution:**
+```typescript
+// Clear old data
+localStorage.clear();
+
+// Or use smaller data
+JSON.stringify(data).length // Check size
+```
+
+---
+
+### "CORS errors"
+
+**Error:**
+```
+Access to fetch blocked by CORS policy
+```
+
+**Solution:**
+
+1. **Development:** Add to `next.config.js`:
+   ```javascript
+   async headers() {
+     return [
+       {
+         source: '/api/:path*',
+         headers: [
+           { key: 'Access-Control-Allow-Origin', value: '*' },
+         ],
+       },
+     ];
+   }
+   ```
+
+2. **Production:** Configure allowed origins in API routes
+
+---
+
+## Still Having Issues?
+
+### 1. Check Logs
+
+**Development:**
+```bash
+# Terminal output
+pnpm dev
+
+# Browser console (F12)
+```
+
+**Production:**
+- Vercel Dashboard → Deployments → Functions
+- Check real-time logs
+
+### 2. Search Documentation
+
+- [Getting Started](/getting-started)
+- [Environment Variables](/deployment/environment-variables)
+- [API Reference](/api-reference)
+- [Deployment Guide](/deployment)
+
+### 3. Check GitHub Issues
+
+https://github.com/AICodeRally/aicoderally-stack/issues
+
+### 4. Contact Support
+
+**Email:** todd@aicoderally.com
+
+**Include:**
+- Error message (full stack trace)
+- Steps to reproduce
+- Environment (dev/prod)
+- Relevant code snippets
+
+---
+
+## Prevention Tips
+
+### ✅ Best Practices
+
+1. **Always run `vercel env pull` after env changes**
+2. **Keep dependencies up to date**: `pnpm update`
+3. **Use `.env.example` as template**
+4. **Test locally before deploying**
+5. **Check Vercel build logs after deployment**
+6. **Monitor application in production**
+7. **Keep Prisma Client in sync**: `pnpm db:generate`
+
+### ❌ Common Mistakes to Avoid
+
+1. Committing `.env` files to git
+2. Using production secrets in development
+3. Not refreshing OIDC tokens
+4. Skipping Prisma generate after schema changes
+5. Deploying without testing locally
+6. Hardcoding API keys in code
+7. Not handling errors in API routes
+
+---
+
+## Quick Reference
+
+### Reset Everything (Development Only)
+
+```bash
+# ⚠️ DESTRUCTIVE - Development only!
+
+# 1. Clean dependencies
+rm -rf node_modules
+rm -rf .next
+
+# 2. Reset database
+pnpm db:reset
+
+# 3. Reinstall
+pnpm install
+
+# 4. Generate Prisma Client
+pnpm db:generate
+
+# 5. Seed database
+npx prisma db seed
+
+# 6. Start fresh
+pnpm dev
+```
+
+### Health Check Commands
+
+```bash
+# Check database connection
+npx prisma db execute --stdin <<< "SELECT 1"
+
+# Check environment variables
+env | grep DATABASE_URL
+env | grep AUTH_SECRET
+
+# Check Prisma Client
+npx prisma generate
+
+# Check build
+pnpm build
+
+# Check types
+pnpm typecheck
+```
+
+---
+
+## Related Documentation
+
+- [Getting Started](/getting-started) - Setup instructions
+- [Environment Variables](/deployment/environment-variables) - Configuration guide
+- [Deployment Guide](/deployment) - Production deployment
+- [FAQ](/faq) - Frequently asked questions

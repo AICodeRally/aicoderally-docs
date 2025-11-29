@@ -1,0 +1,933 @@
+export const metadata = {
+  title: 'API Reference',
+  description: 'Complete API reference for AICodeRally applications'
+}
+
+# API Reference
+
+Complete reference for all API endpoints in the AICodeRally platform.
+
+> **📝 Note:** This reference is based on actual API routes in the codebase. All routes follow Next.js App Router conventions.
+
+---
+
+## Base URLs
+
+**Development:**
+- Studio: `http://localhost:3000/api`
+- Edge: `http://localhost:3001/api`
+- Summit: `http://localhost:3002/api`
+
+**Production:**
+- Studio: `https://studio.aicoderally.com/api`
+- Edge: `https://edge.aicoderally.com/api`
+- Summit: `https://summit.aicoderally.com/api`
+
+---
+
+## Authentication
+
+All API routes use **NextAuth v5** for authentication. Include session cookies with requests.
+
+### Getting a Session
+
+```typescript
+import { auth } from "@/auth";
+
+export async function GET(req: Request) {
+  const session = await auth();
+
+  if (!session) {
+    return new Response("Unauthorized", { status: 401 });
+  }
+
+  // Use session.user
+}
+```
+
+---
+
+## Studio App APIs
+
+### AI Features
+
+#### POST `/api/ai/chat`
+
+AI chat endpoint for conversational interactions.
+
+**Request:**
+```typescript
+{
+  message: string;
+  context?: string;
+}
+```
+
+**Response:**
+```typescript
+{
+  reply: string;
+  usage?: {
+    tokens: number;
+  }
+}
+```
+
+**Example:**
+```typescript
+const res = await fetch('/api/ai/chat', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    message: "How do I implement authentication?",
+    context: "NextAuth v5 with OAuth"
+  })
+});
+
+const data = await res.json();
+console.log(data.reply);
+```
+
+---
+
+#### POST `/api/ai/generate-business-models`
+
+Generate business model suggestions using AI.
+
+**Request:**
+```typescript
+{
+  industry: string;
+  targetAudience: string;
+  problem: string;
+}
+```
+
+**Response:**
+```typescript
+{
+  models: Array<{
+    name: string;
+    description: string;
+    revenue: string;
+    marketSize: string;
+  }>;
+}
+```
+
+---
+
+#### POST `/api/ai/generate-roadmap`
+
+Generate product roadmap using AI.
+
+**Request:**
+```typescript
+{
+  product: string;
+  goals: string[];
+  timeline: string;
+}
+```
+
+**Response:**
+```typescript
+{
+  roadmap: {
+    phases: Array<{
+      name: string;
+      duration: string;
+      milestones: string[];
+    }>;
+  }
+}
+```
+
+---
+
+#### POST `/api/ai/compile-module`
+
+Compile module specifications into implementation plan.
+
+**Request:**
+```typescript
+{
+  moduleName: string;
+  requirements: string;
+}
+```
+
+**Response:**
+```typescript
+{
+  implementation: {
+    files: string[];
+    dependencies: string[];
+    steps: string[];
+  }
+}
+```
+
+---
+
+#### POST `/api/ai/generate-thesis`
+
+Generate technical thesis for a feature.
+
+**Request:**
+```typescript
+{
+  feature: string;
+  context: string;
+}
+```
+
+**Response:**
+```typescript
+{
+  thesis: string;
+  assumptions: string[];
+  risks: string[];
+}
+```
+
+---
+
+### Pit Wall (Collaboration)
+
+#### GET `/api/pit-wall/threads/[moduleId]`
+
+Get discussion threads for a module.
+
+**Parameters:**
+- `moduleId` - Module identifier
+
+**Response:**
+```typescript
+{
+  threads: Array<{
+    id: string;
+    title: string;
+    moduleId: string;
+    createdAt: string;
+    commentCount: number;
+  }>;
+}
+```
+
+---
+
+#### POST `/api/pit-wall/threads/[moduleId]`
+
+Create a new thread for a module.
+
+**Request:**
+```typescript
+{
+  title: string;
+  initialComment: string;
+}
+```
+
+**Response:**
+```typescript
+{
+  thread: {
+    id: string;
+    title: string;
+    moduleId: string;
+    createdAt: string;
+  }
+}
+```
+
+---
+
+#### GET `/api/pit-wall/threads/[moduleId]/comments`
+
+Get comments for a thread.
+
+**Response:**
+```typescript
+{
+  comments: Array<{
+    id: string;
+    body: string;
+    author: string;
+    createdAt: string;
+    reactions: Array<{
+      emoji: string;
+      count: number;
+    }>;
+  }>;
+}
+```
+
+---
+
+#### POST `/api/pit-wall/threads/[moduleId]/comments`
+
+Add a comment to a thread.
+
+**Request:**
+```typescript
+{
+  body: string;
+  parentId?: string; // For replies
+}
+```
+
+**Response:**
+```typescript
+{
+  comment: {
+    id: string;
+    body: string;
+    author: string;
+    createdAt: string;
+  }
+}
+```
+
+---
+
+#### POST `/api/pit-wall/comments/[commentId]/reactions`
+
+Add a reaction to a comment.
+
+**Request:**
+```typescript
+{
+  emoji: string;
+}
+```
+
+**Response:**
+```typescript
+{
+  reaction: {
+    id: string;
+    emoji: string;
+    userEmail: string;
+  }
+}
+```
+
+---
+
+#### DELETE `/api/pit-wall/comments/[commentId]/reactions`
+
+Remove a reaction from a comment.
+
+**Request:**
+```typescript
+{
+  emoji: string;
+}
+```
+
+**Response:**
+```typescript
+{
+  success: boolean;
+}
+```
+
+---
+
+#### GET `/api/pit-wall/stakeholders/[moduleId]`
+
+Get stakeholders for a module.
+
+**Response:**
+```typescript
+{
+  stakeholders: Array<{
+    id: string;
+    email: string;
+    role: string;
+    permissions: string[];
+  }>;
+}
+```
+
+---
+
+#### POST `/api/pit-wall/stakeholders/[moduleId]`
+
+Add a stakeholder to a module.
+
+**Request:**
+```typescript
+{
+  email: string;
+  role: string;
+  permissions: string[];
+}
+```
+
+---
+
+#### POST `/api/pit-wall/attachments`
+
+Upload an attachment.
+
+**Request:** Multipart form data with file
+
+**Response:**
+```typescript
+{
+  attachment: {
+    id: string;
+    url: string;
+    filename: string;
+    size: number;
+  }
+}
+```
+
+---
+
+### AI Memory Management
+
+#### GET `/api/ai-memory`
+
+List all AI memory files.
+
+**Response:**
+```typescript
+{
+  files: Array<{
+    filename: string;
+    size: number;
+    lastModified: string;
+  }>;
+}
+```
+
+---
+
+#### GET `/api/ai-memory/[filename]`
+
+Get contents of a specific memory file.
+
+**Parameters:**
+- `filename` - Memory file name
+
+**Response:**
+```typescript
+{
+  filename: string;
+  content: string;
+}
+```
+
+---
+
+#### POST `/api/ai-memory/[filename]`
+
+Update or create a memory file.
+
+**Request:**
+```typescript
+{
+  content: string;
+}
+```
+
+---
+
+### Consensus Engine
+
+#### POST `/api/consensus`
+
+Get consensus recommendation from multiple AI models.
+
+**Request:**
+```typescript
+{
+  question: string;
+  options: string[];
+  context?: string;
+}
+```
+
+**Response:**
+```typescript
+{
+  consensus: {
+    recommendation: string;
+    confidence: number;
+    reasoning: string;
+    modelResponses: Array<{
+      model: string;
+      choice: string;
+      reasoning: string;
+    }>;
+  }
+}
+```
+
+---
+
+### War Room
+
+#### GET `/api/war-room`
+
+Get war room status and active discussions.
+
+**Response:**
+```typescript
+{
+  status: string;
+  activeIssues: Array<{
+    id: string;
+    title: string;
+    severity: string;
+    participants: string[];
+  }>;
+}
+```
+
+---
+
+## Edge App APIs
+
+### Vendor Management (TacoFinder)
+
+#### GET `/api/vendors`
+
+List all vendors.
+
+**Query Parameters:**
+- `search` - Search query
+- `category` - Filter by category
+- `rating` - Minimum rating
+
+**Response:**
+```typescript
+{
+  vendors: Array<{
+    id: string;
+    name: string;
+    category: string;
+    rating: number;
+    location: {
+      lat: number;
+      lng: number;
+    };
+  }>;
+}
+```
+
+---
+
+#### GET `/api/vendors/[id]`
+
+Get vendor details.
+
+**Response:**
+```typescript
+{
+  vendor: {
+    id: string;
+    name: string;
+    description: string;
+    category: string;
+    rating: number;
+    reviewCount: number;
+    menu: Array<MenuItem>;
+    deals: Array<Deal>;
+  }
+}
+```
+
+---
+
+#### GET `/api/vendors/[id]/menu`
+
+Get vendor menu.
+
+**Response:**
+```typescript
+{
+  menu: Array<{
+    id: string;
+    name: string;
+    description: string;
+    price: number;
+    category: string;
+    image?: string;
+  }>;
+}
+```
+
+---
+
+#### GET `/api/vendors/[id]/reviews`
+
+Get vendor reviews.
+
+**Response:**
+```typescript
+{
+  reviews: Array<{
+    id: string;
+    rating: number;
+    comment: string;
+    author: string;
+    createdAt: string;
+  }>;
+}
+```
+
+---
+
+#### POST `/api/vendors/[id]/reviews`
+
+Add a review.
+
+**Request:**
+```typescript
+{
+  rating: number;
+  comment: string;
+}
+```
+
+---
+
+#### GET `/api/vendors/[id]/deals`
+
+Get current deals.
+
+**Response:**
+```typescript
+{
+  deals: Array<{
+    id: string;
+    title: string;
+    description: string;
+    discount: string;
+    validUntil: string;
+  }>;
+}
+```
+
+---
+
+#### POST `/api/vendors/[id]/check-in`
+
+Check in to a vendor location.
+
+**Request:**
+```typescript
+{
+  latitude: number;
+  longitude: number;
+}
+```
+
+**Response:**
+```typescript
+{
+  checkIn: {
+    id: string;
+    points: number;
+    timestamp: string;
+  }
+}
+```
+
+---
+
+### Win The Pick (NFL Predictions)
+
+#### GET `/api/win-the-pick`
+
+Get NFL pick'em game data.
+
+**Response:**
+```typescript
+{
+  week: number;
+  games: Array<{
+    id: string;
+    homeTeam: string;
+    awayTeam: string;
+    spread: number;
+    kickoff: string;
+  }>;
+}
+```
+
+---
+
+#### POST `/api/user-picks`
+
+Submit user picks.
+
+**Request:**
+```typescript
+{
+  week: number;
+  picks: Array<{
+    gameId: string;
+    teamId: string;
+  }>;
+}
+```
+
+---
+
+#### GET `/api/ai-predictions`
+
+Get AI predictions for games.
+
+**Response:**
+```typescript
+{
+  predictions: Array<{
+    gameId: string;
+    predictedWinner: string;
+    confidence: number;
+    reasoning: string;
+  }>;
+}
+```
+
+---
+
+#### GET `/api/weekly-recommendations`
+
+Get weekly pick recommendations.
+
+**Response:**
+```typescript
+{
+  recommendations: Array<{
+    gameId: string;
+    recommendation: string;
+    confidence: number;
+  }>;
+}
+```
+
+---
+
+### Authentication (NextAuth)
+
+#### GET/POST `/api/auth/[...nextauth]`
+
+NextAuth authentication endpoints.
+
+**Endpoints:**
+- `/api/auth/signin` - Sign in page
+- `/api/auth/signout` - Sign out
+- `/api/auth/callback/[provider]` - OAuth callbacks
+- `/api/auth/session` - Get current session
+
+---
+
+#### POST `/api/auth/signup`
+
+User registration endpoint.
+
+**Request:**
+```typescript
+{
+  email: string;
+  password: string;
+  name: string;
+}
+```
+
+---
+
+## Error Responses
+
+All APIs return consistent error responses:
+
+### 400 Bad Request
+
+```typescript
+{
+  error: "Invalid request",
+  details: "Missing required field: email"
+}
+```
+
+### 401 Unauthorized
+
+```typescript
+{
+  error: "Unauthorized",
+  message: "Please sign in to access this resource"
+}
+```
+
+### 403 Forbidden
+
+```typescript
+{
+  error: "Forbidden",
+  message: "Insufficient permissions"
+}
+```
+
+### 404 Not Found
+
+```typescript
+{
+  error: "Not found",
+  resource: "vendor",
+  id: "123"
+}
+```
+
+### 500 Internal Server Error
+
+```typescript
+{
+  error: "Internal server error",
+  message: "An unexpected error occurred"
+}
+```
+
+---
+
+## Rate Limiting
+
+API endpoints are rate-limited to prevent abuse:
+
+- **Default:** 100 requests per minute per IP
+- **AI Endpoints:** 10 requests per minute per user
+- **File Uploads:** 20 requests per hour per user
+
+Rate limit headers:
+```
+X-RateLimit-Limit: 100
+X-RateLimit-Remaining: 95
+X-RateLimit-Reset: 1640000000
+```
+
+---
+
+## Pagination
+
+List endpoints support pagination:
+
+**Query Parameters:**
+```
+?page=1&limit=20
+```
+
+**Response:**
+```typescript
+{
+  data: Array<T>;
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  }
+}
+```
+
+---
+
+## CORS
+
+**Development:** All origins allowed
+
+**Production:** Only allowed origins:
+- `https://aicoderally.com`
+- `https://studio.aicoderally.com`
+- `https://edge.aicoderally.com`
+- `https://summit.aicoderally.com`
+
+---
+
+## Testing APIs
+
+### Using cURL
+
+```bash
+# Get vendors
+curl http://localhost:3001/api/vendors
+
+# Create a comment
+curl -X POST http://localhost:3000/api/pit-wall/threads/module-123/comments \
+  -H "Content-Type: application/json" \
+  -d '{"body":"Great module!"}'
+```
+
+### Using Fetch
+
+```typescript
+// With session
+const res = await fetch('/api/ai/chat', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  credentials: 'include', // Include session cookies
+  body: JSON.stringify({
+    message: "Hello AI"
+  })
+});
+
+const data = await res.json();
+```
+
+### Using Postman
+
+1. Import the AICodeRally collection (coming soon)
+2. Set environment variables
+3. Run requests
+
+---
+
+## WebSocket/Realtime
+
+Realtime features use **Pusher** for live updates:
+
+```typescript
+import Pusher from 'pusher-js';
+
+const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY!, {
+  cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
+});
+
+// Subscribe to comments
+const channel = pusher.subscribe(`comments-${threadId}`);
+channel.bind('new-comment', (data) => {
+  console.log('New comment:', data);
+});
+```
+
+**Channels:**
+- `comments-{threadId}` - New comments
+- `reactions-{threadId}` - New reactions
+- `stakeholders-{moduleId}` - Stakeholder updates
+
+---
+
+## Related Documentation
+
+- [Environment Variables](/deployment/environment-variables) - API authentication setup
+- [Getting Started](/getting-started) - Development environment setup
+- [AI Gateway Integration](/integration/ai-gateway) - AI API routing
+- [Deployment Guide](/deployment) - Production API configuration
+
+---
+
+## SDK Support
+
+Official SDKs coming soon:
+- TypeScript/JavaScript
+- Python
+- Go
+
+For now, use direct HTTP requests or the Vercel AI SDK for AI features.

@@ -25,13 +25,6 @@ Your GitHub CLI is already authenticated. To get a token for Vercel:
 5. Click **Create**
 6. Copy the token
 
-#### Supabase Token
-1. Go to: https://supabase.com/dashboard/account/tokens
-2. Click **Generate new token**
-3. Name: `Health Dashboard API`
-4. Click **Generate Token**
-5. Copy the token
-
 ---
 
 ### Step 2: Add Environment Variables to Vercel
@@ -52,7 +45,6 @@ Your GitHub CLI is already authenticated. To get a token for Vercel:
    |--------------|-------|-------------|
    | `GITHUB_TOKEN` | `ghp_xxxxx` (your token) | Production, Preview, Development |
    | `VERCEL_TOKEN` | `xxxxx` (your token) | Production, Preview, Development |
-   | `SUPABASE_ACCESS_TOKEN` | `xxxxx` (your token) | Production, Preview, Development |
    | `NEXT_PUBLIC_ADMIN_PASSWORD` | `YourSecurePassword123!` | Production, Preview, Development |
 
 5. **Save Each Variable:**
@@ -93,10 +85,7 @@ GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 # 2. Vercel Token (from https://vercel.com/account/tokens)
 VERCEL_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
-# 3. Supabase Token (from https://supabase.com/dashboard/account/tokens)
-SUPABASE_ACCESS_TOKEN=sbp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-
-# 4. Admin Password (choose your own secure password)
+# 3. Admin Password (choose your own secure password)
 NEXT_PUBLIC_ADMIN_PASSWORD=YourSecurePassword123!
 ```
 
@@ -113,11 +102,6 @@ NEXT_PUBLIC_ADMIN_PASSWORD=YourSecurePassword123!
 - Fetches deployment status from Vercel projects
 - Shows build times, deployment URLs, framework info
 - Without it: Shows fallback projects (studio, website)
-
-### SUPABASE_ACCESS_TOKEN
-- Fetches database metrics from Supabase
-- Shows table counts, API requests, regions
-- Without it: Shows fallback databases (studio-prod, shared-prod)
 
 ### NEXT_PUBLIC_ADMIN_PASSWORD
 - Required for accessing admin dashboard
@@ -161,7 +145,6 @@ NEXT_PUBLIC_ADMIN_PASSWORD=YourSecurePassword123!
 - 🔗 Vercel Dashboard: https://vercel.com/aicoderally/aicoderally-website
 - 🔗 GitHub Tokens: https://github.com/settings/tokens
 - 🔗 Vercel Tokens: https://vercel.com/account/tokens
-- 🔗 Supabase Tokens: https://supabase.com/dashboard/account/tokens
 - 🔗 Admin Dashboard: https://aicoderally.com/admin/health
 
 ---

@@ -4,11 +4,14 @@ Your complete guide to setting up and building with the AICodeRally platform.
 
 ## What is AICodeRally?
 
-AICodeRally is an AI-native platform for building business applications across three tiers:
+AICodeRally is an AI-native platform built on a **4-layer architecture**:
 
-- **Studio**: Community, youth, and creator apps
-- **Edge**: SMB AI transformation (30-day deployment)
-- **Summit**: Enterprise AI transformation and governance
+1. **Modules** – Internal capability library (donors, grants, pipeline, etc.)
+2. **Ideation Studio** – Turn one idea into one app (web, mobile, or website)
+3. **Edge Portal** – Business operations around your apps (CRM, billing, dashboards)
+4. **Summit Solutions** – Custom, cross-business enterprise orchestration
+
+See [Architecture 3.0](/architecture) for complete details.
 
 ## Prerequisites
 
@@ -61,7 +64,7 @@ ANTHROPIC_API_KEY="sk-ant-..."
 OPENAI_API_KEY="sk-..."
 ```
 
-See [Environment Variables Guide](/deployment/environment-variables) for complete list.
+See [Deployment Guide](/deployment) for complete environment variable setup.
 
 ### 4. Set Up Database
 
@@ -215,22 +218,27 @@ aicoderally-stack/
     └── scripts/         # Validation and setup scripts
 ```
 
-### Platform Tiers
+### Platform Architecture
 
-**Studio** - `studio.aicoderally.com`
-- Community apps for everyone
-- Youth coding education
-- Creator tools
+**Layer 1: Modules** - `packages/modules/*`
+- Shared capability library (internal only)
+- 86+ reusable modules
+- Used by all layers above
 
-**Edge** - `edge.aicoderally.com`
-- SMB AI transformation
-- 19+ business modules
-- 30-day deployment
+**Layer 2: Ideation Studio** - `apps/studio` → `studio.aicoderally.com`
+- One idea → one app
+- Web, mobile, or website
+- Focus on UX and value, not operations
 
-**Summit** - `summit.aicoderally.com`
-- Enterprise transformation
-- AI strategy and governance
-- Workforce enablement
+**Layer 3: Edge Portal** - `apps/edge` → `edge.aicoderally.com`
+- Business OS around your apps
+- CRM, billing, operations, dashboards
+- Vertical solutions (nonprofit, consulting, creative studios)
+
+**Layer 4: Summit Solutions** - `apps/summit` → `summit.aicoderally.com`
+- Custom, cross-business orchestration
+- Enterprise governance and analytics
+- Multi-entity workflows
 
 ### Tech Stack
 

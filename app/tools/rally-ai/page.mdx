@@ -1,0 +1,649 @@
+export const metadata = {
+  title: 'Rally AI - Multi-AI Orchestration',
+  description: 'Command-line tool for orchestrating Claude, Gemini, and GPT-4 for feature design and development'
+}
+
+# Rally AI - Multi-AI Orchestration Framework
+
+Command-line tool for orchestrating Claude (Anthropic), Gemini (Google), and GPT-4 (OpenAI) to design, deliver, and validate features for AICodeRally.
+
+---
+
+## Overview
+
+Rally AI implements a **multi-phase development workflow** using three AI models with distinct roles:
+
+1. **DESIGN** - Claude (technical analysis) + Gemini (business validation)
+2. **DELIVER** - GPT-4 (sprint planning) + Claude (code review)
+3. **VALIDATE** - All three AIs validate before deployment
+
+---
+
+## Installation
+
+```bash
+# From project root
+cd tools/rally-ai
+pnpm install
+
+# Make executable (optional)
+chmod +x ../../rally-ai
+```
+
+---
+
+## Quick Start
+
+### Basic Workflow
+
+```bash
+# 1. Design a feature
+rally-ai design "user-authentication" \
+  --context "OAuth + email/password, multi-tenant"
+
+# 2. Review design documents
+cat design-docs/user-authentication-final-design.md
+
+# 3. Create sprint plan
+rally-ai sprint-plan "user-authentication"
+
+# 4. Implement feature (use sprint plan as guide)
+# ... development work ...
+
+# 5. Validate before deployment
+rally-ai validate "user-authentication"
+
+# 6. Deploy if GO received
+```
+
+---
+
+## Configuration
+
+### Environment Variables
+
+Set in `.env` file or shell:
+
+```bash
+# Required: Provider API Keys
+ANTHROPIC_API_KEY="sk-ant-..."
+GOOGLE_API_KEY="..."
+OPENAI_API_KEY="sk-..."
+
+# Optional: Vercel AI Gateway (recommended)
+AI_GATEWAY_URL="https://ai-gateway.vercel.sh/v1/chat/completions"
+VERCEL_OIDC_TOKEN="[from vercel env pull]"
+```
+
+### With Vercel AI Gateway
+
+Rally AI uses **Vercel AI Gateway** for:
+- ✅ Unified endpoint for all providers
+- ✅ Automatic caching of duplicate requests
+- ✅ Central monitoring and cost tracking
+- ✅ Rate limiting and failover
+- ✅ Zero markup (BYOK - Bring Your Own Key)
+
+**Setup:**
+1. Add provider API keys in Vercel Dashboard → AI Gateway → BYOK
+2. Run `vercel env pull` to get `VERCEL_OIDC_TOKEN`
+3. Rally AI automatically uses gateway if token exists
+
+**Without Gateway:**
+- Rally AI falls back to direct provider SDKs
+- Works fine for local development
+- Missing monitoring and caching benefits
+
+See [AI Gateway Integration Guide](/integration/ai-gateway) for complete setup.
+
+---
+
+## Commands
+
+### `rally-ai collaborate`
+
+**Multi-agent collaboration where ChatGPT (Designer), Claude (Coder), and Gemini (Tester) work together iteratively.**
+
+```bash
+rally-ai collaborate "feature-name" \
+  --context "additional context" \
+  --rounds 3
+```
+
+**What happens:**
+
+1. **Designer (GPT-4)** proposes initial architecture
+2. **Coder (Claude)** reviews and provides implementation details
+3. **Tester (Gemini)** raises security/testing concerns
+4. **Iterative rounds** where agents answer questions and refine
+5. **Consensus** reached when all concerns are addressed
+
+**Agent Roles:**
+- 🎨 **Designer (GPT-4):** System architecture, component design, data flow
+- 🧠 **Coder (Claude):** Module structure, API contracts, code patterns, edge cases
+- 🧪 **Tester (Gemini):** Test strategy, security risks, observability
+
+**Output:**
+- `collaborations/{feature}-multi-agent-session.md`
+
+**Example:**
+```bash
+rally-ai collaborate "user-auth" \
+  --context "OAuth + email/password, multi-tenant" \
+  --rounds 3
+```
+
+**Real collaboration example:**
+```
+Round 1:
+  🎨 Designer: Proposes architecture with user preferences API
+  🧠 Coder: Reviews, adds TypeScript models
+  🧪 Tester: Raises XSS concern in customCSS field
+
+Round 2:
+  🧠 Coder: Implements CSS sanitizer with postcss
+  🧪 Tester: Approves, proposes test strategy
+  ✅ Consensus reached!
+```
+
+---
+
+### `rally-ai workflow`
+
+**Run the full three-model flow in one command:**
+
+```bash
+rally-ai workflow "payments-refactor" \
+  --context "PCI scope, event-driven"
+```
+
+**Execution order:**
+
+1. **GPT-4:** Architecture blueprint with diagrams
+2. **Claude:** Coding plan with module breakdown
+3. **Gemini:** Review with risk assessment
+
+**Output:**
+- `design-docs/{feature}-chatgpt-architecture.md`
+- `sprint-plans/{feature}-claude-coding-plan.md`
+- `validation/{feature}-gemini-review.md`
+
+---
+
+### `rally-ai design`
+
+**Combine technical analysis from Claude with business validation from Gemini:**
+
+```bash
+rally-ai design "multi-tenant-auth" \
+  --context "Support 100+ tenants"
+```
+
+**Process:**
+
+1. **Claude** performs deep technical analysis:
+   - Architecture requirements
+   - Security considerations
+   - Performance implications
+   - Database schema
+
+2. **Gemini** validates business aspects:
+   - Enterprise requirements
+   - Scalability concerns
+   - Integration points
+   - Market fit
+
+3. **Final design** synthesizes both perspectives
+
+**Output:**
+- `design-docs/{feature}-claude-analysis.md`
+- `design-docs/{feature}-gemini-business.md`
+- `design-docs/{feature}-final-design.md`
+
+**Example:**
+```bash
+rally-ai design "real-time-notifications" \
+  --context "WebSocket + Pusher, 10k concurrent users"
+```
+
+---
+
+### `rally-ai sprint-plan`
+
+**Create a 4-week tactical execution plan:**
+
+```bash
+rally-ai sprint-plan "multi-tenant-auth"
+```
+
+**GPT-4 generates:**
+- Week-by-week breakdown
+- Daily tasks
+- Dependencies
+- Testing milestones
+- Deployment steps
+
+**Output:**
+- `sprint-plans/{feature}-4-week-plan.md`
+
+**Example plan structure:**
+```markdown
+## Week 1: Foundation
+**Days 1-2:** Database schema + migrations
+**Days 3-4:** Auth API endpoints
+**Day 5:** Testing + review
+
+## Week 2: OAuth Integration
+...
+```
+
+---
+
+### `rally-ai validate`
+
+**Run comprehensive validation with all three AIs:**
+
+```bash
+rally-ai validate "multi-tenant-auth"
+```
+
+**Validation checks:**
+
+**Claude validates:**
+- ✅ Security best practices
+- ✅ Test coverage
+- ✅ Performance optimization
+- ✅ Code quality
+
+**Gemini validates:**
+- ✅ Requirements coverage
+- ✅ Enterprise readiness
+- ✅ Integration compatibility
+- ✅ Documentation completeness
+
+**GPT-4 reconciles:**
+- Synthesizes findings
+- Makes Go/No-Go recommendation
+- Identifies critical blockers
+
+**Output:**
+- `validation/{feature}-final-report.md`
+
+**Example output:**
+```
+✅ RECOMMENDATION: GO
+
+Security: PASS (Claude)
+Testing: PASS (Claude)
+Requirements: PASS (Gemini)
+Documentation: WARNING (Gemini) - Add API docs
+
+Critical Issues: None
+Warnings: 1
+```
+
+---
+
+### `rally-ai info`
+
+**Check AI model configuration:**
+
+```bash
+rally-ai info
+```
+
+**Shows:**
+- ✅ Provider API keys configured
+- ✅ AI Gateway status
+- ✅ Model versions
+- ✅ Rate limits
+
+**Example output:**
+```
+Rally AI Configuration
+━━━━━━━━━━━━━━━━━━━━━━
+
+Providers:
+✅ Anthropic (Claude): Connected
+✅ OpenAI (GPT-4): Connected
+✅ Google (Gemini): Connected
+
+AI Gateway:
+✅ Enabled (Vercel AI Gateway)
+  Token: Valid (expires in 8 hours)
+  URL: https://ai-gateway.vercel.sh/v1/chat/completions
+
+Models:
+  Claude: claude-sonnet-4-5
+  GPT-4: gpt-4o
+  Gemini: gemini-2.5-flash
+```
+
+---
+
+## AI Model Roles
+
+### Claude (Anthropic) - The Architect
+
+**Strengths:**
+- Deep technical analysis
+- Security audits
+- Code reviews
+- Performance analysis
+- Edge case detection
+
+**Best for:**
+- Architecture design
+- Security validation
+- Code quality review
+- Technical documentation
+
+**Example use:**
+```bash
+# Claude excels at security analysis
+rally-ai design "payment-processing" \
+  --context "PCI compliance, Stripe integration"
+```
+
+---
+
+### Gemini (Google) - The Strategist
+
+**Strengths:**
+- Business validation
+- Enterprise requirements
+- Integration planning
+- Market fit assessment
+- Multi-modal analysis
+
+**Best for:**
+- Business requirements validation
+- Enterprise readiness checks
+- Integration compatibility
+- Stakeholder communication
+
+**Example use:**
+```bash
+# Gemini validates business value
+rally-ai validate "new-feature"
+# Checks: Requirements, integrations, market fit
+```
+
+---
+
+### GPT-4 (OpenAI) - The Executor
+
+**Strengths:**
+- Sprint planning
+- Task breakdown
+- Code generation
+- Quick tactical decisions
+- Synthesis and consensus
+
+**Best for:**
+- Creating execution plans
+- Breaking down complex tasks
+- Generating boilerplate code
+- Reconciling different perspectives
+
+**Example use:**
+```bash
+# GPT-4 creates detailed sprint plans
+rally-ai sprint-plan "dashboard-redesign"
+# Output: 4-week plan with daily tasks
+```
+
+---
+
+## Output Directory Structure
+
+All outputs are saved in organized directories:
+
+```
+project-root/
+├── design-docs/           # Design phase outputs
+│   ├── {feature}-claude-analysis.md
+│   ├── {feature}-gemini-business.md
+│   ├── {feature}-final-design.md
+│   └── {feature}-chatgpt-architecture.md
+├── sprint-plans/          # Sprint planning outputs
+│   ├── {feature}-4-week-plan.md
+│   └── {feature}-claude-coding-plan.md
+├── validation/            # Validation outputs
+│   ├── {feature}-final-report.md
+│   └── {feature}-gemini-review.md
+└── collaborations/        # Multi-agent sessions
+    └── {feature}-multi-agent-session.md
+```
+
+---
+
+## Complete Workflow Example
+
+### Feature: User Authentication
+
+```bash
+# Step 1: Multi-agent collaboration
+rally-ai collaborate "user-auth" \
+  --context "NextAuth v5, Google OAuth, email/password" \
+  --rounds 3
+
+# Review collaboration output
+cat collaborations/user-auth-multi-agent-session.md
+
+# Step 2: Detailed design
+rally-ai design "user-auth" \
+  --context "From collaboration: implement OAuth + email flow"
+
+# Review design docs
+cat design-docs/user-auth-final-design.md
+
+# Step 3: Sprint planning
+rally-ai sprint-plan "user-auth"
+
+# Review sprint plan
+cat sprint-plans/user-auth-4-week-plan.md
+
+# Step 4: Implement (manual development)
+# ... 4 weeks of coding ...
+
+# Step 5: Pre-deployment validation
+rally-ai validate "user-auth"
+
+# Review validation report
+cat validation/user-auth-final-report.md
+
+# Step 6: Deploy if GO received
+# ... deployment process ...
+```
+
+---
+
+## Advanced Usage
+
+### Custom Context
+
+Provide detailed context for better results:
+
+```bash
+rally-ai design "caching-layer" \
+  --context "Redis, 10M+ requests/day, 99.9% uptime SLA, cost < $500/month"
+```
+
+### Multiple Rounds of Collaboration
+
+More rounds = deeper analysis:
+
+```bash
+# 1 round: Quick consensus
+rally-ai collaborate "feature" --rounds 1
+
+# 3 rounds: Thorough analysis (default)
+rally-ai collaborate "feature" --rounds 3
+
+# 5 rounds: Critical feature analysis
+rally-ai collaborate "feature" --rounds 5
+```
+
+---
+
+## Troubleshooting
+
+### "API key not found"
+
+**Solution:**
+```bash
+# Check environment variables
+echo $ANTHROPIC_API_KEY
+echo $OPENAI_API_KEY
+echo $GOOGLE_API_KEY
+
+# Set if missing
+export ANTHROPIC_API_KEY="sk-ant-..."
+```
+
+### "Gateway authentication failed"
+
+**Solution:**
+```bash
+# Refresh OIDC token (expires every 12 hours)
+vercel env pull
+
+# Or use API key instead
+export AI_GATEWAY_API_KEY="your_key"
+```
+
+### "Rate limit exceeded"
+
+**Solution:**
+- Wait 60 seconds and retry
+- Use AI Gateway for better rate limiting
+- Upgrade provider API tier
+
+### "Model not responding"
+
+**Solution:**
+1. Check provider status pages
+2. Verify API keys are valid
+3. Try without gateway: unset `VERCEL_OIDC_TOKEN`
+
+---
+
+## Best Practices
+
+### 1. Start with Collaboration
+
+Always start complex features with `rally-ai collaborate`:
+- Gets all three AIs involved early
+- Identifies issues before coding
+- Builds consensus upfront
+
+### 2. Use Specific Context
+
+More context = better results:
+
+❌ Bad:
+```bash
+rally-ai design "auth"
+```
+
+✅ Good:
+```bash
+rally-ai design "auth" \
+  --context "NextAuth v5, Google+GitHub OAuth, email/password, multi-tenant, 10k users, GDPR compliant"
+```
+
+### 3. Review All Outputs
+
+Don't skip reading the generated documents:
+- Claude might identify security issues
+- Gemini might catch business problems
+- GPT-4 might suggest better approaches
+
+### 4. Iterate on Validation
+
+If validation fails:
+1. Review specific concerns
+2. Fix identified issues
+3. Run validation again
+4. Repeat until GO
+
+### 5. Save All Sessions
+
+Keep all Rally AI outputs in git:
+```bash
+git add design-docs/ sprint-plans/ validation/ collaborations/
+git commit -m "docs: Rally AI session for user-auth feature"
+```
+
+---
+
+## Integration with Development
+
+### Use in CI/CD
+
+```yaml
+# .github/workflows/validate.yml
+name: Validate with Rally AI
+
+on: [pull_request]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run Rally AI validation
+        run: |
+          cd tools/rally-ai
+          pnpm install
+          rally-ai validate "${{ github.event.pull_request.title }}"
+```
+
+### Pre-commit Hook
+
+```bash
+# .husky/pre-commit
+#!/bin/sh
+rally-ai validate "$(git branch --show-current)"
+```
+
+---
+
+## Future Commands (Roadmap)
+
+Coming soon:
+
+- `rally-ai daily-standup` - Get today's tasks from GPT-4
+- `rally-ai weekly-review` - Claude code review
+- `rally-ai audit` - Security audit with all models
+- `rally-ai refactor` - Refactoring suggestions
+- `rally-ai test-gen` - Generate test cases
+
+---
+
+## Related Documentation
+
+- [AI Gateway Integration](/integration/ai-gateway) - Setup Vercel AI Gateway
+- [Environment Variables](/deployment/environment-variables) - Configure API keys
+- [Getting Started](/getting-started) - Initial project setup
+- [API Reference](/api-reference) - API endpoints documentation
+
+---
+
+## Resources
+
+- **Rally AI Source:** `tools/rally-ai/` in main repository
+- **Claude Documentation:** https://claude.com/docs
+- **OpenAI Documentation:** https://platform.openai.com/docs
+- **Gemini Documentation:** https://ai.google.dev/docs
+
+---
+
+## Support
+
+**Issues:** https://github.com/AICodeRally/aicoderally-stack/issues
+
+**Questions:** todd@aicoderally.com
+
+**Feedback:** We'd love to hear how Rally AI helps your workflow!

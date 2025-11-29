@@ -30,9 +30,9 @@ export default function RootLayout({
               <nav className="hidden md:flex gap-2">
                 <a href="/" className="nav-link">Home</a>
                 <a href="/getting-started" className="nav-link">Getting Started</a>
+                <a href="/architecture" className="nav-link">Architecture 3.0</a>
                 <a href="/tech-stack" className="nav-link">Tech Stack</a>
                 <a href="/modules" className="nav-link">Modules</a>
-                <a href="/integration/ai-gateway" className="nav-link">AI Gateway</a>
                 <a href="/deployment" className="nav-link">Deployment</a>
               </nav>
 
