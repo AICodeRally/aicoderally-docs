@@ -1,0 +1,165 @@
+export const metadata = {
+  title: 'Architecture 3.0 Audit Checklist',
+  description: 'Comprehensive checklist to verify AICodeRally stack alignment with Architecture 3.0, the 3–6–∞ framework, and naming/registry rules'
+}
+
+# Architecture 3.0 – Audit Checklist
+
+**Purpose:**
+This checklist is used to confirm that the AICodeRally stack remains aligned with Architecture 3.0, the 3–6–∞ framework, and the naming/registry rules.
+
+**Run this whenever:**
+- A major feature is introduced
+- A new portal or solution is added
+- Before a big release or demo
+
+---
+
+## 1. Repository & Structure
+
+- [ ] Primary monorepo is `aicoderally-stack` (or current canonical name)
+- [ ] Four main apps exist under `apps/`:
+  - [ ] `apps/website`
+  - [ ] `apps/studio`
+  - [ ] `apps/edge`
+  - [ ] `apps/summit`
+- [ ] Shared packages exist under `packages/`:
+  - [ ] `packages/modules`
+  - [ ] `packages/solutions-edge`
+  - [ ] `packages/solutions-summit`
+  - [ ] `packages/ui`
+  - [ ] `packages/connectors`
+
+**No additional "parallel architectures"** (like duplicate apps or alt module folders) have been introduced.
+
+---
+
+## 2. Naming & Registries
+
+### 2.1 Modules
+
+- [ ] All modules live in `packages/modules/*`
+- [ ] All module IDs are kebab-case without tier prefixes:
+  - ✅ `donor-management`, `grant-tracking`
+  - ❌ `studio-donor-management`, `edge-donor-module`
+- [ ] `packages/modules/src/index.ts`:
+  - [ ] Exports `allModules: RallyModule[]`
+  - [ ] Exports `modulesById: Map<string, RallyModule>`
+
+### 2.2 Studio Apps
+
+- [ ] All Studio apps live under `apps/studio/app/apps/*`
+- [ ] All Studio IDs start with `studio-`:
+  - e.g. `studio-taco-scope`, `studio-pta-fundraiser`
+- [ ] `apps/studio/lib/apps.ts`:
+  - [ ] Contains `StudioAppMeta[]`
+  - [ ] Provides getters by `id`/`slug`
+
+### 2.3 Edge Solutions
+
+- [ ] Edge solutions defined under `packages/solutions-edge/src/*`
+- [ ] All Edge solution IDs start with `edge-`:
+  - e.g. `edge-npedge`, `edge-bhgedge`, `edge-designer-biz-kit`
+- [ ] `packages/solutions-edge/src/index.ts` exports:
+  - [ ] `edgeSolutions: RallySolution[]`
+  - [ ] `getEdgeSolutionById(id)`
+
+### 2.4 Summit Solutions
+
+- [ ] Summit solutions defined under `packages/solutions-summit/src/*`
+- [ ] All Summit solution IDs start with `summit-`:
+  - e.g. `summit-spm-governance`
+- [ ] `packages/solutions-summit/src/index.ts` exports:
+  - [ ] `summitSolutions: RallySolution[]`
+  - [ ] `getSummitSolutionById(id)`
+
+---
+
+## 3. Tier Responsibilities (Studio / Edge / Summit)
+
+### 3.1 Studio – App Layer (3 Steps)
+
+- [ ] Studio is only used for **individual apps**, not full businesses
+- [ ] Studio UI and copy are framed as:
+  - Ideate → Create → Validate
+- [ ] No business OS concerns in Studio (no global CRM, billing, or multi-app orchestration)
+- [ ] Taco apps (scope, business case, finder) remain separate Studio apps
+
+### 3.2 Edge – Business Layer (6 P's)
+
+- [ ] Edge pages, docs, and solutions follow the 6 P's:
+  - People, Process, Products/Programs, Performance, Pipeline, Platform
+- [ ] Edge solutions (npEdge, bhgEdge, Designer Biz Kit, Brand Hub, etc.) clearly map onto the 6 P's in their docs/UI
+- [ ] Edge does **not** define new modules inside `apps/edge` — capabilities still live in `packages/modules`
+
+### 3.3 Summit – Enterprise Layer (∞ Extensions)
+
+- [ ] Summit pages and docs define Summit as the enterprise/orchestration layer
+- [ ] Summit solutions emphasize:
+  - Governance, Scale, Integration, Intelligence, Strategy, Change
+- [ ] Summit builds on modules + Edge solutions; no duplicate capability layer is created
+
+---
+
+## 4. Design System Compliance
+
+- [ ] Tailwind CSS is used throughout; no random CSS files creeping in
+- [ ] Font: Inter for all UI surfaces
+- [ ] Icons use the approved library (Radix UI icons or the chosen standard; no reintroduction of random sets)
+- [ ] Tier visual identity:
+  - [ ] Studio: cyan → teal → emerald, rounded-xl
+  - [ ] Edge: orange → rose → pink, rounded-lg
+  - [ ] Summit: violet → fuchsia → yellow, rounded-md
+- [ ] No emojis used as UI icons
+- [ ] Sloth branding appears only where intended (hero, tier pages, about, franchise), not in core Edge/Summit production UI
+
+---
+
+## 5. Prompt Library & AI Integration
+
+- [ ] `knowledge/prompt-library/` exists with templates for:
+  - [ ] Studio app
+  - [ ] Edge solution
+  - [ ] Summit solution
+  - [ ] Module
+  - [ ] (Optional) Showcase entry
+- [ ] `.ai/PROMPT_LIBRARY.md` exists and instructs agents to use these templates
+- [ ] `.ai/SYSTEM.md` references the Prompt Library as mandatory
+
+---
+
+## 6. Validation & CI
+
+- [ ] `pnpm aicr:validate` runs locally without unexpected errors
+- [ ] GitHub Action exists (e.g. `.github/workflows/validate-architecture.yml`) to run validation on PRs against main/master
+- [ ] New modules/solutions/apps do not bypass validation
+
+---
+
+## 7. Website & Showcase
+
+- [ ] Homepage includes a "3–6–∞ Framework" section
+- [ ] Tier pages:
+  - [ ] Studio → 3-step story
+  - [ ] Edge → 6 P's story
+  - [ ] Summit → ∞ extensions story
+- [ ] Showcase:
+  - [ ] Lists graduates (TacoFinder, etc.)
+  - [ ] Uses Studio/Edge/Summit framing in "How This Was Built"
+- [ ] No raw module names are surfaced as first-class user concepts
+
+---
+
+**If all boxes are checked and `pnpm aicr:validate` passes, Architecture 3.0 is considered clean and intact.**
+
+## Related Documentation
+
+- [Architecture 3.0 Release Notes](/architecture/release-notes) - What changed in Architecture 3.0
+- [3–6–∞ Framework](/architecture/3-6-infinity) - Complete methodology overview
+- [System Architecture](/architecture/unified) - Complete ecosystem documentation
+- [Prompt Library](/development/prompt-library) - Architecture-aware AI prompt generators
+
+---
+
+**Last Updated:** November 28, 2025
+**Version:** 3.0.0

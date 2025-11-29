@@ -6,6 +6,54 @@ This memory file provides persistent context for all documentation work in the a
 
 **AICodeRally** is an AI-native platform for building intelligent applications. This repository contains the official documentation website, integration guides, architecture documentation, and developer resources.
 
+## 🚨 CRITICAL: Always Document on Public Website
+
+**MANDATORY RULE:** Every piece of documentation you create MUST be added to BOTH:
+
+1. **Stack Repository** (`/Users/todd.lebaron/dev/aicoderally-stack`) - Knowledge base (if applicable)
+2. **Docs Website** (`/Users/todd.lebaron/dev/aicoderally-docs`) - Public documentation (ALWAYS)
+
+### Workflow for New Documentation
+
+When creating new documentation (architecture specs, guides, frameworks, etc.):
+
+1. **Create source file** in stack repository (if it's architectural knowledge):
+   - `knowledge/architecture/` for architecture docs
+   - `knowledge/methodology/` for methodology/framework docs
+   - `knowledge/prompt-library/` for prompt templates
+
+2. **Create corresponding docs page** in docs website:
+   - `/app/architecture/` for architecture documentation
+   - `/app/development/` for development guides
+   - `/app/integration/` for integration guides
+
+3. **Update navigation**:
+   - Add to `app/layout.tsx` footer (Quick Links or Resources)
+   - Add to relevant overview pages (`app/architecture/page.mdx`, `app/development/page.mdx`, etc.)
+   - Add to homepage if it's a major resource
+
+4. **Cross-reference**:
+   - Link between related pages
+   - Add to "Related Documentation" sections
+
+5. **Commit and deploy**:
+   - Commit to both repositories (if applicable)
+   - Push to GitHub (triggers auto-deploy to docs.aicoderally.com)
+
+### Examples
+
+**Architecture 3.0 Audit Checklist:**
+- Stack: `knowledge/architecture/ARCHITECTURE_3_0_AUDIT_CHECKLIST.md`
+- Docs: `app/architecture/audit-checklist/page.mdx`
+- Navigation: Added to `app/architecture/page.mdx` and footer
+
+**Prompt Library:**
+- Stack: `knowledge/prompt-library/aicr-creation-templates.md`
+- Docs: `app/development/prompt-library/page.mdx`
+- Navigation: Added to homepage, development page, footer
+
+**Never create documentation only in the stack repository without adding it to the public docs website.**
+
 ## Documentation Authority
 
 - **Primary Repository**: `/Users/todd.lebaron/dev/aicoderally-docs`

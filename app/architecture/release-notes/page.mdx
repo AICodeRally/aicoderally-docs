@@ -1,0 +1,214 @@
+export const metadata = {
+  title: 'Architecture 3.0 Release Notes',
+  description: 'Complete changelog and impact of Architecture 3.0 - the three-tier platform with shared capability layer and governed AI interface'
+}
+
+# AICodeRally Architecture 3.0 – Release Notes
+
+**Version:** 3.0.0
+**Status:** Internal architecture milestone
+**Scope:** All core tiers (Studio, Edge, Summit), modules, registries, and website
+
+---
+
+## Summary
+
+Architecture 3.0 formalizes AICodeRally as a **three-tier platform** with a **shared capability layer** and a **governed AI interface**:
+
+- **Studio** – App Layer (3 Steps: Ideate → Create → Validate)
+- **Edge** – Business Layer (6 P's: People, Process, Products, Performance, Pipeline, Platform)
+- **Summit** – Enterprise Layer (∞ Extensions: Governance, Scale, Integration, Intelligence, Strategy, Change)
+- **Modules** – Internal capability library used by all tiers
+- **Prompt Library** – Standard templates for AI-driven artifact creation
+- **Validation + CI** – `aicr:validate` and GitHub Actions enforce coherence
+
+---
+
+## Key Changes
+
+### 1. Modules → Internal Capability Layer Only
+
+- Cleaned `packages/modules/*` to contain only **core capability modules**.
+- Migrated misclassified app-like modules into Studio (e.g. Birthday apps, PTA Fundraiser, Future Builders).
+- Updated `packages/modules/src/index.ts` to export a clean `allModules` registry.
+- **Results:**
+  - Before: ~130 mixed items (capabilities + apps)
+  - After: ~103 true capability modules
+
+### 2. Studio → Ideation Studio (3 Steps)
+
+- Normalized Studio apps under `apps/studio/app/apps/*`.
+- Registered all Studio apps in `apps/studio/lib/apps.ts` with `studio-*` IDs.
+- Rebuilt Studio home page to list **Studio apps**, not modules.
+- Defined Studio methodology:
+  - **Ideate → Create → Validate**
+- **Example apps:**
+  - Taco Scope, Taco Business Case, TacoFinder
+  - PTA Fundraiser
+  - Birthday builders
+  - Startup Forge, Future Builders
+
+### 3. Edge → Business OS (6 P's)
+
+- Introduced the **6 P's framework** as the canonical Edge operating model:
+  - People, Process, Products/Programs, Performance, Pipeline, Platform
+- Implemented Edge solutions as typed `RallySolution` objects in `packages/solutions-edge/*`:
+  - `edge-npedge` (Nonprofit OS)
+  - `edge-bhgedge` (SPM Practice OS)
+  - `edge-designer-biz-kit` (Creative Studio OS)
+  - `edge-brand-hub` (Brand/Marketing OS)
+- **Edge solutions registry:**
+  - `packages/solutions-edge/src/index.ts`
+  - `apps/edge/lib/solutions.ts`
+- Edge portal now consumes solutions and renders `/solutions` and `/solutions/[id]`.
+
+### 4. Summit → Enterprise Orchestration (∞)
+
+- Defined Summit as the enterprise layer that extends the 6 P's with:
+  - Governance, Scale, Integration, Intelligence, Strategy, Change
+- Implemented Summit solutions registry in `packages/solutions-summit/*`.
+- **First Summit solution:**
+  - `summit-spm-governance` – SPM governance suite template.
+- Summit portal now lists and displays Summit solutions.
+
+### 5. Website – 3–6–∞ Narrative
+
+- Homepage now includes a **"3–6–∞ Framework"** section explaining:
+  - Studio (3-step loop)
+  - Edge (6 P's)
+  - Summit (∞ Extensions)
+- **Tier pages rewritten:**
+  - Studio: Ideate → Create → Validate + examples + artifacts.
+  - Edge: 6 P's + Edge solutions + workflows.
+  - Summit: enterprise extensions + Summit SPM Governance example.
+- **Showcase:**
+  - `/showcase` lists "graduates"
+  - `/showcase/[slug]` includes "How This Was Built":
+    - Studio apps → Edge solutions → Summit future path.
+
+### 6. Prompt Library & AI Integration
+
+- Introduced Prompt Library under `knowledge/prompt-library/*` (templates for Studio apps, Edge solutions, Summit solutions, modules).
+- `.ai/PROMPT_LIBRARY.md` and `.ai/SYSTEM.md` updated to:
+  - Require agents to use templates.
+  - Forbid ad-hoc architectures and naming patterns.
+- **CLI helpers** (under `/bin`) generate pre-filled prompts for AI usage:
+  - `./bin/aicr-new-studio-app.sh`
+  - `./bin/aicr-new-edge-solution.sh`
+  - `./bin/aicr-new-summit-solution.sh`
+  - `./bin/aicr-new-module.sh`
+
+### 7. Validation & DevOps
+
+- Implemented `pnpm aicr:validate`:
+  - Verifies module IDs used by solutions exist in `packages/modules`.
+  - Verifies naming conventions for IDs (modules, Studio apps, Edge/Summit solutions).
+  - Checks for architecture drift patterns.
+- **GitHub Action** (`.github/workflows/validate-architecture.yml`):
+  - Runs validation on PRs targeting master/main.
+
+---
+
+## Impact
+
+✅ **Architectural drift is greatly reduced.**
+✅ **New work (Studio apps, Edge/Summit solutions, modules) is governed by templates and validators.**
+✅ **Website, docs, and internal reality all now tell the same story.**
+✅ **AICodeRally is ready to scale as a platform, not just a codebase.**
+
+---
+
+## Migration Guide
+
+### For Existing Modules
+
+If you have custom modules:
+
+1. **Check naming:** Module IDs must be kebab-case without tier prefixes
+   - ✅ `donor-management`
+   - ❌ `studio-donor-management`
+
+2. **Verify registry:** Ensure your module is listed in `packages/modules/src/index.ts`
+
+3. **Run validation:** `pnpm aicr:validate` to check for issues
+
+### For Existing Studio Apps
+
+If you have Studio apps:
+
+1. **Move to correct location:** `apps/studio/app/apps/*`
+2. **Update ID:** Must start with `studio-`
+3. **Register:** Add to `apps/studio/lib/apps.ts`
+4. **Follow 3-step methodology:** Ideate → Create → Validate
+
+### For Edge Solutions
+
+If you have Edge solutions:
+
+1. **Define in packages:** `packages/solutions-edge/src/your-solution.ts`
+2. **Use edge- prefix:** ID must start with `edge-`
+3. **Map to 6 P's:** Define workflows mapped to the 6 pillars
+4. **Register:** Add to registries in `packages/solutions-edge/src/index.ts` and `apps/edge/lib/solutions.ts`
+
+### For Summit Solutions
+
+If you have Summit solutions:
+
+1. **Define in packages:** `packages/solutions-summit/src/your-solution.ts`
+2. **Use summit- prefix:** ID must start with `summit-`
+3. **Map to ∞ zones:** Define governance, scale, integration, etc.
+4. **Register:** Add to registries
+
+---
+
+## Next Directions (Post-3.0)
+
+- **Studio → Edge conversion flows** (recommend appropriate Edge solutions from Studio apps).
+- **More Summit solutions** (beyond SPM).
+- **Expanded Prompt Library** for:
+  - Governance flows
+  - Data modeling patterns
+  - API endpoint design
+- **Visual diagrams** and training materials for franchisees, partners, and devs.
+
+---
+
+## Breaking Changes
+
+### Naming Conventions
+
+- **Old:** Mixed naming patterns, no consistent prefixes
+- **New:** Strict tier prefixes (`studio-`, `edge-`, `summit-`)
+- **Impact:** All apps/solutions must be renamed to follow new conventions
+
+### Module Classification
+
+- **Old:** Modules contained both capabilities and apps
+- **New:** Modules are capabilities only, apps moved to Studio
+- **Impact:** Some "modules" are now classified as Studio apps
+
+### Registry Structure
+
+- **Old:** Scattered registries, inconsistent exports
+- **New:** Centralized registries with typed exports
+- **Impact:** Import paths may need updating
+
+---
+
+## Deprecations
+
+None. Architecture 3.0 is additive - all previous capabilities remain, now better organized.
+
+---
+
+## Related Documentation
+
+- [Architecture 3.0 Audit Checklist](/architecture/audit-checklist) - Verify alignment with Architecture 3.0
+- [3–6–∞ Framework](/architecture/3-6-infinity) - Complete methodology overview
+- [System Architecture](/architecture/unified) - Complete ecosystem documentation
+- [Prompt Library](/development/prompt-library) - Architecture-aware AI prompt generators
+
+---
+
+**Last Updated:** November 28, 2025
+**Version:** 3.0.0
