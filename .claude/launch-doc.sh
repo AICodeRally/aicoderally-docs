@@ -27,7 +27,7 @@ if [ ! -d "$DOC_DIR" ]; then
 fi
 
 # iTerm2 AppleScript to open new window with custom profile
-osascript <<EOF
+osascript <<'APPLESCRIPT'
 tell application "iTerm"
     activate
 
@@ -39,47 +39,16 @@ tell application "iTerm"
     end try
 
     tell current session of newWindow
-        -- Set working directory
-        write text "cd $DOC_DIR"
-
-        -- Set custom colors via escape sequences
-        write text "printf '\\033]6;1;bg;red;brightness;20\\007'"
-        write text "printf '\\033]6;1;bg;green;brightness;30\\007'"
-        write text "printf '\\033]6;1;bg;blue;brightness;45\\007'"
+        -- Change to docs directory and show welcome banner
+        write text "cd /Users/todd.lebaron/dev/aicoderally-docs && bash .claude/welcome-banner.sh"
 
         -- Set tab/window title
-        write text "echo -ne '\\033]0;📚 Doc Agent - AICodeRally\\007'"
+        write text "printf '\\033]0;📚 Doc Agent - AICodeRally\\007'"
 
         -- Set badge
-        write text "printf '\\033]1337;SetBadgeFormat=%s\\007' \$(echo -n '📚 DOC' | base64)"
-
-        -- Clear screen and show welcome message
-        write text "clear"
-        write text "echo ''"
-        write text "echo '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'"
-        write text "echo ''"
-        write text "echo '  📚  DOC AGENT - AICodeRally Documentation Keeper'"
-        write text "echo ''"
-        write text "echo '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'"
-        write text "echo ''"
-        write text "echo '  Repository: aicoderally-docs'"
-        write text "echo '  Location:   $DOC_DIR'"
-        write text "echo '  Deployed:   https://docs.aicoderally.com'"
-        write text "echo ''"
-        write text "echo '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'"
-        write text "echo ''"
-        write text "echo '  Quick Start:'"
-        write text "echo '    /doc search for [topic]       - Search documentation'"
-        write text "echo '    /doc create [guide] for [x]   - Create new documentation'"
-        write text "echo '    /doc update [file]            - Update documentation'"
-        write text "echo '    /doc review [file]            - Review for accuracy'"
-        write text "echo ''"
-        write text "echo '  Type claude to start or just use /doc commands'"
-        write text "echo ''"
-        write text "echo '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'"
-        write text "echo ''"
+        write text "printf '\\033]1337;SetBadgeFormat=%s\\007' $(echo -n '📚 DOC' | base64)"
     end tell
 end tell
-EOF
+APPLESCRIPT
 
 echo -e "${GREEN}✅ Doc Agent terminal launched!${NC}"
