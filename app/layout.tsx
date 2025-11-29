@@ -30,9 +30,11 @@ export default function RootLayout({
               <nav className="hidden md:flex gap-2">
                 <a href="/" className="nav-link">Home</a>
                 <a href="/getting-started" className="nav-link">Getting Started</a>
-                <a href="/architecture" className="nav-link">Architecture 3.0</a>
+                <a href="/architecture/unified" className="nav-link">System Architecture</a>
                 <a href="/tech-stack" className="nav-link">Tech Stack</a>
                 <a href="/modules" className="nav-link">Modules</a>
+                <a href="/tools/rally-ai" className="nav-link">Rally AI</a>
+                <a href="/franchise" className="nav-link">Franchise</a>
                 <a href="/deployment" className="nav-link">Deployment</a>
               </nav>
 
@@ -66,8 +68,18 @@ export default function RootLayout({
               <div>
                 <h4 className="font-semibold text-sm text-gray-900 mb-3">Quick Links</h4>
                 <div className="flex flex-col gap-2 text-sm">
-                  <a href="/" className="text-gray-600 hover:text-violet-600 transition-colors">Documentation</a>
+                  <a href="/architecture/unified" className="text-gray-600 hover:text-violet-600 transition-colors">System Architecture</a>
+                  <a href="/tools/rally-ai" className="text-gray-600 hover:text-violet-600 transition-colors">Rally AI</a>
+                  <a href="/development/agent-protocol" className="text-gray-600 hover:text-violet-600 transition-colors">Agent Protocol</a>
+                  <a href="/design-system" className="text-gray-600 hover:text-violet-600 transition-colors">Design System</a>
+                  <a href="/franchise" className="text-gray-600 hover:text-violet-600 transition-colors">Franchise</a>
+                </div>
+              </div>
+              <div>
+                <h4 className="font-semibold text-sm text-gray-900 mb-3">Resources</h4>
+                <div className="flex flex-col gap-2 text-sm">
                   <a href="/integration/ai-gateway" className="text-gray-600 hover:text-violet-600 transition-colors">AI Gateway Guide</a>
+                  <a href="https://github.com/AICodeRally/aicoderally-stack/blob/master/UNIFIED_ARCHITECTURE.md" className="text-gray-600 hover:text-violet-600 transition-colors">Master Architecture Doc</a>
                   <a href="https://aicoderally.com" className="text-gray-600 hover:text-violet-600 transition-colors">Main Website</a>
                   <a href="https://github.com/AICodeRally/aicoderally-stack" className="text-gray-600 hover:text-violet-600 transition-colors">GitHub</a>
                 </div>
