@@ -1,21 +1,23 @@
 export const metadata = {
-  title: 'Rally AI - Multi-AI Orchestration',
-  description: 'Command-line tool for orchestrating Claude, Gemini, and GPT-4 for feature design and development'
+  title: 'Rally AI - AI Lifecycle Manager Framework',
+  description: 'Command-line tool and orchestration framework for AI-driven development across Studio, Edge, and Summit tiers'
 }
 
-# Rally AI - Multi-AI Orchestration Framework
+# Rally AI - AI Lifecycle Manager Framework
 
-Command-line tool for orchestrating Claude (Anthropic), Gemini (Google), and GPT-4 (OpenAI) to design, deliver, and validate features for AICodeRally.
+Rally AI is AICodeRally's command-line orchestration tool that uses specialized **AI Lifecycle Managers (ALMs)** to generate, validate, and orchestrate artifacts across the 3-6-∞ Framework.
 
 ---
 
 ## Overview
 
-Rally AI implements a **multi-phase development workflow** using three AI models with distinct roles:
+Rally AI implements a **three-ALM architecture** aligned with the 3-6-∞ Framework:
 
-1. **DESIGN** - Claude (technical analysis) + Gemini (business validation)
-2. **DELIVER** - GPT-4 (sprint planning) + Claude (code review)
-3. **VALIDATE** - All three AIs validate before deployment
+1. **Creator AI** - Generates Studio apps (3 steps: Ideate → Create → Validate)
+2. **Operator AI** - Generates Edge solutions (6 P's: People, Process, Products, Performance, Pipeline, Platform)
+3. **Enterprise AI** - Generates Summit platforms (∞ Extensions: Governance, Scale, Integration, Intelligence, Strategy, Change)
+
+Each ALM uses a combination of Claude (Anthropic), GPT-4 (OpenAI), and Gemini (Google) to deliver context-aware, architecture-compliant artifacts.
 
 ---
 
@@ -25,36 +27,64 @@ Rally AI implements a **multi-phase development workflow** using three AI models
 # From project root
 cd tools/rally-ai
 pnpm install
+pnpm build
 
 # Make executable (optional)
-chmod +x ../../rally-ai
+chmod +x ../../bin/rally-ai
 ```
 
 ---
 
 ## Quick Start
 
-### Basic Workflow
+### Create a Studio App
 
 ```bash
-# 1. Design a feature
-rally-ai design "user-authentication" \
-  --context "OAuth + email/password, multi-tenant"
-
-# 2. Review design documents
-cat design-docs/user-authentication-final-design.md
-
-# 3. Create sprint plan
-rally-ai sprint-plan "user-authentication"
-
-# 4. Implement feature (use sprint plan as guide)
-# ... development work ...
-
-# 5. Validate before deployment
-rally-ai validate "user-authentication"
-
-# 6. Deploy if GO received
+rally-ai create studio-app \
+  --description "Food truck discovery and ordering app" \
+  --audience "Taco enthusiasts in Austin, TX" \
+  --domain "food-service" \
+  --workflows "search" "order" "track" \
+  --modules "location" "payments" "notifications" \
+  --validate
 ```
+
+**Output:**
+- Spec saved to: `apps/studio/app/apps/taco-finder/spec.json`
+- Contains 3-step implementation plan
+- Validation report if `--validate` flag used
+
+### Create an Edge Solution
+
+```bash
+rally-ai create edge-solution \
+  --studio-apps "donor-portal" "event-manager" "volunteer-hub" \
+  --domain "nonprofit" \
+  --icp "Small to mid-size nonprofits with 5-50 staff" \
+  --pain-points "Manual donor management" "Disconnected systems" \
+  --validate
+```
+
+**Output:**
+- Spec saved to: `apps/edge/np-edge/spec.json`
+- Contains 6 P's mapping
+- Validation report if `--validate` flag used
+
+### Create a Summit Solution
+
+```bash
+rally-ai create summit-solution \
+  --domain "spm" \
+  --edge-solutions "np-edge" "designer-biz-kit" \
+  --constraints "Multi-tenant" "SOC2 compliance" \
+  --compliance "SOC2" "GDPR" "CCPA" \
+  --validate
+```
+
+**Output:**
+- Spec saved to: `apps/summit/spm-governance/spec.json`
+- Contains ∞ Extensions mapping
+- Validation report if `--validate` flag used
 
 ---
 
@@ -71,8 +101,11 @@ GOOGLE_API_KEY="..."
 OPENAI_API_KEY="sk-..."
 
 # Optional: Vercel AI Gateway (recommended)
-AI_GATEWAY_URL="https://ai-gateway.vercel.sh/v1/chat/completions"
-VERCEL_OIDC_TOKEN="[from vercel env pull]"
+VERCEL_AI_GATEWAY_URL="https://gateway.ai.vercel.com"
+VERCEL_AI_GATEWAY_TOKEN="[from vercel env pull]"
+
+# Optional: RAG System (for context-aware generation)
+DATABASE_URL="postgres://..."  # Prisma database URL for RAG
 ```
 
 ### With Vercel AI Gateway
@@ -86,7 +119,7 @@ Rally AI uses **Vercel AI Gateway** for:
 
 **Setup:**
 1. Add provider API keys in Vercel Dashboard → AI Gateway → BYOK
-2. Run `vercel env pull` to get `VERCEL_OIDC_TOKEN`
+2. Run `vercel env pull` to get `VERCEL_AI_GATEWAY_TOKEN`
 3. Rally AI automatically uses gateway if token exists
 
 **Without Gateway:**
@@ -98,101 +131,307 @@ See [AI Gateway Integration Guide](/integration/ai-gateway) for complete setup.
 
 ---
 
+## AI Lifecycle Managers (ALMs)
+
+### Creator AI - Studio ALM
+
+**Purpose:** Generate Studio apps following the 3-step flow (Ideate → Create → Validate)
+
+**Primary Model:** `rally/coder-claude` (Claude Sonnet 3.5)
+
+**Secondary Models:**
+- `rally/designer-gpt` (GPT-4) - Architecture and design
+- `rally/tester-gemini` (Gemini 1.5 Pro) - UX validation
+
+**Responsibilities:**
+- Generate individual Studio apps
+- Maintain app registry
+- Enforce single-purpose app constraints
+- Validate 3-step flow compliance
+
+**Example:**
+```bash
+rally-ai create studio-app \
+  --description "Birthday party planning app" \
+  --audience "Parents planning kids' birthdays" \
+  --domain "events" \
+  --workflows "invite" "track-rsvp" "manage-budget"
+```
+
+---
+
+### Operator AI - Edge ALM
+
+**Purpose:** Generate Edge solutions following the 6 P's framework
+
+**Primary Model:** `rally/designer-gpt` (GPT-4)
+
+**Secondary Models:**
+- `rally/coder-claude` (Claude) - Solution structure
+- `rally/tester-gemini` (Gemini) - Business validation
+
+**Responsibilities:**
+- Map Studio apps to 6 P's
+- Generate Edge solution specs
+- Maintain solution registry
+- Validate business model completeness
+
+**The 6 P's:**
+1. **People** - Roles, teams, collaboration
+2. **Process** - Workflows, automation, SOPs
+3. **Products** - Offerings, pricing, packaging
+4. **Performance** - Metrics, KPIs, analytics
+5. **Pipeline** - Sales funnel, customer journey
+6. **Platform** - Infrastructure, integrations, APIs
+
+**Example:**
+```bash
+rally-ai create edge-solution \
+  --studio-apps "taco-scope" "taco-finder" \
+  --domain "food-service" \
+  --icp "Taqueria owners in major metro areas" \
+  --pain-points "Inventory management" "Staff scheduling" "Customer ordering"
+```
+
+---
+
+### Enterprise AI - Summit ALM
+
+**Purpose:** Generate Summit platforms following ∞ Extensions
+
+**Primary Model:** `rally/designer-gpt` (GPT-4)
+
+**Secondary Models:**
+- `rally/spm-llama` (Private LLaMA) - Governance expertise
+- `rally/coder-claude` (Claude) - Technical orchestration
+- `rally/tester-gemini` (Gemini) - Risk assessment
+
+**Responsibilities:**
+- Orchestrate Edge solutions
+- Apply ∞ Extensions
+- Maintain Summit registry
+- Validate enterprise compliance
+
+**The ∞ Extensions:**
+1. **Governance** - Compliance, security, audit trails
+2. **Scale** - Multi-tenant, global, high-availability
+3. **Integration** - Enterprise systems, complex data flows
+4. **Intelligence** - AI/ML, predictive analytics, insights
+5. **Strategy** - Executive dashboards, ROI tracking
+6. **Change** - Migration, training, adoption management
+
+**Example:**
+```bash
+rally-ai create summit-solution \
+  --domain "nonprofit" \
+  --edge-solutions "np-edge" "faith-edge" \
+  --constraints "Multi-tenant isolation" "Global deployment" \
+  --compliance "SOC2" "GDPR"
+```
+
+---
+
 ## Commands
+
+### `rally-ai create studio-app`
+
+Generate a Studio app with Creator AI.
+
+**Options:**
+- `-d, --description <description>` - App description (required)
+- `-a, --audience <audience>` - Target audience (required)
+- `--domain <domain>` - Business domain (required)
+- `-w, --workflows <workflows...>` - Key workflows (required)
+- `-m, --modules <modules...>` - Primary modules needed
+- `--validate` - Run validation after generation
+
+**Example:**
+```bash
+rally-ai create studio-app \
+  --description "Real-time collaboration whiteboard" \
+  --audience "Remote teams doing design sprints" \
+  --domain "collaboration" \
+  --workflows "draw" "comment" "share" "export" \
+  --modules "websockets" "canvas" "auth" "storage" \
+  --validate
+```
+
+**Output Structure:**
+```json
+{
+  "id": "collab-whiteboard",
+  "tier": "studio",
+  "framework": "3-steps",
+  "description": "...",
+  "audience": "...",
+  "domain": "collaboration",
+  "workflows": [...],
+  "modules": [...],
+  "threeSteps": {
+    "ideate": { "problem": "...", "outcome": "..." },
+    "create": { "features": [...], "ui": "..." },
+    "validate": { "metrics": [...], "successCriteria": [...] }
+  }
+}
+```
+
+---
+
+### `rally-ai create edge-solution`
+
+Generate an Edge solution with Operator AI.
+
+**Options:**
+- `--studio-apps <apps...>` - Studio app IDs to include (required)
+- `--domain <domain>` - Business domain (required)
+- `--icp <icp>` - Ideal customer profile (required)
+- `--pain-points <points...>` - Key pain points to address (required)
+- `--existing-solutions <solutions...>` - Existing solutions in market
+- `--validate` - Run validation after generation
+
+**Example:**
+```bash
+rally-ai create edge-solution \
+  --studio-apps "event-planner" "donor-portal" "volunteer-hub" \
+  --domain "nonprofit" \
+  --icp "Small to mid-size nonprofits with 5-50 staff" \
+  --pain-points "Manual donor tracking" "Event coordination overhead" \
+  --existing-solutions "DonorBox" "Eventbrite" \
+  --validate
+```
+
+**Output Structure:**
+```json
+{
+  "id": "np-edge",
+  "tier": "edge",
+  "framework": "6-ps",
+  "domain": "nonprofit",
+  "icp": "...",
+  "studioApps": [...],
+  "sixPs": {
+    "people": { "roles": [...], "teams": [...] },
+    "process": { "workflows": [...], "automations": [...] },
+    "products": { "offerings": [...], "pricing": [...] },
+    "performance": { "metrics": [...], "kpis": [...] },
+    "pipeline": { "stages": [...], "tracking": [...] },
+    "platform": { "modules": [...], "integrations": [...] }
+  }
+}
+```
+
+---
+
+### `rally-ai create summit-solution`
+
+Generate a Summit platform with Enterprise AI.
+
+**Options:**
+- `--domain <domain>` - Business domain (required)
+- `--edge-solutions <solutions...>` - Edge solution IDs to orchestrate (required)
+- `--constraints <constraints...>` - Technical constraints (required)
+- `--compliance <standards...>` - Compliance requirements (required)
+- `--validate` - Run validation after generation
+
+**Example:**
+```bash
+rally-ai create summit-solution \
+  --domain "spm" \
+  --edge-solutions "np-edge" "designer-biz-kit" "bhg-edge" \
+  --constraints "Multi-tenant with data isolation" "SOC2 compliance" \
+  --compliance "SOC2" "GDPR" "CCPA" \
+  --validate
+```
+
+**Output Structure:**
+```json
+{
+  "id": "summit-spm-governance",
+  "tier": "summit",
+  "framework": "infinity-extensions",
+  "domain": "spm",
+  "edgeSolutions": [...],
+  "infinityExtensions": {
+    "governance": { "policies": [...], "compliance": [...] },
+    "scale": { "multiTenant": true, "regions": [...] },
+    "integration": { "systems": [...], "apis": [...] },
+    "intelligence": { "analytics": [...], "ml": [...] },
+    "strategy": { "dashboards": [...], "okrs": [...] },
+    "change": { "training": [...], "adoption": [...] }
+  }
+}
+```
+
+---
+
+### `rally-ai create module`
+
+Generate a reusable module with Capability AI.
+
+**Options:**
+- `-d, --description <description>` - Module description (required)
+- `--domain <domain>` - Module domain (required)
+- `-c, --category <category>` - Module category (required)
+- `--consumers <consumers...>` - Apps/solutions that will use this (required)
+- `--validate` - Run validation after generation
+
+**Example:**
+```bash
+rally-ai create module \
+  --description "Stripe payment processing with subscriptions" \
+  --domain "payments" \
+  --category "integrations" \
+  --consumers "taco-finder" "np-edge" "designer-biz-kit" \
+  --validate
+```
+
+---
 
 ### `rally-ai collaborate`
 
-**Multi-agent collaboration where ChatGPT (Designer), Claude (Coder), and Gemini (Tester) work together iteratively.**
+**Multi-agent collaboration where Designer (GPT-4), Coder (Claude), and Tester (Gemini) work together iteratively.**
 
 ```bash
 rally-ai collaborate "feature-name" \
   --context "additional context" \
-  --rounds 3
+  --rounds 3 \
+  --mode build
 ```
+
+**Collaboration Modes:**
+- `build` - Building new feature (default)
+- `debug` - Debugging issues
+- `optimize` - Performance optimization
+- `review` - Code review
+- `plan` - Planning and design
+- `research` - Research and exploration
 
 **What happens:**
 
 1. **Designer (GPT-4)** proposes initial architecture
 2. **Coder (Claude)** reviews and provides implementation details
 3. **Tester (Gemini)** raises security/testing concerns
-4. **Iterative rounds** where agents answer questions and refine
+4. **Iterative rounds** where agents question and refine
 5. **Consensus** reached when all concerns are addressed
-
-**Agent Roles:**
-- 🎨 **Designer (GPT-4):** System architecture, component design, data flow
-- 🧠 **Coder (Claude):** Module structure, API contracts, code patterns, edge cases
-- 🧪 **Tester (Gemini):** Test strategy, security risks, observability
 
 **Output:**
 - `collaborations/{feature}-multi-agent-session.md`
-
-**Example:**
-```bash
-rally-ai collaborate "user-auth" \
-  --context "OAuth + email/password, multi-tenant" \
-  --rounds 3
-```
-
-**Real collaboration example:**
-```
-Round 1:
-  🎨 Designer: Proposes architecture with user preferences API
-  🧠 Coder: Reviews, adds TypeScript models
-  🧪 Tester: Raises XSS concern in customCSS field
-
-Round 2:
-  🧠 Coder: Implements CSS sanitizer with postcss
-  🧪 Tester: Approves, proposes test strategy
-  ✅ Consensus reached!
-```
-
----
-
-### `rally-ai workflow`
-
-**Run the full three-model flow in one command:**
-
-```bash
-rally-ai workflow "payments-refactor" \
-  --context "PCI scope, event-driven"
-```
-
-**Execution order:**
-
-1. **GPT-4:** Architecture blueprint with diagrams
-2. **Claude:** Coding plan with module breakdown
-3. **Gemini:** Review with risk assessment
-
-**Output:**
-- `design-docs/{feature}-chatgpt-architecture.md`
-- `sprint-plans/{feature}-claude-coding-plan.md`
-- `validation/{feature}-gemini-review.md`
 
 ---
 
 ### `rally-ai design`
 
-**Combine technical analysis from Claude with business validation from Gemini:**
+**Combine technical analysis from Claude with business validation from Gemini.**
 
 ```bash
 rally-ai design "multi-tenant-auth" \
-  --context "Support 100+ tenants"
+  --context "Support 100+ tenants, OAuth + email/password"
 ```
 
 **Process:**
 
-1. **Claude** performs deep technical analysis:
-   - Architecture requirements
-   - Security considerations
-   - Performance implications
-   - Database schema
-
-2. **Gemini** validates business aspects:
-   - Enterprise requirements
-   - Scalability concerns
-   - Integration points
-   - Market fit
-
+1. **Claude** performs deep technical analysis
+2. **Gemini** validates business aspects
 3. **Final design** synthesizes both perspectives
 
 **Output:**
@@ -200,17 +439,11 @@ rally-ai design "multi-tenant-auth" \
 - `design-docs/{feature}-gemini-business.md`
 - `design-docs/{feature}-final-design.md`
 
-**Example:**
-```bash
-rally-ai design "real-time-notifications" \
-  --context "WebSocket + Pusher, 10k concurrent users"
-```
-
 ---
 
 ### `rally-ai sprint-plan`
 
-**Create a 4-week tactical execution plan:**
+**Create a 4-week tactical execution plan with GPT-4.**
 
 ```bash
 rally-ai sprint-plan "multi-tenant-auth"
@@ -226,22 +459,11 @@ rally-ai sprint-plan "multi-tenant-auth"
 **Output:**
 - `sprint-plans/{feature}-4-week-plan.md`
 
-**Example plan structure:**
-```markdown
-## Week 1: Foundation
-**Days 1-2:** Database schema + migrations
-**Days 3-4:** Auth API endpoints
-**Day 5:** Testing + review
-
-## Week 2: OAuth Integration
-...
-```
-
 ---
 
 ### `rally-ai validate`
 
-**Run comprehensive validation with all three AIs:**
+**Run comprehensive validation with all three AIs.**
 
 ```bash
 rally-ai validate "multi-tenant-auth"
@@ -269,24 +491,33 @@ rally-ai validate "multi-tenant-auth"
 **Output:**
 - `validation/{feature}-final-report.md`
 
-**Example output:**
-```
-✅ RECOMMENDATION: GO
+---
 
-Security: PASS (Claude)
-Testing: PASS (Claude)
-Requirements: PASS (Gemini)
-Documentation: WARNING (Gemini) - Add API docs
+### `rally-ai workflow`
 
-Critical Issues: None
-Warnings: 1
+**Run the complete three-model flow in one command.**
+
+```bash
+rally-ai workflow "payments-refactor" \
+  --context "PCI scope, event-driven architecture"
 ```
+
+**Execution order:**
+
+1. **GPT-4:** Architecture blueprint with diagrams
+2. **Claude:** Coding plan with module breakdown
+3. **Gemini:** Review with risk assessment
+
+**Output:**
+- `design-docs/{feature}-chatgpt-architecture.md`
+- `sprint-plans/{feature}-claude-coding-plan.md`
+- `validation/{feature}-gemini-review.md`
 
 ---
 
 ### `rally-ai info`
 
-**Check AI model configuration:**
+**Check AI model configuration.**
 
 ```bash
 rally-ai info
@@ -298,191 +529,227 @@ rally-ai info
 - ✅ Model versions
 - ✅ Rate limits
 
-**Example output:**
-```
-Rally AI Configuration
-━━━━━━━━━━━━━━━━━━━━━━
+---
 
-Providers:
-✅ Anthropic (Claude): Connected
-✅ OpenAI (GPT-4): Connected
-✅ Google (Gemini): Connected
+## RAG Integration
 
-AI Gateway:
-✅ Enabled (Vercel AI Gateway)
-  Token: Valid (expires in 8 hours)
-  URL: https://ai-gateway.vercel.sh/v1/chat/completions
+Rally AI includes **Retrieval-Augmented Generation (RAG)** for context-aware artifact generation.
 
-Models:
-  Claude: claude-sonnet-4-5
-  GPT-4: gpt-4o
-  Gemini: gemini-2.5-flash
+### How It Works
+
+1. **Knowledge Base:** Rally AI maintains a vector database with:
+   - Architecture patterns
+   - Module documentation
+   - Example apps and solutions
+   - Design system guidelines
+   - Domain-specific knowledge
+
+2. **Context Retrieval:** Before generating artifacts, ALMs query RAG for relevant patterns
+3. **Augmented Generation:** AI models receive both the user's request and retrieved context
+4. **Better Results:** Context-aware generation produces higher-quality, architecture-compliant artifacts
+
+### RAG Domains
+
+- `studio-apps` - Studio app patterns and examples
+- `edge-solutions` - Edge solution patterns and 6 P's implementations
+- `summit-solutions` - Summit platform patterns and ∞ Extensions
+- `modules` - Module documentation and usage patterns
+- `architecture` - Architecture 3.0 guidelines
+- `design-system` - Design System 2.0 components
+
+### Using RAG Programmatically
+
+```typescript
+import { MultiAIOrchestrator } from "@rally/ai-orchestrator";
+
+const orchestrator = new MultiAIOrchestrator();
+
+const result = await orchestrator.chatWithRag(
+  "rally/coder-claude",
+  "tenant-123",
+  "How do I implement authentication in this codebase?",
+  {
+    domain: "modules",
+    topK: 10,
+    minSimilarity: 0.8
+  }
+);
+
+console.log(result.answer);
+console.log(`Used ${result.sources.totalChunks} source chunks`);
 ```
 
 ---
 
-## AI Model Roles
+## Model Router
 
-### Claude (Anthropic) - The Architect
+Rally AI uses a unified model abstraction layer:
 
-**Strengths:**
-- Deep technical analysis
-- Security audits
-- Code reviews
-- Performance analysis
-- Edge case detection
+```typescript
+type RallyModelId =
+  | "rally/coder-claude"        // Claude Sonnet 3.5
+  | "rally/designer-gpt"        // GPT-4 Turbo
+  | "rally/tester-gemini"       // Gemini 1.5 Pro
+  | "rally/spm-llama"           // Private LLaMA (SPM expertise)
+  | "rally/codex-openai";       // GPT-4 (reconciliation)
+```
 
-**Best for:**
-- Architecture design
-- Security validation
-- Code quality review
-- Technical documentation
+**Routing:**
+- Anthropic (Claude) via Vercel AI Gateway
+- OpenAI (GPT-4) via Vercel AI Gateway
+- Google (Gemini) via direct API
+- Private LLaMA via SPM service
 
-**Example use:**
-```bash
-# Claude excels at security analysis
-rally-ai design "payment-processing" \
-  --context "PCI compliance, Stripe integration"
+**Chat with any model:**
+```typescript
+const response = await orchestrator.chat(
+  "rally/coder-claude",
+  "Review this authentication implementation..."
+);
 ```
 
 ---
 
-### Gemini (Google) - The Strategist
+## Architecture 3.0 Compliance
 
-**Strengths:**
-- Business validation
-- Enterprise requirements
-- Integration planning
-- Market fit assessment
-- Multi-modal analysis
+Rally AI enforces **Architecture 3.0** standards:
 
-**Best for:**
-- Business requirements validation
-- Enterprise readiness checks
-- Integration compatibility
-- Stakeholder communication
+### Naming Conventions
+- Studio apps: `studio-{slug}` or bare slug in `apps/studio/app/apps/`
+- Edge solutions: `edge-{id}` or `{id}-edge`
+- Summit solutions: `summit-{id}` or `{id}-summit`
+- Modules: No prefix, in `packages/modules/src/{name}/`
 
-**Example use:**
-```bash
-# Gemini validates business value
-rally-ai validate "new-feature"
-# Checks: Requirements, integrations, market fit
-```
+### File Locations
+- Studio apps: `apps/studio/app/apps/{slug}/`
+- Edge solutions: `apps/edge/{id}/`
+- Summit solutions: `apps/summit/{id}/`
+- Modules: `packages/modules/src/{name}/`
 
----
+### Tier Responsibilities
+- **Studio:** Single-purpose apps only
+- **Edge:** 6 P's business operations (no governance)
+- **Summit:** ∞ Extensions enterprise orchestration
+- **Modules:** Cross-tier reusable capabilities
 
-### GPT-4 (OpenAI) - The Executor
-
-**Strengths:**
-- Sprint planning
-- Task breakdown
-- Code generation
-- Quick tactical decisions
-- Synthesis and consensus
-
-**Best for:**
-- Creating execution plans
-- Breaking down complex tasks
-- Generating boilerplate code
-- Reconciling different perspectives
-
-**Example use:**
-```bash
-# GPT-4 creates detailed sprint plans
-rally-ai sprint-plan "dashboard-redesign"
-# Output: 4-week plan with daily tasks
-```
+### Design System 2.0
+- **Studio colors:** `from-cyan-400 via-teal-500 to-emerald-500`
+- **Edge colors:** `from-orange-400 via-red-500 to-pink-500`
+- **Summit colors:** `from-purple-500 via-fuchsia-500 to-yellow-500`
+- **Icons:** Radix icons only (no Lucide)
+- **Font:** Inter
 
 ---
 
 ## Output Directory Structure
 
-All outputs are saved in organized directories:
+Rally AI saves all outputs in organized directories:
 
 ```
 project-root/
-├── design-docs/           # Design phase outputs
-│   ├── {feature}-claude-analysis.md
-│   ├── {feature}-gemini-business.md
-│   ├── {feature}-final-design.md
-│   └── {feature}-chatgpt-architecture.md
-├── sprint-plans/          # Sprint planning outputs
-│   ├── {feature}-4-week-plan.md
-│   └── {feature}-claude-coding-plan.md
-├── validation/            # Validation outputs
-│   ├── {feature}-final-report.md
-│   └── {feature}-gemini-review.md
-└── collaborations/        # Multi-agent sessions
-    └── {feature}-multi-agent-session.md
+├── apps/
+│   ├── studio/app/apps/          # Studio apps
+│   ├── edge/                      # Edge solutions
+│   └── summit/                    # Summit platforms
+├── packages/modules/src/          # Modules
+├── design-docs/                   # Design phase outputs
+├── sprint-plans/                  # Sprint planning outputs
+├── validation/                    # Validation outputs
+└── collaborations/                # Multi-agent sessions
 ```
 
 ---
 
 ## Complete Workflow Example
 
-### Feature: User Authentication
+### Building TacoFinder Ecosystem
 
 ```bash
-# Step 1: Multi-agent collaboration
-rally-ai collaborate "user-auth" \
-  --context "NextAuth v5, Google OAuth, email/password" \
-  --rounds 3
+# Step 1: Create Studio apps
+rally-ai create studio-app \
+  --description "Taco restaurant scoping and analysis" \
+  --audience "Restaurant entrepreneurs" \
+  --domain "food-service" \
+  --workflows "market-analysis" "feasibility" \
+  --validate
 
-# Review collaboration output
-cat collaborations/user-auth-multi-agent-session.md
+rally-ai create studio-app \
+  --description "Consumer taco discovery app" \
+  --audience "Taco enthusiasts" \
+  --domain "food-service" \
+  --workflows "search" "order" "track" \
+  --validate
 
-# Step 2: Detailed design
-rally-ai design "user-auth" \
-  --context "From collaboration: implement OAuth + email flow"
+# Step 2: Create Edge solution
+rally-ai create edge-solution \
+  --studio-apps "taco-scope" "taco-finder" \
+  --domain "food-service" \
+  --icp "Taqueria owners in major metro areas" \
+  --pain-points "Inventory management" "Staff scheduling" \
+  --validate
 
-# Review design docs
-cat design-docs/user-auth-final-design.md
-
-# Step 3: Sprint planning
-rally-ai sprint-plan "user-auth"
-
-# Review sprint plan
-cat sprint-plans/user-auth-4-week-plan.md
-
-# Step 4: Implement (manual development)
-# ... 4 weeks of coding ...
-
-# Step 5: Pre-deployment validation
-rally-ai validate "user-auth"
-
-# Review validation report
-cat validation/user-auth-final-report.md
-
-# Step 6: Deploy if GO received
-# ... deployment process ...
+# Step 3: (Future) Create Summit platform
+rally-ai create summit-solution \
+  --domain "food-service" \
+  --edge-solutions "taco-edge" \
+  --constraints "Multi-city franchise management" \
+  --compliance "Health department regulations" \
+  --validate
 ```
 
 ---
 
-## Advanced Usage
+## Best Practices
 
-### Custom Context
+### 1. Start with the Right Tier
 
-Provide detailed context for better results:
+Ask yourself:
+- **Single app?** → Use Creator AI (`create studio-app`)
+- **Business operations?** → Use Operator AI (`create edge-solution`)
+- **Enterprise orchestration?** → Use Enterprise AI (`create summit-solution`)
 
+### 2. Use Specific Context
+
+More context = better results:
+
+❌ Bad:
 ```bash
-rally-ai design "caching-layer" \
-  --context "Redis, 10M+ requests/day, 99.9% uptime SLA, cost < $500/month"
+rally-ai create studio-app --description "auth app" --audience "users" --domain "security"
 ```
 
-### Multiple Rounds of Collaboration
-
-More rounds = deeper analysis:
-
+✅ Good:
 ```bash
-# 1 round: Quick consensus
-rally-ai collaborate "feature" --rounds 1
+rally-ai create studio-app \
+  --description "OAuth 2.0 authentication with Google, GitHub, and email/password" \
+  --audience "Developers building multi-tenant SaaS apps" \
+  --domain "security" \
+  --workflows "login" "register" "password-reset" "2fa" \
+  --modules "auth" "session" "email" "security"
+```
 
-# 3 rounds: Thorough analysis (default)
-rally-ai collaborate "feature" --rounds 3
+### 3. Always Validate
 
-# 5 rounds: Critical feature analysis
-rally-ai collaborate "feature" --rounds 5
+Use the `--validate` flag to catch issues early:
+```bash
+rally-ai create studio-app ... --validate
+```
+
+### 4. Review All Outputs
+
+Don't skip reading generated specs:
+- Check tier alignment
+- Verify framework compliance
+- Review suggested modules
+- Validate workflows
+
+### 5. Use Collaboration for Complex Features
+
+For complex or high-risk features, use multi-agent collaboration first:
+```bash
+rally-ai collaborate "payment-processing" \
+  --context "PCI compliance, Stripe integration, subscriptions" \
+  --rounds 3 \
+  --mode build
 ```
 
 ---
@@ -510,133 +777,83 @@ export ANTHROPIC_API_KEY="sk-ant-..."
 vercel env pull
 
 # Or use API key instead
-export AI_GATEWAY_API_KEY="your_key"
+export VERCEL_AI_GATEWAY_TOKEN="your_token"
 ```
 
-### "Rate limit exceeded"
+### "Template file not found"
 
-**Solution:**
-- Wait 60 seconds and retry
-- Use AI Gateway for better rate limiting
-- Upgrade provider API tier
+**Known Issue:** Template files in `knowledge/prompt-library/` need to be created.
 
-### "Model not responding"
+**Temporary Solution:** ALMs will work without templates but may produce lower-quality specs.
 
-**Solution:**
-1. Check provider status pages
-2. Verify API keys are valid
-3. Try without gateway: unset `VERCEL_OIDC_TOKEN`
+### "Validation failed: Invalid tier"
+
+**Solution:** Ensure artifact is in correct location:
+- Studio: `apps/studio/app/apps/{slug}/`
+- Edge: `apps/edge/{id}/`
+- Summit: `apps/summit/{id}/`
+- Modules: `packages/modules/src/{name}/`
 
 ---
 
-## Best Practices
+## Advanced Usage
 
-### 1. Start with Collaboration
+### Programmatic API
 
-Always start complex features with `rally-ai collaborate`:
-- Gets all three AIs involved early
-- Identifies issues before coding
-- Builds consensus upfront
+```typescript
+import { MultiAIOrchestrator } from "@rally/ai-orchestrator";
 
-### 2. Use Specific Context
+const orchestrator = new MultiAIOrchestrator();
 
-More context = better results:
+// Create Studio app
+const app = await orchestrator.createStudioApp({
+  description: "Event planning app",
+  audience: "Party planners",
+  domain: "events",
+  workflows: ["invite", "rsvp", "budget"],
+  modules: ["calendar", "email", "payments"]
+});
 
-❌ Bad:
-```bash
-rally-ai design "auth"
+// Create Edge solution
+const solution = await orchestrator.createEdgeSolution({
+  studioAppIds: [app.id],
+  domain: "events",
+  icp: "Event planning businesses",
+  painPoints: ["Manual coordination", "Payment tracking"]
+});
+
+// Validate
+import { validateArtifact } from "@rally/ai-orchestrator/validation";
+
+const validation = await validateArtifact({
+  type: "studio-app",
+  id: app.id,
+  tier: "studio",
+  filePath: app.filePath
+});
+
+if (!validation.passed) {
+  console.error("Validation failed:", validation.violations);
+}
 ```
-
-✅ Good:
-```bash
-rally-ai design "auth" \
-  --context "NextAuth v5, Google+GitHub OAuth, email/password, multi-tenant, 10k users, GDPR compliant"
-```
-
-### 3. Review All Outputs
-
-Don't skip reading the generated documents:
-- Claude might identify security issues
-- Gemini might catch business problems
-- GPT-4 might suggest better approaches
-
-### 4. Iterate on Validation
-
-If validation fails:
-1. Review specific concerns
-2. Fix identified issues
-3. Run validation again
-4. Repeat until GO
-
-### 5. Save All Sessions
-
-Keep all Rally AI outputs in git:
-```bash
-git add design-docs/ sprint-plans/ validation/ collaborations/
-git commit -m "docs: Rally AI session for user-auth feature"
-```
-
----
-
-## Integration with Development
-
-### Use in CI/CD
-
-```yaml
-# .github/workflows/validate.yml
-name: Validate with Rally AI
-
-on: [pull_request]
-
-jobs:
-  validate:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Run Rally AI validation
-        run: |
-          cd tools/rally-ai
-          pnpm install
-          rally-ai validate "${{ github.event.pull_request.title }}"
-```
-
-### Pre-commit Hook
-
-```bash
-# .husky/pre-commit
-#!/bin/sh
-rally-ai validate "$(git branch --show-current)"
-```
-
----
-
-## Future Commands (Roadmap)
-
-Coming soon:
-
-- `rally-ai daily-standup` - Get today's tasks from GPT-4
-- `rally-ai weekly-review` - Claude code review
-- `rally-ai audit` - Security audit with all models
-- `rally-ai refactor` - Refactoring suggestions
-- `rally-ai test-gen` - Generate test cases
 
 ---
 
 ## Related Documentation
 
+- [3-6-∞ Framework](/architecture/3-6-infinity) - Complete framework documentation
+- [Architecture 3.0](/architecture/unified) - System architecture
 - [AI Gateway Integration](/integration/ai-gateway) - Setup Vercel AI Gateway
-- [Environment Variables](/deployment/environment-variables) - Configure API keys
-- [Getting Started](/getting-started) - Initial project setup
-- [API Reference](/api-reference) - API endpoints documentation
+- [Prompt Library](/development/prompt-library) - AI prompt templates
+- [Environment Variables](/deployment/environment-variables) - Configuration
 
 ---
 
 ## Resources
 
 - **Rally AI Source:** `tools/rally-ai/` in main repository
-- **Claude Documentation:** https://claude.com/docs
-- **OpenAI Documentation:** https://platform.openai.com/docs
-- **Gemini Documentation:** https://ai.google.dev/docs
+- **Master Documentation:** `knowledge/architecture/RALLY_AI_*.md`
+- **System Contract:** `.ai/RALLY_AI.md`
 
 ---
 
@@ -646,4 +863,9 @@ Coming soon:
 
 **Questions:** todd@aicoderally.com
 
-**Feedback:** We'd love to hear how Rally AI helps your workflow!
+**Implementation Summary:** See `knowledge/architecture/RALLY_AI_IMPLEMENTATION_SUMMARY.md` for complete details on the ALM architecture, features, and known limitations.
+
+---
+
+**Last Updated:** November 28, 2025
+**Version:** 2.0.0 (ALM Architecture)
