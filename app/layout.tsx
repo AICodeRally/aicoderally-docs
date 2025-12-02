@@ -82,6 +82,7 @@ export default function RootLayout({
                   <a href="/integration/ai-gateway" className="text-gray-600 hover:text-violet-600 transition-colors">AI Gateway Guide</a>
                   <a href="/development/prompt-library" className="text-gray-600 hover:text-violet-600 transition-colors">Prompt Library</a>
                   <a href="https://github.com/AICodeRally/aicoderally-stack/blob/master/UNIFIED_ARCHITECTURE.md" className="text-gray-600 hover:text-violet-600 transition-colors">Master Architecture Doc</a>
+                  <a href="/architecture/master-context" className="text-gray-600 hover:text-violet-600 transition-colors">Master Context (Repo Map)</a>
                   <a href="https://aicoderally.com" className="text-gray-600 hover:text-violet-600 transition-colors">Main Website</a>
                   <a href="https://github.com/AICodeRally/aicoderally-stack" className="text-gray-600 hover:text-violet-600 transition-colors">GitHub</a>
                 </div>
