@@ -8,7 +8,9 @@
       "Bash(chmod:*)",
       "Bash(pnpm add:*)",
       "Bash(pnpm docs:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(node tools/validate-docs.mjs:*)"
     ],
     "deny": [],
     "ask": []
