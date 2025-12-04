@@ -1,0 +1,466 @@
+export const metadata = {
+  title: 'Postman API Testing Guide',
+  description: 'How to import and use the AICodeRally Postman collection for API testing'
+}
+
+# Postman API Testing Guide
+
+**Last Updated:** 2025-12-04
+
+Use Postman to test AICodeRally APIs without writing code. We provide a complete pre-configured collection with all endpoints, authentication, and example requests.
+
+---
+
+## Quick Start
+
+### Step 1: Download Postman
+
+- Visit [postman.com/downloads](https://www.postman.com/downloads/)
+- Install for your OS (Windows, Mac, Linux)
+- Create free account or sign in
+
+### Step 2: Import Collection
+
+**Option A: Direct Import (Recommended)**
+
+1. Click **Import** button (top left)
+2. Select **Link** tab
+3. Paste: `https://docs.aicoderally.com/postman-collection.json`
+4. Click **Import**
+
+**Option B: Manual Import**
+
+1. Download collection: [postman-collection.json](/postman-collection.json)
+2. In Postman: Click **Import**
+3. Select **Upload Files**
+4. Choose downloaded file
+5. Click **Import**
+
+### Step 3: Configure Environment
+
+1. Click **Environments** (left sidebar)
+2. Click **Create Environment**
+3. Name: "AICodeRally Dev"
+4. Add variables:
+
+| Variable | Value | Notes |
+|----------|-------|-------|
+| `base_url` | `http://localhost:3001` | Dev: Edge app |
+| `auth_token` | Your token | Get from `/api/auth/session` |
+
+5. Click **Save**
+
+### Step 4: Start Testing
+
+1. Select environment: "AICodeRally Dev" (top right)
+2. Navigate to any endpoint in collection
+3. Click **Send**
+4. View response in bottom panel
+
+---
+
+## Environment Setup
+
+### Development Environments
+
+**Studio App**
+```
+base_url: http://localhost:3000
+```
+
+**Edge Portal**
+```
+base_url: http://localhost:3001
+```
+
+**Summit Solutions**
+```
+base_url: http://localhost:3002
+```
+
+### Production Environments
+
+**Studio**
+```
+base_url: https://studio.aicoderally.com
+```
+
+**Edge**
+```
+base_url: https://edge.aicoderally.com
+```
+
+**Summit**
+```
+base_url: https://summit.aicoderally.com
+```
+
+### Getting Authentication Token
+
+**1. Get Session:**
+```
+GET {{base_url}}/api/auth/session
+```
+
+**2. Copy token from response:**
+```json
+{
+  "user": { ... },
+  "token": "eyJhbGciOiJIUzI1NiIs..."
+}
+```
+
+**3. Set in environment:**
+- Click environment gear icon
+- Set `auth_token` to copied token
+- Save
+
+---
+
+## Collection Organization
+
+### 1. Authentication
+- Get current session
+- Sign out
+
+### 2. Studio APIs
+**AI Features:**
+- Chat with AI
+- Generate business models
+- Generate roadmaps
+- Consensus from multiple models
+
+**AI Memory:**
+- List memory files
+- Get memory file
+- Update memory file
+
+### 3. Pit Wall (Collaboration)
+**Threads:**
+- Get threads
+- Create thread
+
+**Comments:**
+- Get comments
+- Add comment
+
+**Reactions:**
+- Add reaction
+
+### 4. Edge APIs
+**Vendors (TacoFinder):**
+- List vendors with filters
+- Get vendor details
+- Get menu
+- Get reviews
+- Add review
+- Check in to location
+
+**Win The Pick (NFL):**
+- Get games
+- Submit picks
+- Get AI predictions
+
+---
+
+## Common Workflows
+
+### Test AI Chat
+
+**1. Open** → Collections → Studio APIs → AI Chat → POST - Chat with AI
+
+**2. Modify body** (if needed):
+```json
+{
+  "message": "Your question here",
+  "context": "Optional context"
+}
+```
+
+**3. Click** → Send
+
+**4. View response:**
+- Status: 200 OK
+- Body shows AI reply
+- Usage shows token count
+
+---
+
+### Test Vendor Search
+
+**1. Open** → Collections → Edge APIs → Vendors → GET - List Vendors
+
+**2. Modify query parameters:**
+```
+category: food
+rating: 4.5
+search: best
+```
+
+**3. Click** → Send
+
+**4. View results:**
+- Array of matching vendors
+- Pagination info
+- All vendor details
+
+---
+
+### Test Comments (Pit Wall)
+
+**1. Get threads:**
+- Open → Collections → Pit Wall → Threads → GET - Get Threads
+- Send (returns threads for module)
+
+**2. Add comment:**
+- Collections → Pit Wall → Comments → POST - Add Comment
+- Modify body with your comment
+- Send
+
+**3. See comment:**
+- Collections → Pit Wall → Comments → GET - Get Comments
+- Send (verify your comment appears)
+
+---
+
+## Advanced Features
+
+### Pre-request Scripts
+
+Add logic before requests:
+
+```javascript
+// Set timestamp
+pm.environment.set("timestamp", new Date().toISOString());
+
+// Generate random ID
+pm.environment.set("randomId", Math.random().toString(36).substr(2, 9));
+
+// Check token exists
+if (!pm.environment.get("auth_token")) {
+  throw new Error("auth_token not set in environment");
+}
+```
+
+### Tests
+
+Validate responses:
+
+```javascript
+// Check status
+pm.test("Status code is 200", function () {
+  pm.response.to.have.status(200);
+});
+
+// Check response contains field
+pm.test("Response has user data", function () {
+  var jsonData = pm.response.json();
+  pm.expect(jsonData).to.have.property("user");
+});
+
+// Check value equals
+pm.test("User email is correct", function () {
+  var jsonData = pm.response.json();
+  pm.expect(jsonData.user.email).to.equal("user@example.com");
+});
+
+// Save value for next request
+pm.environment.set("userId", jsonData.user.id);
+```
+
+### Collections Runner
+
+Run entire collection:
+
+1. Click **Runner** (top right)
+2. Select collection
+3. Select environment
+4. Configure:
+   - Iterations: 1
+   - Delay: 100ms
+   - Stopping on errors: checked
+5. Click **Run [Collection]**
+
+---
+
+## Troubleshooting
+
+### Authentication Failed
+
+**Issue:** 401 Unauthorized
+
+**Solution:**
+1. Get new token: `GET /api/auth/session`
+2. Update `auth_token` in environment
+3. Verify token isn't expired (refresh if needed)
+
+### CORS Errors
+
+**Issue:** Cross-Origin Request Blocked
+
+**Solution:**
+1. In Postman: Click **Settings** ⚙️
+2. Enable **Disable SSL certificate verification**
+3. Try request again
+
+### Connection Refused
+
+**Issue:** `econnrefused localhost:3001`
+
+**Solution:**
+1. Verify app is running: `pnpm dev`
+2. Check correct port in `base_url`
+3. Verify firewall allows localhost connections
+
+### Response Timeout
+
+**Issue:** Request hangs or times out
+
+**Solution:**
+1. Check app logs for errors
+2. Increase timeout: Settings → Timeout → set to 60000ms
+3. Try simpler request first to verify connection
+
+---
+
+## Tips & Tricks
+
+### Organize Requests in Folders
+
+```
+Studio APIs
+├── AI
+│   ├── Chat
+│   ├── Generate Models
+│   └── Roadmap
+├── Memory
+│   ├── List Files
+│   ├── Get File
+│   └── Update File
+└── War Room
+    └── Status
+```
+
+### Save Request Responses
+
+1. Send request
+2. Click **Save Response** (under response)
+3. Name response
+4. Reference later as example
+
+### Share Collections
+
+1. Click **Share** (collection menu)
+2. Get link or export
+3. Team members import same collection
+
+### Bulk Edit Headers
+
+All requests need custom header?
+
+1. Click collection name
+2. Tab: **Pre-request Scripts**
+3. Add script:
+```javascript
+pm.request.headers.add({
+  key: "X-Custom-Header",
+  value: "my-value"
+});
+```
+
+### Document in Postman
+
+1. Open request
+2. Click **Description**
+3. Add markdown documentation
+4. Visible to team
+
+---
+
+## Integration with Development
+
+### Generate Code
+
+Postman can generate code for any language:
+
+1. Open request
+2. Click **Code** (right side)
+3. Select language:
+   - JavaScript (fetch)
+   - Python (requests)
+   - cURL
+   - Java
+   - Go
+   - And 20+ more
+
+4. Copy code to your project
+
+### Example: JavaScript
+
+```javascript
+const options = {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${process.env.API_TOKEN}`
+  },
+  body: JSON.stringify({
+    message: "What's the best architecture?"
+  })
+};
+
+fetch('http://localhost:3001/api/ai/chat', options)
+  .then(response => response.json())
+  .then(data => console.log(data))
+  .catch(error => console.error('error:', error));
+```
+
+---
+
+## Best Practices
+
+✅ **DO:**
+- Keep environments organized (Dev, Staging, Prod)
+- Document complex requests with descriptions
+- Use variables for reusable values
+- Test responses with post-request scripts
+- Save successful responses as examples
+- Share collections with team
+
+❌ **DON'T:**
+- Commit tokens to git
+- Use production tokens in development
+- Hardcode values (use variables instead)
+- Leave sensitive data in request bodies
+- Store passwords in collections
+- Share collections with sensitive data
+
+---
+
+## Video Tutorials
+
+Coming soon! Postman tutorials for:
+- Complete workflow walkthrough
+- Building test suites
+- Automating with monitors
+- CI/CD integration
+- Sharing with team
+
+---
+
+## Support
+
+**Getting Help:**
+1. [Postman Learning Center](https://learning.postman.com/)
+2. [API Reference](/api-reference)
+3. [Troubleshooting](/troubleshooting)
+4. Email: todd@aicoderally.com
+
+---
+
+## Related Documentation
+
+- [API Reference](/api-reference) - Complete endpoint docs
+- [Getting Started](/getting-started) - Initial setup
+- [Environment Variables](/deployment/environment-variables) - Configuration
+- [Testing](/development/testing) - Test strategies

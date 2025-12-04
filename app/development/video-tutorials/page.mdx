@@ -1,0 +1,543 @@
+export const metadata = {
+  title: 'Video Tutorials for AICodeRally',
+  description: 'Visual guides for common AICodeRally workflows and complex features'
+}
+
+# Video Tutorials
+
+**Last Updated:** 2025-12-04
+
+Learn AICodeRally through video walkthroughs of common workflows. Each video is 5-15 minutes with timestamps for quick navigation.
+
+---
+
+## Getting Started (Beginner)
+
+### 1. First 15 Minutes with AICodeRally
+**Duration:** 15 min | **Level:** Beginner
+
+**What you'll learn:**
+- Sign up and create account
+- Create your first Studio app
+- Run app locally
+- Deploy to Vercel
+- Access Edge Portal
+
+**Key timestamps:**
+- 0:00 - Introduction and project overview
+- 2:30 - Signing up for AICodeRally
+- 4:45 - Creating first app in Studio
+- 8:00 - Local development setup
+- 11:00 - Deployment to Vercel
+- 14:00 - Accessing Edge Portal
+
+**Follow along with:** [Getting Started Guide](/getting-started)
+
+---
+
+### 2. Environment Setup & Configuration
+**Duration:** 10 min | **Level:** Beginner
+
+**What you'll learn:**
+- Clone the repository
+- Install dependencies
+- Set up environment variables
+- Configure database
+- Start dev servers
+
+**Key timestamps:**
+- 0:00 - Repository overview
+- 1:30 - Cloning and installation
+- 3:45 - Environment variables explained
+- 6:00 - Database setup with Prisma
+- 8:00 - Starting dev servers
+- 9:30 - Troubleshooting common issues
+
+**Follow along with:** [Environment Variables](/deployment/environment-variables)
+
+---
+
+## Architecture & Concepts (Intermediate)
+
+### 3. Understanding Architecture 3.0
+**Duration:** 12 min | **Level:** Intermediate
+
+**What you'll learn:**
+- 4-layer architecture overview
+- How Modules work
+- Studio vs Edge vs Summit
+- Module composition
+- When to build vs integrate
+
+**Key timestamps:**
+- 0:00 - Architecture overview
+- 2:00 - Layer 1: Modules explained
+- 4:00 - Layer 2: Ideation Studio
+- 6:00 - Layer 3: Edge Portal
+- 8:00 - Layer 4: Summit Solutions
+- 9:30 - Module composition examples
+- 11:00 - Decision framework
+
+**Follow along with:** [Architecture 3.0](/architecture)
+
+---
+
+### 4. AI Router Deep Dive
+**Duration:** 14 min | **Level:** Intermediate
+
+**What you'll learn:**
+- How AI Router works
+- Budget system and cost control
+- Multi-provider routing
+- Prompt versioning (A/B testing)
+- Caching strategy for cost savings
+
+**Key timestamps:**
+- 0:00 - Introduction to AI Router
+- 2:00 - Request flow diagram
+- 4:00 - Budget system (4-level hierarchy)
+- 6:30 - Provider selection strategy
+- 8:00 - A/B testing with prompt versions
+- 10:00 - Caching: exact + semantic matching
+- 12:00 - Cost savings in action
+- 13:00 - Admin control center tour
+
+**Follow along with:** [AI Router Architecture](/architecture/ai-router)
+
+---
+
+### 5. Project Engine Lifecycle
+**Duration:** 11 min | **Level:** Intermediate
+
+**What you'll learn:**
+- Complete project lifecycle (9 states)
+- Approval gates and decision points
+- Task card system
+- Quality review process
+- Feedback loops
+
+**Key timestamps:**
+- 0:00 - Project lifecycle overview
+- 1:30 - States explained (INTAKE → COMPLETED)
+- 3:00 - Blueprint approval gate
+- 5:00 - Task generation and execution
+- 7:00 - Review and quality gates
+- 9:00 - Feedback loops and learning
+- 10:00 - Monitoring active projects
+
+**Follow along with:** [Project Engine](/architecture/project-engine)
+
+---
+
+## Development Workflows (Intermediate/Advanced)
+
+### 6. Building Your First Module
+**Duration:** 18 min | **Level:** Intermediate
+
+**What you'll learn:**
+- Module structure and organization
+- Create module from scratch
+- Add UI components
+- Export public API
+- Register in Studio
+- Test module
+
+**Key timestamps:**
+- 0:00 - Module architecture overview
+- 2:00 - Directory structure walkthrough
+- 4:00 - Creating index.ts and types
+- 6:30 - Building React components
+- 9:00 - Creating hooks
+- 11:00 - Exporting public API
+- 13:00 - Registering in Studio
+- 15:00 - Testing module locally
+- 17:00 - Common mistakes to avoid
+
+**Follow along with:** [Module Architecture](/architecture/module-architecture)
+
+---
+
+### 7. API Integration & Testing
+**Duration:** 13 min | **Level:** Intermediate
+
+**What you'll learn:**
+- Making API requests from components
+- Error handling patterns
+- Request/response types
+- Postman for API testing
+- Common API errors
+
+**Key timestamps:**
+- 0:00 - API basics overview
+- 2:00 - Fetch API in React
+- 4:00 - Error handling patterns
+- 6:00 - TypeScript with APIs
+- 8:00 - Postman collection walkthrough
+- 10:00 - Common errors and fixes
+- 12:00 - Testing checklist
+
+**Follow along with:** [Postman Guide](/development/postman-guide)
+
+---
+
+### 8. Database Operations with Prisma
+**Duration:** 15 min | **Level:** Intermediate/Advanced
+
+**What you'll learn:**
+- Prisma ORM basics
+- Schema definition
+- CRUD operations
+- Relationships and joins
+- Migrations
+- Performance optimization
+
+**Key timestamps:**
+- 0:00 - Prisma introduction
+- 2:00 - Schema file walkthrough
+- 4:30 - Creating records (CREATE)
+- 6:00 - Reading data (SELECT)
+- 8:00 - Updating records (UPDATE)
+- 9:30 - Deleting records (DELETE)
+- 10:30 - Relationships and joins
+- 12:00 - Creating migrations
+- 13:30 - Query optimization tips
+
+**Follow along with:** [Troubleshooting](/troubleshooting)
+
+---
+
+### 9. Authentication with NextAuth v5
+**Duration:** 12 min | **Level:** Intermediate/Advanced
+
+**What you'll learn:**
+- NextAuth v5 setup
+- OAuth provider configuration
+- Session management
+- Protected routes
+- Custom authentication
+
+**Key timestamps:**
+- 0:00 - NextAuth overview
+- 2:00 - Installation and setup
+- 3:30 - Creating auth.ts
+- 5:30 - OAuth provider (GitHub example)
+- 7:00 - Session usage in components
+- 8:30 - Protected routes and middleware
+- 10:00 - Debugging auth issues
+- 11:00 - Best practices
+
+**Follow along with:** [Environment Variables](/deployment/environment-variables)
+
+---
+
+## Advanced Topics (Advanced)
+
+### 10. Real-Time Features with Pusher
+**Duration:** 14 min | **Level:** Advanced
+
+**What you'll learn:**
+- Pusher setup and configuration
+- Client-side subscriptions
+- Server-side broadcasting
+- Real-time updates
+- Handling disconnections
+
+**Key timestamps:**
+- 0:00 - Real-time architecture overview
+- 2:00 - Pusher setup
+- 3:30 - Environment configuration
+- 5:00 - Client-side subscription
+- 7:00 - Server-side broadcasting
+- 9:00 - Event binding and handlers
+- 10:30 - Reconnection logic
+- 12:00 - Debugging real-time issues
+
+**Follow along with:** [FAQ - Real-Time Features](/faq#how-do-i-implement-real-time-features)
+
+---
+
+### 11. Performance Optimization
+**Duration:** 16 min | **Level:** Advanced
+
+**What you'll learn:**
+- Database query optimization
+- React component optimization
+- Bundle size reduction
+- Caching strategies
+- Monitoring and profiling
+
+**Key timestamps:**
+- 0:00 - Performance overview
+- 2:00 - Database optimization (Prisma)
+- 4:30 - React optimization (memoization, lazy loading)
+- 7:00 - Bundle size analysis
+- 9:00 - Caching strategies
+- 11:30 - Using DevTools
+- 13:00 - Identifying bottlenecks
+- 14:30 - Quick wins checklist
+
+**Follow along with:** [Troubleshooting - Performance](/troubleshooting#performance-issues)
+
+---
+
+### 12. Deployment & CI/CD
+**Duration:** 17 min | **Level:** Advanced
+
+**What you'll learn:**
+- Vercel deployment process
+- Environment variables in production
+- Automated deployments
+- Database migrations
+- Monitoring deployed apps
+
+**Key timestamps:**
+- 0:00 - Deployment overview
+- 2:00 - Setting up Vercel
+- 4:00 - Environment configuration
+- 6:00 - GitHub integration
+- 7:30 - First deployment walkthrough
+- 9:00 - Database migrations in production
+- 10:30 - Vercel dashboard tour
+- 12:00 - Monitoring and logs
+- 14:00 - Troubleshooting deployment issues
+- 16:00 - Best practices
+
+**Follow along with:** [Deployment Guide](/deployment)
+
+---
+
+## Feature Demonstrations (Intermediate/Advanced)
+
+### 13. Rally AI Command-Line Tool
+**Duration:** 10 min | **Level:** Intermediate
+
+**What you'll learn:**
+- Rally AI installation
+- CLI commands overview
+- Using for feature design
+- Sprint planning workflow
+- Validation before deployment
+
+**Key timestamps:**
+- 0:00 - Rally AI introduction
+- 1:30 - Installation
+- 2:30 - Available commands
+- 3:30 - Design command walkthrough
+- 5:00 - Sprint planning
+- 7:00 - Validate command
+- 8:30 - Output interpretation
+- 9:00 - Next steps
+
+**Follow along with:** [Rally AI Documentation](/tools/rally-ai)
+
+---
+
+### 14. Pit Wall Collaboration Features
+**Duration:** 12 min | **Level:** Intermediate
+
+**What you'll learn:**
+- Creating discussion threads
+- Adding comments
+- Using reactions
+- Managing stakeholders
+- File attachments
+
+**Key timestamps:**
+- 0:00 - Pit Wall overview
+- 1:30 - Creating threads
+- 3:30 - Adding comments
+- 5:00 - Using reactions
+- 6:00 - Thread organization
+- 7:00 - Stakeholder management
+- 8:30 - Uploading attachments
+- 10:00 - Notification system
+- 11:00 - Best practices
+
+**Follow along with:** [API Reference - Pit Wall](/api-reference#pit-wall-collaboration)
+
+---
+
+### 15. AI Gateway & Multi-Provider Routing
+**Duration:** 13 min | **Level:** Intermediate/Advanced
+
+**What you'll learn:**
+- AI Gateway overview
+- BYOK (Bring Your Own Key) setup
+- Provider configuration
+- Unified endpoint usage
+- Monitoring and analytics
+
+**Key timestamps:**
+- 0:00 - AI Gateway introduction
+- 2:00 - BYOK setup in Vercel
+- 4:00 - Provider keys (Anthropic, OpenAI, Google)
+- 6:00 - Token management
+- 7:30 - Testing gateway
+- 9:00 - Vercel dashboard tour
+- 10:30 - Monitoring requests
+- 12:00 - Troubleshooting
+
+**Follow along with:** [AI Gateway Integration](/integration/ai-gateway)
+
+---
+
+## Troubleshooting Guides (All Levels)
+
+### 16. Debugging Common Issues
+**Duration:** 15 min | **Level:** Beginner/Intermediate
+
+**What you'll learn:**
+- Reading error messages
+- Using browser DevTools
+- Server-side debugging
+- Database issues
+- Authentication problems
+
+**Key timestamps:**
+- 0:00 - Error message analysis
+- 2:30 - Browser DevTools walkthrough
+- 5:00 - Network tab debugging
+- 7:00 - Console errors
+- 8:30 - Server logs
+- 10:00 - Database connection issues
+- 11:30 - Auth troubleshooting
+- 13:00 - Getting help
+
+**Follow along with:** [Troubleshooting](/troubleshooting)
+
+---
+
+### 17. Performance Debugging
+**Duration:** 14 min | **Level:** Intermediate/Advanced
+
+**What you'll learn:**
+- Identifying slow endpoints
+- Database query analysis
+- Frontend performance metrics
+- Network waterfall
+- Memory profiling
+
+**Key timestamps:**
+- 0:00 - Performance profiling overview
+- 2:00 - Chrome DevTools performance tab
+- 4:30 - Identifying bottlenecks
+- 6:30 - Database slow queries
+- 8:00 - React profiler
+- 10:00 - Network analysis
+- 11:30 - Memory leaks
+- 13:00 - Optimization checklist
+
+**Follow along with:** [FAQ - Performance](/faq#why-is-my-app-slow)
+
+---
+
+## Complete Tutorials (Project-Based)
+
+### 18. Build a Complete App: From Idea to Deployment
+**Duration:** 45 min | **Level:** Intermediate
+
+**Project:** Build a simple "Team Attendance" app
+
+**What you'll build:**
+- Studio app for attendance
+- Database schema
+- API endpoints
+- UI components
+- Deploy to Vercel
+
+**Sections:**
+1. Planning (5 min)
+2. Setup & Environment (5 min)
+3. Database schema (8 min)
+4. API endpoints (10 min)
+5. UI components (10 min)
+6. Testing (3 min)
+7. Deployment (4 min)
+
+**Follow along with:** [Getting Started](/getting-started)
+
+---
+
+### 19. Build an Advanced Feature: Real-Time Notifications
+**Duration:** 60 min | **Level:** Advanced
+
+**Project:** Add real-time notifications to attendance app
+
+**What you'll build:**
+- Pusher integration
+- Real-time listeners
+- Notification UI
+- Persistence to database
+- Testing
+
+**Sections:**
+1. Architecture planning (8 min)
+2. Pusher setup (7 min)
+3. Server-side broadcasting (10 min)
+4. Client-side subscription (12 min)
+5. UI components (15 min)
+6. Testing and debugging (5 min)
+7. Production considerations (3 min)
+
+**Follow along with:** [FAQ - Real-Time](/faq#how-do-i-implement-real-time-features)
+
+---
+
+## Quick Reference Videos (< 5 min)
+
+### Common Tasks
+
+- Environment variables quick setup (2 min)
+- Running dev servers (1 min)
+- Creating migrations (2 min)
+- Deploying to Vercel (3 min)
+- Accessing logs (2 min)
+- Managing GitHub secrets (2 min)
+
+---
+
+## Viewing & Navigation Tips
+
+### Bookmark Playlists
+
+Create playlists in your video platform:
+- **Getting Started** - Videos 1-2
+- **Architecture** - Videos 3-5
+- **Development** - Videos 6-12
+- **Advanced** - Videos 13-17
+- **Projects** - Videos 18-19
+
+### Download for Offline
+
+All videos available for download (50-200 MB each)
+
+### Subtitles & Transcripts
+
+Every video includes:
+- ✅ Closed captions (CC)
+- ✅ Transcripts (searchable)
+- ✅ Timestamps (in description)
+
+---
+
+## Feedback & Requests
+
+Help us create better tutorials!
+
+**Suggest a topic:**
+- GitHub Issues: https://github.com/AICodeRally/aicoderally-stack/issues
+- Email: todd@aicoderally.com
+
+**Report issues:**
+- Incorrect information
+- Technical problems
+- Audio/video quality
+
+---
+
+## Related Documentation
+
+- [Getting Started](/getting-started) - Text guides
+- [Troubleshooting](/troubleshooting) - Problem solutions
+- [API Reference](/api-reference) - Endpoint docs
+- [Postman Guide](/development/postman-guide) - API testing

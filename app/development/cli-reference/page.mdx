@@ -1,0 +1,694 @@
+export const metadata = {
+  title: 'Rally AI CLI Reference',
+  description: 'Complete command reference for the rally-ai command-line tool'
+}
+
+# Rally AI CLI Reference
+
+**Last Updated:** 2025-12-04
+
+Complete reference for the Rally AI command-line interface - a multi-AI orchestration tool that uses Claude, GPT-4, and Gemini together.
+
+---
+
+## Installation
+
+### Install Globally
+
+```bash
+npm install -g rally-ai
+# or
+pnpm add -g rally-ai
+```
+
+### Verify Installation
+
+```bash
+rally-ai --version
+```
+
+### Update
+
+```bash
+npm update -g rally-ai
+```
+
+---
+
+## Configuration
+
+### Environment Variables
+
+Create `.rally-ai.env` in your project root:
+
+```bash
+# AI Provider Keys (required - use at least one)
+ANTHROPIC_API_KEY="sk-ant-..."
+OPENAI_API_KEY="sk-..."
+GOOGLE_API_KEY="..."
+
+# Optional Configuration
+RALLY_VERBOSE=true          # Detailed output
+RALLY_OUTPUT_DIR="./rally"  # Output directory for generated files
+RALLY_LOG_LEVEL="debug"     # Log level: debug, info, warn, error
+RALLY_MODEL_PREFERENCE="claude" # Default model when not specified
+```
+
+### Load Configuration
+
+```bash
+# Automatically loads .rally-ai.env in current directory
+rally-ai command
+
+# Or specify config file
+rally-ai --config ./config/.rally-ai.env command
+```
+
+---
+
+## Global Options
+
+Available with all commands:
+
+```bash
+rally-ai [command] [options]
+
+Options:
+  -v, --version              Show version
+  -h, --help                 Show help
+  --verbose                  Verbose output
+  --config <path>           Config file path
+  --output-dir <path>       Output directory
+  --log-level <level>       Log level
+  --model <model>           Specify AI model
+  --no-color                Disable colored output
+  --json                    JSON output format
+```
+
+---
+
+## Core Commands
+
+### 1. Design
+
+Create comprehensive feature designs using multi-AI consensus.
+
+```bash
+rally-ai design "<feature-description>" [options]
+```
+
+**Description:**
+- Generates feature specifications
+- Multiple AI models review and validate
+- Produces design document
+
+**Examples:**
+
+```bash
+# Basic design
+rally-ai design "Add user authentication with OAuth"
+
+# With detail level
+rally-ai design "Build real-time chat feature" --detail comprehensive
+
+# Save to specific file
+rally-ai design "Create dashboard widgets" --output "design.md"
+
+# Get AI consensus on design
+rally-ai design "Mobile payment integration" --consensus
+```
+
+**Options:**
+```
+--detail <level>          Detail level: basic, standard, comprehensive
+--output <file>           Output file name
+--consensus              Get consensus from all models
+--format <format>        Output format: md, json, html
+--no-examples           Skip code examples
+```
+
+**Output:**
+```markdown
+# Feature Design: User Authentication
+
+## Overview
+[AI-generated overview]
+
+## Requirements
+- Requirement 1
+- Requirement 2
+
+## Architecture
+[System design]
+
+## Implementation Steps
+1. Step 1
+2. Step 2
+
+## Testing Strategy
+[QA approach]
+
+## Risk Assessment
+[Known risks]
+```
+
+---
+
+### 2. Validate
+
+Validate code quality, security, and architecture before deployment.
+
+```bash
+rally-ai validate [file-or-directory] [options]
+```
+
+**Description:**
+- Code quality checks
+- Security vulnerability scanning
+- Architecture compliance
+- Performance analysis
+- Multiple AI models review
+
+**Examples:**
+
+```bash
+# Validate single file
+rally-ai validate app/api/route.ts
+
+# Validate entire directory
+rally-ai validate ./apps/studio
+
+# Run specific checks
+rally-ai validate . --check security,performance
+
+# Strict mode (fail on warnings)
+rally-ai validate . --strict
+
+# Save report
+rally-ai validate . --report validation-report.html
+```
+
+**Options:**
+```
+--check <checks>         Specific checks: security, performance,
+                         quality, architecture, all
+--strict                 Fail on warnings (not just errors)
+--report <file>         Save HTML/JSON report
+--ignore <pattern>      Ignore files matching pattern
+--threshold <score>     Minimum quality score
+```
+
+**Output:**
+```
+✓ Code Quality: A (95/100)
+✓ Security: B+ (87/100)
+⚠ Performance: B (78/100)
+✗ Architecture: C (65/100)
+
+Issues Found:
+1. [CRITICAL] SQL injection vulnerability in user.ts:45
+2. [WARNING] Unoptimized database query in dashboard.tsx:120
+3. [INFO] Consider adding error boundary wrapper
+```
+
+---
+
+### 3. Collaborate
+
+Get AI-powered collaboration on architecture decisions, code reviews, and design patterns.
+
+```bash
+rally-ai collaborate "<topic>" [options]
+```
+
+**Description:**
+- Multi-AI discussion on topic
+- Get multiple perspectives
+- Reach consensus
+- Document decisions
+
+**Examples:**
+
+```bash
+# Architecture discussion
+rally-ai collaborate "Should we use microservices or monolith?"
+
+# Code review discussion
+rally-ai collaborate "Best practices for handling async errors in React"
+
+# Design pattern question
+rally-ai collaborate "Caching strategy for user-specific data"
+
+# Get detailed consensus
+rally-ai collaborate "API authentication approach" --detailed
+```
+
+**Options:**
+```
+--detailed              Show detailed reasoning from each model
+--format <format>      Output format: md, json, consensus
+--round <n>           Number of discussion rounds (1-5)
+--focus <area>        Focus on specific aspect
+```
+
+**Output:**
+```
+# Collaboration: Microservices vs Monolith
+
+## Models' Perspectives
+
+### Claude (Anthropic)
+- Recommendation: Monolith for MVP
+- Reasoning: Lower operational complexity
+- Risks: Scaling challenges later
+
+### GPT-4 (OpenAI)
+- Recommendation: Hybrid approach
+- Reasoning: Services for independent scaling
+- Risks: Additional complexity
+
+### Gemini (Google)
+- Recommendation: Monolith with modular architecture
+- Reasoning: Best of both worlds
+- Risks: Requires discipline
+
+## Consensus
+Start with monolith, plan modular extraction points.
+```
+
+---
+
+### 4. Sprint-Plan
+
+Generate comprehensive sprint plans including stories, tasks, and estimates.
+
+```bash
+rally-ai sprint-plan "<project-description>" [options]
+```
+
+**Description:**
+- Create sprint schedule
+- Break into user stories
+- Estimate effort
+- Define acceptance criteria
+- Multiple AI models review
+
+**Examples:**
+
+```bash
+# Basic sprint plan
+rally-ai sprint-plan "Build user dashboard"
+
+# 4-week plan for specific team
+rally-ai sprint-plan "Redesign checkout flow" --duration 4 --team-size 5
+
+# Get AI consensus on estimate
+rally-ai sprint-plan "Add payment processing" --estimate-consensus
+
+# Save sprint board format
+rally-ai sprint-plan "Email notification system" --format jira
+```
+
+**Options:**
+```
+--duration <weeks>      Sprint duration in weeks (1-12)
+--team-size <n>         Team size for capacity planning
+--estimate-consensus    Get consensus on story estimates
+--format <format>       Output: md, json, jira, linear
+--velocity <n>         Previous team velocity
+```
+
+**Output:**
+```markdown
+# Sprint Plan: Build User Dashboard (3 weeks)
+
+## Week 1: Foundation
+### Story 1: User Profile Component
+- Tasks: 5
+- Estimate: 8 points
+- Acceptance Criteria:
+  - Displays user info
+  - Editable fields
+  - Save functionality
+
+### Story 2: Profile Data API
+- Tasks: 3
+- Estimate: 5 points
+
+## Week 2: Features
+[More stories...]
+
+## Estimates
+- Claude: 21 points
+- GPT-4: 23 points
+- Gemini: 20 points
+- **Consensus: 21 points**
+```
+
+---
+
+### 5. Workflow
+
+Guide through a complete development workflow with AI assistance at each step.
+
+```bash
+rally-ai workflow "<feature-name>" [options]
+```
+
+**Description:**
+- Step-by-step guidance
+- AI at each phase
+- Best practices
+- Quality gates
+
+**Phases:**
+1. Design - Create specifications
+2. Plan - Break into tasks
+3. Develop - Code with suggestions
+4. Review - Get feedback
+5. Test - Validation
+6. Deploy - Release plan
+
+**Examples:**
+
+```bash
+# Complete workflow for feature
+rally-ai workflow "Add real-time notifications"
+
+# Start from specific phase
+rally-ai workflow "Payment integration" --start-phase develop
+
+# Interactive mode
+rally-ai workflow "Search feature" --interactive
+
+# Auto-advance on completion
+rally-ai workflow "API rate limiting" --auto-advance
+```
+
+**Options:**
+```
+--interactive          Interactive mode (confirm at each step)
+--start-phase <phase>  Start from specific phase
+--auto-advance        Auto-advance to next phase
+--save-progress       Save progress between sessions
+```
+
+---
+
+## Utility Commands
+
+### Help
+
+```bash
+rally-ai help [command]
+
+Examples:
+rally-ai help              # Show all commands
+rally-ai help design       # Help for design command
+rally-ai help --verbose    # Detailed help
+```
+
+### Version
+
+```bash
+rally-ai --version
+
+# Check for updates
+rally-ai --check-updates
+```
+
+### Config
+
+Manage configuration:
+
+```bash
+# Show current config
+rally-ai config show
+
+# Set a value
+rally-ai config set RALLY_OUTPUT_DIR ./output
+
+# List all settings
+rally-ai config list
+
+# Reset to defaults
+rally-ai config reset
+```
+
+### Reset
+
+Clear cached data and models:
+
+```bash
+# Clear cache
+rally-ai reset cache
+
+# Clear all data (careful!)
+rally-ai reset all
+```
+
+---
+
+## Model Selection
+
+Specify which AI models to use:
+
+```bash
+# Use specific model
+rally-ai design "..." --model claude
+
+# Multiple models for consensus
+rally-ai validate . --models claude,gpt4,gemini
+
+# Model options:
+# - claude (Anthropic Claude 3.5 Sonnet)
+# - gpt4 (OpenAI GPT-4o)
+# - gemini (Google Gemini 2.0)
+# - all (default: all three for consensus)
+```
+
+---
+
+## Output Formats
+
+Choose output format for commands:
+
+```bash
+# Markdown (default)
+rally-ai design "..." --format md
+
+# JSON (for processing)
+rally-ai design "..." --format json
+
+# HTML (for sharing)
+rally-ai design "..." --format html
+
+# Plain text
+rally-ai design "..." --format text
+```
+
+---
+
+## Advanced Usage
+
+### Piping
+
+Use with other tools:
+
+```bash
+# Save output to file
+rally-ai design "..." > design.md
+
+# Copy to clipboard (macOS)
+rally-ai design "..." | pbcopy
+
+# Pass to another tool
+rally-ai validate . --format json | jq .
+```
+
+### Scripting
+
+Use in scripts:
+
+```bash
+#!/bin/bash
+
+FEATURES=("auth" "payments" "notifications")
+
+for feature in "${FEATURES[@]}"; do
+  echo "Planning: $feature"
+  rally-ai design "$feature" --output "designs/$feature.md"
+done
+```
+
+### Batch Operations
+
+Process multiple items:
+
+```bash
+# Validate all services
+for service in apps/*/; do
+  rally-ai validate "$service"
+done
+```
+
+---
+
+## Environment Setup
+
+### Quick Start
+
+```bash
+# 1. Get API keys
+export ANTHROPIC_API_KEY="your-key"
+export OPENAI_API_KEY="your-key"
+export GOOGLE_API_KEY="your-key"
+
+# 2. Create config file
+cat > .rally-ai.env << EOF
+ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY
+OPENAI_API_KEY=$OPENAI_API_KEY
+GOOGLE_API_KEY=$GOOGLE_API_KEY
+EOF
+
+# 3. Verify installation
+rally-ai --version
+
+# 4. Run first command
+rally-ai design "Test feature"
+```
+
+### Troubleshooting
+
+**Command not found:**
+```bash
+# Check installation
+npm list -g rally-ai
+
+# Reinstall if needed
+npm install -g rally-ai --force
+```
+
+**API key errors:**
+```bash
+# Verify keys are set
+echo $ANTHROPIC_API_KEY
+
+# Check config file
+rally-ai config show
+```
+
+**Permission errors:**
+```bash
+# Fix with chmod
+chmod +x $(npm list -g rally-ai | head -1)/.bin/rally-ai
+```
+
+---
+
+## Common Workflows
+
+### Design → Validate → Plan
+
+```bash
+# 1. Design feature
+rally-ai design "Authentication system" --output design.md
+
+# 2. Validate design
+rally-ai validate design.md
+
+# 3. Create sprint plan
+rally-ai sprint-plan "Authentication system" \
+  --detail comprehensive \
+  --team-size 3 \
+  --duration 2
+```
+
+### Code Review Collaboration
+
+```bash
+# Get feedback on approach
+rally-ai collaborate "Best way to implement caching"
+
+# Validate implementation
+rally-ai validate ./cache-implementation.ts
+
+# Plan next iteration
+rally-ai sprint-plan "Optimize cache eviction"
+```
+
+### Feature Development
+
+```bash
+# Full workflow with guidance
+rally-ai workflow "Real-time notifications" --interactive
+```
+
+---
+
+## Tips & Best Practices
+
+✅ **DO:**
+- Use multiple models for consensus on important decisions
+- Validate before committing code
+- Run design phase before implementing
+- Save outputs for team reference
+- Use meaningful feature descriptions
+
+❌ **DON'T:**
+- Skip validation before deployment
+- Use vague descriptions (provide context)
+- Rely on single model for critical decisions
+- Run against large codebases without filtering
+- Ignore warnings in strict mode
+
+---
+
+## Performance Tips
+
+- **Large codebases:** Validate specific directories, not entire repo
+- **API keys:** Keep them in environment, never commit
+- **Batch operations:** Combine related features
+- **Caching:** Rally AI caches model responses for 1 hour
+- **Timeout:** Default 5min, increase with --timeout for large projects
+
+---
+
+## Support & Resources
+
+**Getting Help:**
+```bash
+# In-tool help
+rally-ai help [command]
+
+# Verbose output for debugging
+rally-ai --verbose design "..."
+
+# Version info
+rally-ai --version
+```
+
+**Online Resources:**
+- [Documentation](/development/cli-reference)
+- [Video Tutorials](/development/video-tutorials)
+- [GitHub Issues](https://github.com/AICodeRally/aicoderally-stack/issues)
+- Email: todd@aicoderally.com
+
+---
+
+## Version History
+
+| Version | Date | Notable Changes |
+|---------|------|-----------------|
+| 2.0.0 | 2025-12-04 | Workflow command, improved consensus |
+| 1.5.0 | 2025-11-15 | Validate command, security checks |
+| 1.0.0 | 2025-10-01 | Initial release |
+
+---
+
+## Related Documentation
+
+- [Getting Started](/getting-started) - Initial setup
+- [Video Tutorials](/development/video-tutorials) - Visual guides
+- [Development Guide](/development) - Development overview
+- [API Reference](/api-reference) - API documentation

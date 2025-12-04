@@ -1,0 +1,504 @@
+{
+  "info": {
+    "_postman_id": "aicoderally-api-collection",
+    "name": "AICodeRally API Collection",
+    "description": "Complete API reference for AICodeRally platform with pre-configured endpoints, authentication, and examples.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Get Session",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/session",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "session"]
+            },
+            "description": "Get current user session"
+          }
+        },
+        {
+          "name": "Sign Out",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{base_url}}/api/auth/signout",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "signout"]
+            },
+            "description": "Sign out current user"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Studio APIs",
+      "item": [
+        {
+          "name": "AI Chat",
+          "item": [
+            {
+              "name": "POST - Chat with AI",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"message\": \"How do I implement authentication?\",\n  \"context\": \"NextAuth v5 with OAuth\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/ai/chat",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "ai", "chat"]
+                },
+                "description": "Send message to AI and get response"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Business Model Generation",
+          "item": [
+            {
+              "name": "POST - Generate Business Models",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"industry\": \"SaaS\",\n  \"targetAudience\": \"Small businesses\",\n  \"problem\": \"Project management\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/ai/generate-business-models",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "ai", "generate-business-models"]
+                },
+                "description": "Generate business model suggestions"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Roadmap Generation",
+          "item": [
+            {
+              "name": "POST - Generate Roadmap",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"product\": \"Project Management App\",\n  \"goals\": [\"Improve collaboration\", \"Reduce overhead\"],\n  \"timeline\": \"6 months\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/ai/generate-roadmap",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "ai", "generate-roadmap"]
+                },
+                "description": "Generate product roadmap"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Consensus Engine",
+          "item": [
+            {
+              "name": "POST - Get AI Consensus",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"question\": \"Should we use microservices?\",\n  \"options\": [\"Yes\", \"No\", \"Maybe - use monolith first\"],\n  \"context\": \"Early stage startup with 3 engineers\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/consensus",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "consensus"]
+                },
+                "description": "Get consensus from multiple AI models"
+              }
+            }
+          ]
+        },
+        {
+          "name": "AI Memory",
+          "item": [
+            {
+              "name": "GET - List Memory Files",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/api/ai-memory",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "ai-memory"]
+                },
+                "description": "List all AI memory files"
+              }
+            },
+            {
+              "name": "GET - Get Memory File",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/api/ai-memory/project-context",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "ai-memory", "project-context"]
+                },
+                "description": "Get specific memory file content"
+              }
+            },
+            {
+              "name": "POST - Update Memory File",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"content\": \"Project uses Next.js 15, TypeScript, Prisma ORM, PostgreSQL\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/ai-memory/tech-stack",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "ai-memory", "tech-stack"]
+                },
+                "description": "Create or update memory file"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Pit Wall (Collaboration)",
+      "item": [
+        {
+          "name": "Threads",
+          "item": [
+            {
+              "name": "GET - Get Threads",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/api/pit-wall/threads/dashboard-module",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "pit-wall", "threads", "dashboard-module"]
+                },
+                "description": "Get discussion threads for module"
+              }
+            },
+            {
+              "name": "POST - Create Thread",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Dashboard performance optimization\",\n  \"initialComment\": \"We should add virtualization for large datasets\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/pit-wall/threads/dashboard-module",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "pit-wall", "threads", "dashboard-module"]
+                },
+                "description": "Create new discussion thread"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Comments",
+          "item": [
+            {
+              "name": "GET - Get Comments",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/api/pit-wall/threads/module-123/comments",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "pit-wall", "threads", "module-123", "comments"]
+                },
+                "description": "Get comments on thread"
+              }
+            },
+            {
+              "name": "POST - Add Comment",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"body\": \"Great idea! Let's implement this in the next sprint.\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/pit-wall/threads/module-123/comments",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "pit-wall", "threads", "module-123", "comments"]
+                },
+                "description": "Add comment to thread"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reactions",
+          "item": [
+            {
+              "name": "POST - Add Reaction",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"emoji\": \"👍\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/pit-wall/comments/comment-123/reactions",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "pit-wall", "comments", "comment-123", "reactions"]
+                },
+                "description": "Add emoji reaction to comment"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Edge APIs",
+      "item": [
+        {
+          "name": "Vendors (TacoFinder)",
+          "item": [
+            {
+              "name": "GET - List Vendors",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/api/vendors?category=food&rating=4.5",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "vendors"],
+                  "query": [
+                    {
+                      "key": "category",
+                      "value": "food"
+                    },
+                    {
+                      "key": "rating",
+                      "value": "4.5"
+                    }
+                  ]
+                },
+                "description": "List vendors with filters"
+              }
+            },
+            {
+              "name": "GET - Get Vendor",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/api/vendors/vendor-123",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "vendors", "vendor-123"]
+                },
+                "description": "Get vendor details"
+              }
+            },
+            {
+              "name": "GET - Get Menu",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/api/vendors/vendor-123/menu",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "vendors", "vendor-123", "menu"]
+                },
+                "description": "Get vendor menu items"
+              }
+            },
+            {
+              "name": "GET - Get Reviews",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/api/vendors/vendor-123/reviews",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "vendors", "vendor-123", "reviews"]
+                },
+                "description": "Get vendor reviews"
+              }
+            },
+            {
+              "name": "POST - Add Review",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"rating\": 5,\n  \"comment\": \"Best tacos in town!\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/vendors/vendor-123/reviews",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "vendors", "vendor-123", "reviews"]
+                },
+                "description": "Add review to vendor"
+              }
+            },
+            {
+              "name": "POST - Check In",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"latitude\": 40.7128,\n  \"longitude\": -74.0060\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/vendors/vendor-123/check-in",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "vendors", "vendor-123", "check-in"]
+                },
+                "description": "Check in to vendor location"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Win The Pick (NFL)",
+          "item": [
+            {
+              "name": "GET - Get Games",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/api/win-the-pick",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "win-the-pick"]
+                },
+                "description": "Get NFL games for this week"
+              }
+            },
+            {
+              "name": "POST - Submit Picks",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"week\": 1,\n  \"picks\": [\n    {\"gameId\": \"game-1\", \"teamId\": \"team-123\"},\n    {\"gameId\": \"game-2\", \"teamId\": \"team-456\"}\n  ]\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/user-picks",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "user-picks"]
+                },
+                "description": "Submit your weekly picks"
+              }
+            },
+            {
+              "name": "GET - AI Predictions",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/api/ai-predictions",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "ai-predictions"]
+                },
+                "description": "Get AI predictions for games"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3001",
+      "type": "string"
+    },
+    {
+      "key": "auth_token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{auth_token}}",
+        "type": "string"
+      }
+    ]
+  }
+}

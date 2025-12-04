@@ -80,12 +80,12 @@ export default function RootLayout({
               <div>
                 <h4 className="font-semibold text-sm text-gray-900 mb-3">Resources</h4>
                 <div className="flex flex-col gap-2 text-sm">
+                  <a href="/development/onboarding" className="text-gray-600 hover:text-violet-600 transition-colors">1-Hour Onboarding</a>
+                  <a href="/development/video-tutorials" className="text-gray-600 hover:text-violet-600 transition-colors">Video Tutorials</a>
+                  <a href="/development/postman-guide" className="text-gray-600 hover:text-violet-600 transition-colors">Postman Guide</a>
+                  <a href="/development/cli-reference" className="text-gray-600 hover:text-violet-600 transition-colors">CLI Reference</a>
+                  <a href="/architecture/visualizer" className="text-gray-600 hover:text-violet-600 transition-colors">Architecture Visualizer</a>
                   <a href="/integration/ai-gateway" className="text-gray-600 hover:text-violet-600 transition-colors">AI Gateway Guide</a>
-                  <a href="/development/prompt-library" className="text-gray-600 hover:text-violet-600 transition-colors">Prompt Library</a>
-                  <a href="https://github.com/AICodeRally/aicoderally-stack/blob/master/UNIFIED_ARCHITECTURE.md" className="text-gray-600 hover:text-violet-600 transition-colors">Master Architecture Doc</a>
-                  <a href="/architecture/master-context" className="text-gray-600 hover:text-violet-600 transition-colors">Master Context (Repo Map)</a>
-                  <a href="https://aicoderally.com" className="text-gray-600 hover:text-violet-600 transition-colors">Main Website</a>
-                  <a href="https://github.com/AICodeRally/aicoderally-stack" className="text-gray-600 hover:text-violet-600 transition-colors">GitHub</a>
                 </div>
               </div>
               <div>

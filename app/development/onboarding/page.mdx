@@ -1,0 +1,592 @@
+export const metadata = {
+  title: 'Developer Onboarding Guide',
+  description: 'Get up and running with AICodeRally in one hour - from environment setup to your first deployed feature'
+}
+
+# Developer Onboarding Guide
+
+**Target Time:** 60 minutes | **Level:** Beginner
+
+Welcome to AICodeRally! This guide will get you from zero to deploying your first feature in one hour.
+
+---
+
+## ⏱️ One-Hour Timeline
+
+| Time | Task | Duration |
+|------|------|----------|
+| 0:00 - 0:05 | Environment Setup | 5 min |
+| 0:05 - 0:10 | Clone & Install | 5 min |
+| 0:10 - 0:25 | Architecture Basics | 15 min |
+| 0:25 - 0:35 | Make First API Call | 10 min |
+| 0:35 - 0:55 | Deploy First Feature | 20 min |
+| 0:55 - 1:00 | Next Steps & Resources | 5 min |
+
+---
+
+## Phase 1: Environment Setup (5 minutes)
+
+### Prerequisites
+You need:
+- **Git** - [Download](https://git-scm.com/downloads)
+- **Node.js 18+** - [Download](https://nodejs.org/)
+- **pnpm** - `npm install -g pnpm`
+- **Code editor** - VS Code, Zed, or similar
+- **Vercel account** - [Sign up free](https://vercel.com)
+
+### Verify Installation
+
+```bash
+# Check versions (run in terminal)
+node --version      # Should be v18.0.0 or higher
+pnpm --version      # Should be v8.0.0 or higher
+git --version       # Should be 2.30.0 or higher
+```
+
+✅ **You're ready if all three show versions!**
+
+---
+
+## Phase 2: Clone & Install (5 minutes)
+
+### Clone Repository
+
+```bash
+# Navigate to where you want the project
+cd ~/dev
+
+# Clone the AICodeRally stack
+git clone https://github.com/AICodeRally/aicoderally-stack.git
+cd aicoderally-stack
+
+# Check you're on main branch
+git branch    # Should show main with *
+```
+
+### Install Dependencies
+
+```bash
+# Install all packages (includes all 3 apps)
+pnpm install
+
+# This installs:
+# - Studio (app/studio)
+# - Edge (app/edge)
+# - Summit (app/summit)
+# - Shared packages (packages/*)
+# Takes 2-3 minutes
+```
+
+### Set Up Environment Variables
+
+```bash
+# Copy the example environment file
+cp .env.example .env
+
+# Open .env in your editor and add:
+# 1. DATABASE_URL (get from Vercel PostgreSQL)
+# 2. NEXTAUTH_SECRET (generate: openssl rand -base64 32)
+# 3. ANTHROPIC_API_KEY (from Anthropic Console)
+
+# For now, just set these required ones:
+NEXTAUTH_SECRET="your-random-secret-here"
+ANTHROPIC_API_KEY="sk-ant-your-key-here"
+```
+
+### Test Installation
+
+```bash
+# Start dev servers
+pnpm dev
+
+# You should see:
+# Studio running at: http://localhost:3000
+# Edge running at: http://localhost:3001
+# Summit running at: http://localhost:3002
+
+# Press Ctrl+C to stop
+```
+
+✅ **You're done if all 3 apps start without errors!**
+
+---
+
+## Phase 3: Understanding Architecture (15 minutes)
+
+### The 4-Layer System
+
+AICodeRally uses a 4-layer architecture. Understanding this is key:
+
+```
+Layer 1: Modules (130+ reusable building blocks)
+   ↓
+Layer 2: Ideation Studio (Build custom AI apps)
+   ↓
+Layer 3: Edge Portal (Deploy to production)
+   ↓
+Layer 4: Summit Solutions (Enterprise solutions)
+```
+
+### What Each Layer Does
+
+**Layer 1: Modules**
+- Reusable components (buttons, forms, layouts)
+- Pre-built features (AI chat, payments, auth)
+- Think: LEGO bricks
+
+```bash
+# View modules
+ls apps/studio/modules/
+# You'll see ~130 folders like:
+# - chat-interface/
+# - payment-processor/
+# - analytics-dashboard/
+# etc.
+```
+
+**Layer 2: Studio**
+- Drag-and-drop app builder
+- Compose modules into apps
+- Think: Assembling LEGO into something cool
+
+```bash
+# Studio source code
+ls apps/studio/
+# Components, pages, API routes, hooks
+```
+
+**Layer 3: Edge**
+- Deploy Studio apps to production
+- Handle user authentication
+- Manage data and API access
+- Think: Running your LEGO creation
+
+```bash
+# Edge source code
+ls apps/edge/
+# Production app infrastructure
+```
+
+**Layer 4: Summit**
+- Enterprise multi-tenant solutions
+- Advanced features, analytics, governance
+- Think: Managing hundreds of LEGO creations
+
+### Your First Understanding Task
+
+```bash
+# 1. Look at a real module
+cat apps/studio/modules/ai-chat/index.ts
+
+# 2. See what it exports
+# You'll see: components, hooks, types
+
+# 3. Find where it's used
+grep -r "ai-chat" apps/studio/
+
+# 4. Look at the Studio app structure
+ls apps/studio/app/
+# You'll see: layout, pages, components, api
+```
+
+**Key Concept**: Everything is modular. Each module is independent and reusable.
+
+### Quick Architecture Check
+
+Answer these to verify understanding:
+- Q: What's a module? A: Reusable component with UI + logic
+- Q: What's Studio? A: App builder where you use modules
+- Q: What's Edge? A: Production deployment of Studio apps
+- Q: What's Summit? A: Enterprise multi-tenant platform
+
+✅ **You understand the architecture if you can answer all 4!**
+
+---
+
+## Phase 4: Make First API Call (10 minutes)
+
+### Understanding the API
+
+AICodeRally provides APIs for:
+- **AI features** - Chat, business models, roadmaps
+- **Data operations** - CRUD on any data
+- **Authentication** - User sessions and identity
+- **Collaboration** - Comments, threads, discussions
+
+### Make Your First Call
+
+**Using Postman (Recommended)**
+
+```bash
+# 1. Download Postman
+# Visit: https://www.postman.com/downloads/
+
+# 2. Import the collection
+# In Postman: Click Import → Link tab
+# Paste: https://docs.aicoderally.com/postman-collection.json
+# Click Import
+
+# 3. Configure environment
+# Select: AICodeRally Dev
+# Set base_url: http://localhost:3001
+# Set auth_token: leave blank for now
+
+# 4. Make your first request
+# Go to: Collections → Authentication → Get Session
+# Click Send
+# You'll see your user info!
+```
+
+**Using cURL (If you prefer terminal)**
+
+```bash
+# Start dev servers first
+pnpm dev
+
+# Then in another terminal:
+curl -X GET http://localhost:3001/api/auth/session \
+  -H "Content-Type: application/json"
+
+# You'll get back JSON with user info
+```
+
+**Using fetch in JavaScript**
+
+```javascript
+// Open browser console (F12) while dev server is running
+// Then paste:
+
+fetch('http://localhost:3001/api/auth/session')
+  .then(res => res.json())
+  .then(data => console.log('User:', data))
+  .catch(err => console.error('Error:', err))
+```
+
+### Next: Try the AI Chat API
+
+```bash
+# In Postman:
+# Collections → Studio APIs → AI Chat → POST - Chat with AI
+
+# Modify body:
+{
+  "message": "What is AICodeRally?",
+  "context": "Developer onboarding"
+}
+
+# Click Send
+# You'll get an AI response!
+```
+
+### Understanding the Response
+
+```json
+{
+  "reply": "AICodeRally is...",
+  "usage": {
+    "input_tokens": 45,
+    "output_tokens": 120
+  },
+  "model": "claude-sonnet-4-5"
+}
+```
+
+**Key fields**:
+- `reply` - The AI's answer
+- `usage` - How many tokens (units of text)
+- `model` - Which AI model was used
+
+✅ **You're done if you got a response from the AI!**
+
+---
+
+## Phase 5: Deploy First Feature (20 minutes)
+
+### Create a Simple Feature
+
+We'll add a simple "Hello World" page to Studio app.
+
+**Step 1: Create a new page**
+
+```bash
+# Navigate to Studio app
+cd apps/studio/app
+
+# Create hello directory
+mkdir hello
+
+# Create page file
+touch hello/page.tsx
+```
+
+**Step 2: Write the page**
+
+```typescript
+// apps/studio/app/hello/page.tsx
+export default function HelloPage() {
+  return (
+    <div style={{ padding: '2rem' }}>
+      <h1>Hello, AICodeRally! 👋</h1>
+      <p>I just deployed my first feature!</p>
+      <button
+        onClick={() => alert('Feature works!')}
+        style={{
+          padding: '0.5rem 1rem',
+          backgroundColor: '#007bff',
+          color: 'white',
+          border: 'none',
+          borderRadius: '4px',
+          cursor: 'pointer'
+        }}
+      >
+        Click Me
+      </button>
+    </div>
+  )
+}
+```
+
+**Step 3: View locally**
+
+```bash
+# Make sure dev server is running
+pnpm dev
+
+# Visit: http://localhost:3000/hello
+# You should see your page!
+```
+
+### Deploy to Vercel
+
+**Step 1: Connect to GitHub**
+
+```bash
+# Make sure you're in the repo root
+cd ~/dev/aicoderally-stack
+
+# Check git status
+git status
+
+# Should show your new file:
+# Untracked files:
+#   apps/studio/app/hello/page.tsx
+```
+
+**Step 2: Commit your changes**
+
+```bash
+# Stage the file
+git add apps/studio/app/hello/page.tsx
+
+# Commit it
+git commit -m "feat: Add hello world feature for onboarding"
+
+# Push to GitHub
+git push origin main
+```
+
+**Step 3: Deploy with Vercel**
+
+```bash
+# Option A: Using CLI (quick)
+npm i -g vercel
+vercel
+
+# Option B: Using Dashboard (slower but visual)
+# 1. Go to https://vercel.com
+# 2. Connect your GitHub account
+# 3. Select aicoderally-stack repo
+# 4. Click Import
+# 5. Configure environment variables
+# 6. Click Deploy
+```
+
+**Step 4: See your deployed feature**
+
+```bash
+# After deployment completes, Vercel shows URL
+# Example: https://aicoderally-stack.vercel.app/hello
+
+# Open that URL in your browser
+# You should see your Hello World page!
+```
+
+### Verify Deployment
+
+```bash
+# Check your deployment status
+git log --oneline -5
+
+# You should see your commit:
+# a1b2c3d feat: Add hello world feature for onboarding
+# main → origin/main (pushed!)
+
+# Vercel auto-deploys your feature
+# Takes 1-2 minutes
+```
+
+✅ **You deployed your first feature if it's live online!**
+
+---
+
+## Phase 6: Next Steps & Resources (5 minutes)
+
+### Congratulations! 🎉
+
+You've completed:
+- ✅ Environment setup
+- ✅ Cloned the codebase
+- ✅ Understood the 4-layer architecture
+- ✅ Made your first API call
+- ✅ Deployed a feature to production
+
+You're now a contributor to AICodeRally!
+
+### Recommended Next Learning
+
+**Immediate Next (This week)**
+1. [Getting Started Guide](/getting-started) - Deep dive into the system
+2. [Video Tutorials](/development/video-tutorials) - Watch the Architecture 3.0 video (12 min)
+3. [Postman Guide](/development/postman-guide) - Learn all available APIs
+
+**This Month**
+4. [Module Architecture](/architecture/module-architecture) - How to build modules
+5. [API Reference](/api-reference) - All available endpoints
+6. [Environment Variables](/deployment/environment-variables) - Configuration options
+
+**Advanced Topics**
+7. [AI Router Deep Dive](/architecture/ai-router) - How multi-AI orchestration works
+8. [Project Engine](/architecture/project-engine) - Human-in-the-loop workflows
+9. [Rally AI CLI](/development/cli-reference) - Command-line tools for design & validation
+
+### Quick Reference Commands
+
+```bash
+# Start development
+pnpm dev
+
+# Run tests
+pnpm test
+
+# Check code quality
+pnpm lint
+
+# Build for production
+pnpm build
+
+# View documentation locally
+cd ../aicoderally-docs && pnpm dev
+# Visit: http://localhost:3000
+
+# Deploy to Vercel
+git push origin main
+# Auto-deploys in 1-2 minutes
+```
+
+### Getting Help
+
+**Problem Solving**
+- [Troubleshooting Guide](/troubleshooting) - Common issues and fixes
+- [FAQ](/faq) - Frequently asked questions with code examples
+- GitHub Issues: https://github.com/AICodeRally/aicoderally-stack/issues
+
+**Community**
+- Email: todd@aicoderally.com
+- GitHub Discussions: https://github.com/AICodeRally/aicoderally-stack/discussions
+- Check existing issues before creating new ones
+
+### Your Next Big Task
+
+Pick ONE to do next:
+
+1. **Build a Module** (45 min)
+   - Follow [Module Architecture](/architecture/module-architecture)
+   - Create a `greeting-card` module
+   - Deploy it to Edge
+   - [Video Tutorial](/development/video-tutorials#6-building-your-first-module) (18 min)
+
+2. **Learn the AI Router** (30 min)
+   - Read [AI Router Architecture](/architecture/ai-router)
+   - Try different model providers (Claude, GPT-4, Gemini)
+   - Experiment with caching
+   - [Video Tutorial](/development/video-tutorials#4-ai-router-deep-dive) (14 min)
+
+3. **Build a Real Feature** (2-4 hours)
+   - Follow [Project-Based Tutorial](/development/video-tutorials#18-build-a-complete-app-from-idea-to-deployment) (45 min video)
+   - Build a "Team Attendance" app
+   - Deploy to production
+   - Share with team
+
+### Quick Success Checklist
+
+Before moving to advanced topics, verify you can:
+
+- [ ] Clone and run the codebase locally
+- [ ] Access all 3 apps (Studio, Edge, Summit) at localhost:3000, 3001, 3002
+- [ ] Make API calls using Postman
+- [ ] Create a new page and see it locally
+- [ ] Commit code and push to GitHub
+- [ ] See your deployment live on Vercel
+- [ ] Navigate the documentation site
+- [ ] Find answers to questions in FAQ or Troubleshooting
+
+✅ **Congratulations on your first hour with AICodeRally!**
+
+---
+
+## Summary: 1-Hour Path to Contributing
+
+```
+Start (0:00)
+   ↓
+Environment Setup (0:05)
+   ↓
+Clone & Install (0:10)
+   ↓
+Learn Architecture (0:25)
+   ↓
+Make API Call (0:35)
+   ↓
+Deploy Feature (0:55)
+   ↓
+Celebrate! 🎉 (1:00)
+```
+
+---
+
+## Frequently Onboarded Questions
+
+**Q: I got an error during setup. What do I do?**
+A: Check [Troubleshooting Guide](/troubleshooting) or email todd@aicoderally.com
+
+**Q: How long does deployment take?**
+A: Usually 1-2 minutes. Check your Vercel dashboard for live status.
+
+**Q: Can I use Windows instead of Mac/Linux?**
+A: Yes! All tools work on Windows. Use Windows Terminal or PowerShell.
+
+**Q: What if I'm stuck on environment setup?**
+A: Skip to Phase 3 and come back to deployment later. Understanding architecture is more important than having perfect setup.
+
+**Q: Should I create a new app or use the existing ones?**
+A: For learning, use existing apps. You'll create new modules and features within them.
+
+**Q: How do I contribute to AICodeRally?**
+A: After onboarding, create a feature branch, make changes, and submit a pull request!
+
+---
+
+## Related Documentation
+
+- [Getting Started](/getting-started) - Comprehensive setup guide
+- [Video Tutorials](/development/video-tutorials) - Visual learning path
+- [Troubleshooting](/troubleshooting) - Problem solutions
+- [API Reference](/api-reference) - All endpoints documented
+- [Architecture Overview](/architecture) - System design
+- [Contributing Guide](/development/contributing) - How to contribute
+
+---
+
+**You're all set! Welcome to AICodeRally! 🚀**
+
+Next step: Pick one topic from "Your Next Big Task" and dive deeper!
